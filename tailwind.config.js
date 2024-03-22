@@ -1,4 +1,3 @@
-import { nextui } from '@nextui-org/react';
 /** @type {import('tailwindcss').Config} */
 
 module.exports = {
@@ -14,22 +13,24 @@ module.exports = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      fontFamily: {
+        display: ['"Noto Sans TC"', 'Helvetica', 'sans-serif', 'Arial'],
+      },
+      fontSize: {
+        h1: '48px',
+        h2: '40px',
+        h3: '32px',
+        h4: '24px',
+        h5: '20px',
+        h6: '16px',
+      },
+      colors: {
+        neongreen: '#A0FF1F',
+        neonpink: '#ff03ff',
+        light: '#fff',
+        dark: '#000',
+      },
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
 };
-
-/** @type {import('tailwindcss').Config} */
-const config = {
-  content: [
-    // ...
-    './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
-  ],
-  theme: {
-    extend: {},
-  },
-  darkMode: 'class',
-  plugins: [nextui()],
-};
-
-export default config;
