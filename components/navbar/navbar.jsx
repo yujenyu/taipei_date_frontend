@@ -10,7 +10,7 @@ export default function Header() {
   return (
     <>
       <div className="sticky top-0 z-50 navbar bg-dark">
-        <div className="navbar-start">
+        <div className="navbar-start ml-3">
           <Link href="/">
             <Logo />
           </Link>
@@ -41,7 +41,7 @@ export default function Header() {
             <li>
               <Link
                 className="text-base text-light hover:shadow-xl3 hover:text-neongreen sm:text-sm sm:px-1 md:px-4 lg:px-8"
-                href="#"
+                href="/community"
               >
                 社群媒體
               </Link>
@@ -75,7 +75,7 @@ export default function Header() {
         <div className="navbar-end">
           <button className=" btn-ghost btn-circle btn hover:shadow-xl3">
             <Link
-              className="flex justify-center text-2xl text-white align-middle"
+              className="flex justify-center text-2xl text-light hover:shadow-xl3 hover:text-neongreen align-middle"
               href="#"
             >
               <FaBell />
@@ -83,7 +83,10 @@ export default function Header() {
           </button>
           <button className="btn btn-ghost btn-circle hover:shadow-xl3">
             <div className="indicator">
-              <Link className="text-2xl text-white" href="#">
+              <Link
+                className="text-2xl text-light hover:shadow-xl3 hover:text-neongreen"
+                href="#"
+              >
                 <FaBookmark />
               </Link>
             </div>

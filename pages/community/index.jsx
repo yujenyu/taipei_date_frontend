@@ -13,7 +13,7 @@ export default function Index() {
           <div className="basis-6/12">
             <Feed />
           </div>
-          <div className="basis-3/12">
+          <div className="basis-3/12 flex justify-end">
             <Recbar />
           </div>
         </div>
