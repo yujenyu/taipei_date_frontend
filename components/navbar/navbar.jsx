@@ -2,6 +2,13 @@ import React from 'react';
 import Link from 'next/link';
 import { FaBell, FaBookmark } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
+import {
+  BsGlobe2,
+  BsChatSquareHeart,
+  BsTicketPerforated,
+} from 'react-icons/bs';
+import { BiSolidDrink } from 'react-icons/bi';
+import { FiCalendar } from 'react-icons/fi';
 import { Logo } from './logo';
 
 export default function Header() {
@@ -187,29 +194,51 @@ export default function Header() {
           </div>
         </div>
       </div>
-      <div className="z-50 bg-dark btm-nav btm-nav-sm md:hidden">
+
+      {/* bottom navbar for mobile */}
+      <div className="z-50 h-16 bg-dark btm-nav btm-nav-sm md:hidden">
         <button className="hover:active ">
-          <Link className="text-xs text-light sm:px-0.5 lg:px-8 " href="#">
+          <Link
+            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+            href="#"
+          >
+            <BsChatSquareHeart className="text-h4 mb-1" />
             配對交友
           </Link>
         </button>
         <button className="hover:active ">
-          <Link className="text-xs text-light sm:px-0.5 lg:px-8" href="#">
+          <Link
+            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+            href="/community"
+          >
+            <BsGlobe2 className="text-h4 mb-1" />
             社群媒體
           </Link>
         </button>
         <button className="hover:active ">
-          <Link className="text-xs text-light sm:px-0.5 lg:px-8" href="#">
+          <Link
+            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+            href="#"
+          >
+            <FiCalendar className="text-h4 mb-1" />
             行程規劃
           </Link>
         </button>
         <button className="hover:active ">
-          <Link className="text-xs text-light sm:px-0.5 lg:px-8" href="#">
+          <Link
+            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+            href="#"
+          >
+            <BiSolidDrink className="text-h4 mb-1" />
             酒吧探索
           </Link>
         </button>
         <button className="hover:active ">
-          <Link className="text-xs text-light sm:px-0.5 lg:px-8" href="#">
+          <Link
+            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+            href="#"
+          >
+            <BsTicketPerforated className="text-h4 mb-1" />
             電影探索
           </Link>
         </button>

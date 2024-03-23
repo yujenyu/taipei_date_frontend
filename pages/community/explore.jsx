@@ -1,5 +1,6 @@
 import PostCardMedium from '@/components/card/postCardMedium';
 import Sidebar from '@/components/sidebar/sidebar';
+import SidebarMobile from '@/components/sidebar/sidebarMobile';
 
 export default function Index() {
   // 假設有12個假資料的數組
@@ -7,6 +8,11 @@ export default function Index() {
 
   return (
     <>
+      {/* sidebar for mobile */}
+      <div className="md-hidden">
+        <SidebarMobile />
+      </div>
+
       <div className="flex">
         <div className="flex flex-row">
           <div className="basis-3/12">
