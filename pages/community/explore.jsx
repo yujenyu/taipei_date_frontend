@@ -7,7 +7,7 @@ export default function Index() {
 
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex">
         <div className="flex flex-row">
           <div className="basis-3/12">
             <Sidebar />

@@ -1,7 +1,8 @@
 import { FiHome, FiSearch, FiCalendar, FiUser } from 'react-icons/fi';
 import { MdOutlineExplore } from 'react-icons/md';
 import { FaRegSquarePlus } from 'react-icons/fa6';
-import SearchModal from '../searchModal/searchModal';
+import SearchModal from '../modal/searchModal';
+import CreateModal from '../modal/createModal';
 import Link from 'next/link';
 
 export default function Sidebar() {
@@ -41,11 +42,17 @@ export default function Sidebar() {
               </li>
             </Link>
 
-            <li className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen">
+            <li
+              className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen"
+              onClick={() =>
+                document.getElementById('create_modal').showModal()
+              }
+            >
               <FaRegSquarePlus className="sidebarIcon text-h3 mr-5" />
               <span className="sidebarListItemText text-h6 lg:inline md:hidden">
                 建立
               </span>
+              <CreateModal />
             </li>
 
             <Link href="/community/events">
@@ -57,12 +64,14 @@ export default function Sidebar() {
               </li>
             </Link>
 
-            <li className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen">
-              <FiUser className="sidebarIcon text-h3 mr-5" />
-              <span className="sidebarListItemTe text-h6 lg:inline md:hidden">
-                個人檔案
-              </span>
-            </li>
+            <Link href="/community/profile">
+              <li className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen">
+                <FiUser className="sidebarIcon text-h3 mr-5" />
+                <span className="sidebarListItemTe text-h6 lg:inline md:hidden">
+                  個人檔案
+                </span>
+              </li>
+            </Link>
           </ul>
         </div>
       </div>

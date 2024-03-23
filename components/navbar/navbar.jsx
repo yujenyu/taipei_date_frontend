@@ -17,19 +17,6 @@ export default function Header() {
         </div>
         <div className="hidden navbar-center md:flex">
           <ul className="px-0 menu menu-horizontal">
-            {/* <li>
-                            <details>
-                                <summary>Parent</summary>
-                                <ul className="p-2">
-                                    <li>
-                                        <a>Submenu 1</a>
-                                    </li>
-                                    <li>
-                                        <a>Submenu 2</a>
-                                    </li>
-                                </ul>
-                            </details>
-                        </li> */}
             <li>
               <Link
                 className="text-base sm:text-sm text-light hover:shadow-xl3 hover:text-neongreen sm:px-1 md:px-4 lg:px-8"
@@ -73,24 +60,71 @@ export default function Header() {
           </ul>
         </div>
         <div className="navbar-end">
-          <button className=" btn-ghost btn-circle btn hover:shadow-xl3">
-            <Link
-              className="flex justify-center text-2xl text-light hover:shadow-xl3 hover:text-neongreen align-middle"
-              href="#"
-            >
-              <FaBell />
-            </Link>
-          </button>
-          <button className="btn btn-ghost btn-circle hover:shadow-xl3">
-            <div className="indicator">
+          <div className="dropdown dropdown-bottom dropdown-end">
+            <button className=" btn-ghost btn-circle btn hover:shadow-xl3">
               <Link
-                className="text-2xl text-light hover:shadow-xl3 hover:text-neongreen"
+                className="flex justify-center text-2xl text-light hover:shadow-xl3 hover:text-neongreen align-middle"
+                href="#"
+              >
+                <FaBell />
+              </Link>
+            </button>
+            <ul
+              tabIndex={0}
+              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 h-3/4 text-h6"
+              // fixed dropdown menu to top right
+              style={{ position: 'fixed', right: '30px', top: '70px' }}
+            >
+              <li>
+                <a>Noti 1</a>
+              </li>
+              <li>
+                <a>Noti 2</a>
+              </li>
+              <li>
+                <a>Noti 3</a>
+              </li>
+              <li>
+                <a>Noti 4</a>
+              </li>
+              <li>
+                <a>Noti 5</a>
+              </li>
+            </ul>
+          </div>
+
+          <div className="dropdown dropdown-bottom dropdown-end">
+            <button className=" btn-ghost btn-circle btn hover:shadow-xl3">
+              <Link
+                className="flex justify-center text-2xl text-light hover:shadow-xl3 hover:text-neongreen align-middle"
                 href="#"
               >
                 <FaBookmark />
               </Link>
-            </div>
-          </button>
+            </button>
+            <ul
+              tabIndex={0}
+              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 h-3/4 text-h6"
+              // fixed dropdown menu to top right
+              style={{ position: 'fixed', right: '30px', top: '70px' }}
+            >
+              <li>
+                <a>Bookmark 1</a>
+              </li>
+              <li>
+                <a>Bookmark 2</a>
+              </li>
+              <li>
+                <a>Bookmark 3</a>
+              </li>
+              <li>
+                <a>Bookmark 4</a>
+              </li>
+              <li>
+                <a>Bookmark 5</a>
+              </li>
+            </ul>
+          </div>
 
           <div
             className={`dropdown dropdown-end ${login ? 'hidden ' : ' block'}`}
