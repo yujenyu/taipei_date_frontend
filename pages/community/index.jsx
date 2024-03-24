@@ -1,9 +1,14 @@
+import React, { Fragment, useState, useEffect } from 'react';
 import Feed from '@/components/feed/feed';
 import Recbar from '@/components/recbar/recbar';
 import Sidebar from '@/components/sidebar/sidebar';
 import SidebarMobile from '@/components/sidebar/sidebarMobile';
 
-export default function Index() {
+export default function Index({ onPageChange }) {
+  const pageTitle = '社群媒體';
+  useEffect(() => {
+    onPageChange(pageTitle);
+  }, []);
   return (
     <>
       {/* sidebar for mobile */}
@@ -19,7 +24,7 @@ export default function Index() {
           <div className="basis-6/12">
             <Feed />
           </div>
-          <div className="basis-3/12 flex justify-end">
+          <div className="flex justify-end basis-3/12">
             <Recbar />
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FaBell, FaBookmark } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
@@ -11,70 +11,75 @@ import { BiSolidDrink } from 'react-icons/bi';
 import { FiCalendar } from 'react-icons/fi';
 import { Logo } from './logo';
 
-export default function Header() {
+export default function Header({ currentPageTitle }) {
   const login = true;
+  console.log(currentPageTitle);
   // const login = false;
   return (
     <>
       <div className="sticky top-0 z-50 navbar bg-dark">
-        <div className="navbar-start ml-3">
-          <Link href="/">
+        <div className="ml-3 navbar-start">
+          <a href="/">
             <Logo />
-          </Link>
+          </a>
         </div>
         <div className="hidden navbar-center md:flex">
           <ul className="px-0 menu menu-horizontal">
             <li>
-              <Link
+              <a
                 className="text-base sm:text-sm text-light hover:shadow-xl3 hover:text-neongreen sm:px-1 md:px-4 lg:px-8"
                 href="/account-center/account-index"
               >
                 配對交友
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
-                className="text-base text-light hover:shadow-xl3 hover:text-neongreen sm:text-sm sm:px-1 md:px-4 lg:px-8"
+              <a
+                className={`text-base text-light hover:shadow-xl3 hover:text-neongreen sm:text-sm sm:px-1 md:px-4 lg:px-8 ${
+                  currentPageTitle === '社群媒體'
+                    ? 'shadow-xl3 text-primary'
+                    : ''
+                }`}
                 href="/community"
               >
                 社群媒體
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 className="text-base text-light hover:shadow-xl3 hover:text-neongreen sm:text-sm sm:px-1 md:px-4 lg:px-8"
                 href="#"
               >
                 行程規劃
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 className="text-base text-light hover:shadow-xl3 hover:text-neongreen sm:text-sm sm:px-1 md:px-4 lg:px-8"
                 href="#"
               >
                 酒吧探索
-              </Link>
+              </a>
             </li>
             <li>
-              <Link
+              <a
                 className="text-base text-light hover:shadow-xl3 hover:text-neongreen sm:text-sm sm:px-1 md:px-4 lg:px-8"
                 href="#"
               >
                 電影探索
-              </Link>
+              </a>
             </li>
           </ul>
         </div>
         <div className="navbar-end">
           <div className="dropdown dropdown-bottom dropdown-end">
-            <button className=" btn-ghost btn-circle btn hover:shadow-xl3">
-              <Link
-                className="flex justify-center text-2xl text-light hover:shadow-xl3 hover:text-neongreen align-middle"
+            <button className=" btn-ghost btn-circle btn hover:shadow-xl3 hover:text-neongreen">
+              <a
+                className="flex justify-center text-2xl align-middle text-light "
                 href="#"
               >
                 <FaBell />
-              </Link>
+              </a>
             </button>
             <ul
               tabIndex={0}
@@ -102,12 +107,12 @@ export default function Header() {
 
           <div className="dropdown dropdown-bottom dropdown-end">
             <button className=" btn-ghost btn-circle btn hover:shadow-xl3">
-              <Link
-                className="flex justify-center text-2xl text-light hover:shadow-xl3 hover:text-neongreen align-middle"
+              <a
+                className="flex justify-center text-2xl align-middle text-light "
                 href="#"
               >
                 <FaBookmark />
-              </Link>
+              </a>
             </button>
             <ul
               tabIndex={0}
@@ -182,7 +187,7 @@ export default function Header() {
                                 </a>
                             </li> */}
               <li>
-                <Link href="/account-center/account-index">會員中心</Link>
+                <a href="/account-center/account-index">會員中心</a>
               </li>
               <li>
                 <a>玩遊戲</a>
@@ -197,50 +202,80 @@ export default function Header() {
 
       {/* bottom navbar for mobile */}
       <div className="z-50 h-16 bg-dark btm-nav btm-nav-sm md:hidden">
-        <button className="hover:active ">
-          <Link
-            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+        <button
+          className={`hover:active text-primary${
+            currentPageTitle === '配對交友' ? 'active text-primary' : ''
+          }`}
+        >
+          <a
+            className={`text-xs ${
+              currentPageTitle === '配對交友' ? 'text-primary' : 'text-light'
+            }  sm:px-0.5 lg:px-8 flex flex-col items-center hover:text-primary  hover:active:text-primary`}
             href="#"
           >
-            <BsChatSquareHeart className="text-h4 mb-1" />
+            <BsChatSquareHeart className="mb-1 text-h4" />
             配對交友
-          </Link>
+          </a>
         </button>
-        <button className="hover:active ">
-          <Link
-            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+        <button
+          className={`hover:active text-primary ${
+            currentPageTitle === '社群媒體' ? 'active text-primary' : ''
+          }`}
+        >
+          <a
+            className={`text-xs ${
+              currentPageTitle === '社群媒體' ? 'text-primary' : 'text-light'
+            }  sm:px-0.5 lg:px-8 flex flex-col items-center hover:text-primary`}
             href="/community"
           >
-            <BsGlobe2 className="text-h4 mb-1" />
+            <BsGlobe2 className="mb-1 text-h4" />
             社群媒體
-          </Link>
+          </a>
         </button>
-        <button className="hover:active ">
-          <Link
-            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+        <button
+          className={`hover:active text-primary${
+            currentPageTitle === '行程規劃' ? 'active text-primary' : ''
+          }`}
+        >
+          <a
+            className={`text-xs ${
+              currentPageTitle === '行程規劃' ? 'text-primary' : 'text-light'
+            }  sm:px-0.5 lg:px-8 flex flex-col items-center hover:text-primary`}
             href="#"
           >
-            <FiCalendar className="text-h4 mb-1" />
+            <FiCalendar className="mb-1 text-h4" />
             行程規劃
-          </Link>
+          </a>
         </button>
-        <button className="hover:active ">
-          <Link
-            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+        <button
+          className={`hover:active text-primary${
+            currentPageTitle === '酒吧探索' ? 'active text-primary' : ''
+          }`}
+        >
+          <a
+            className={`text-xs ${
+              currentPageTitle === '酒吧探索' ? 'text-primary' : 'text-light'
+            }  sm:px-0.5 lg:px-8 flex flex-col items-center hover:text-primary`}
             href="#"
           >
-            <BiSolidDrink className="text-h4 mb-1" />
+            <BiSolidDrink className="mb-1 text-h4" />
             酒吧探索
-          </Link>
+          </a>
         </button>
-        <button className="hover:active ">
-          <Link
-            className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
+        <button
+          className={`hover:active text-primary${
+            currentPageTitle === '電影探索' ? 'active text-primary' : ''
+          }`}
+        >
+          <a
+            className={`text-xs ${
+              currentPageTitle === '電影探索' ? 'text-primary' : 'text-light'
+            }  sm:px-0.5 lg:px-8 flex flex-col items-center hover:text-primary`}
             href="#"
           >
-            <BsTicketPerforated className="text-h4 mb-1" />
+            <BsTicketPerforated className="mb-1 text-h4" />
             電影探索
-          </Link>
+          </a>
         </button>
       </div>
     </>
