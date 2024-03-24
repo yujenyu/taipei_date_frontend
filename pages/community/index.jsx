@@ -7,19 +7,19 @@ export default function Index() {
   return (
     <>
       {/* sidebar for mobile */}
-      <div className="md-hidden">
+      <div className="block md:hidden">
         <SidebarMobile />
       </div>
 
-      <div className="flex flex-col">
-        <div className="flex flex-row">
-          <div className="basis-3/12">
+      <div className="flex flex-col w-full">
+        <div className="flex flex-wrap">
+          <div className="w-full hidden md:block md:basis-3/12">
             <Sidebar />
           </div>
-          <div className="basis-6/12">
+          <div className="w-full md:basis-6/12">
             <Feed />
           </div>
-          <div className="basis-3/12 flex justify-end">
+          <div className="w-full md:basis-3/12 flex justify-end">
             <Recbar />
           </div>
         </div>

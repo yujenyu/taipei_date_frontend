@@ -16,7 +16,7 @@ export default function Header() {
   // const login = false;
   return (
     <>
-      <div className="sticky top-0 z-50 navbar bg-dark">
+      <div className="sticky top-0 z-50 navbar bg-dark w-full ">
         <div className="navbar-start ml-3">
           <Link href="/">
             <Logo />
@@ -196,14 +196,14 @@ export default function Header() {
       </div>
 
       {/* bottom navbar for mobile */}
-      <div className="z-50 h-16 bg-dark btm-nav btm-nav-sm md:hidden">
+      <div className="z-50 h-16 bg-dark btm-nav btm-nav-sm md:hidden w-full">
         <button className="hover:active ">
           <Link
             className="text-xs text-light sm:px-0.5 lg:px-8 flex flex-col items-center"
             href="#"
           >
             <BsChatSquareHeart className="text-h4 mb-1" />
-            配對交友
+            <span className="text-p">配對交友</span>
           </Link>
         </button>
         <button className="hover:active ">
@@ -212,7 +212,7 @@ export default function Header() {
             href="/community"
           >
             <BsGlobe2 className="text-h4 mb-1" />
-            社群媒體
+            <span className="text-p">社群媒體</span>
           </Link>
         </button>
         <button className="hover:active ">
@@ -221,7 +221,7 @@ export default function Header() {
             href="#"
           >
             <FiCalendar className="text-h4 mb-1" />
-            行程規劃
+            <span className="text-p">行程規劃</span>
           </Link>
         </button>
         <button className="hover:active ">
@@ -230,7 +230,7 @@ export default function Header() {
             href="#"
           >
             <BiSolidDrink className="text-h4 mb-1" />
-            酒吧探索
+            <span className="text-p">酒吧探索</span>
           </Link>
         </button>
         <button className="hover:active ">
@@ -239,7 +239,7 @@ export default function Header() {
             href="#"
           >
             <BsTicketPerforated className="text-h4 mb-1" />
-            電影探索
+            <span className="text-p">電影探索</span>
           </Link>
         </button>
       </div>

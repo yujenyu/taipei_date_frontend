@@ -23,6 +23,7 @@ module.exports = {
         h4: '24px',
         h5: '20px',
         h6: '16px',
+        p: '9px',
       },
       colors: {
         neongreen: '#A0FF1F',

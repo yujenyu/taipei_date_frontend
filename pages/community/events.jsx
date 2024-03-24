@@ -8,8 +8,7 @@ export default function Index() {
 
   return (
     <>
-      {/* sidebar for mobile */}
-      <div className="md-hidden">
+      <div className="block md:hidden">
         <SidebarMobile />
       </div>
 

@@ -5,7 +5,10 @@ import SearchModalMobile from '../modal/searchModalMobile';
 export default function SidebarMobile() {
   return (
     <>
-      <div role="tablist" className="tabs tabs-bordered md:hidden">
+      <div
+        role="tablist"
+        className="tabs tabs-bordered md:hidden z-40 bg-black fixed w-full"
+      >
         <Link role="tab" className="tab tab-active" href="/community">
           <span>首頁</span>
         </Link>
