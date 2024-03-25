@@ -3,8 +3,8 @@ import { FiHeart, FiSend, FiMessageCircle, FiBookmark } from 'react-icons/fi';
 export default function PostCardLarge() {
   return (
     <>
-      <div className="card max-w-[440px] h-[635px] glass my-10 m-2 overflow-hidden">
-        <div className="card-user h-14 flex items-center">
+      <div className="card max-w-[440px] h-[635px] glass my-10 m-2 overflow-hidden flex">
+        <div className="card-user h-14 flex items-center ">
           <div className="avatar mr-3 ml-1">
             <div className="w-10 rounded-full">
               <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />

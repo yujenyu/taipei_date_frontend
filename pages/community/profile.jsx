@@ -9,6 +9,8 @@ export default function Profile() {
 
   return (
     <>
+      <title>{'Community - Taipei Date'}</title>
+
       {/* sidebar for mobile */}
       <div className="block md:hidden">
         <TabbarMobile />
@@ -16,7 +18,7 @@ export default function Profile() {
 
       <div className="flex flex-col w-full items-center pt-16">
         <div className="flex flex-wrap">
-          <div className="w-full hidden md:block basis-3/12">
+          <div className="hidden md:flex md:w-3/12 md:basis-3/12">
             <Sidebar />
           </div>
 
@@ -25,7 +27,7 @@ export default function Profile() {
               {/* info area */}
               <ProfileInfo />
               {/* post area */}
-              <div className="w-full basis-9/12 ">
+              <div className="flex md:flex md:w-9/12 md:basis-9/12 ">
                 <div className="flex flex-wrap -mx-2">
                   {posts.map((_, index) => (
                     <PostCardMedium />

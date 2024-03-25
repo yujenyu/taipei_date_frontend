@@ -8,17 +8,19 @@ export default function Index() {
 
   return (
     <>
+      <title>{'Community - Taipei Date'}</title>
+
       {/* sidebar for mobile */}
       <div className="block md:hidden">
         <TabbarMobile />
       </div>
 
-      <div className="flex pt-16">
-        <div className="flex flex-row">
-          <div className="basis-3/12">
+      <div className="flex pt-16 items-center justify-center">
+        <div className="flex flex-row items-center justify-center">
+          <div className="hidden md:flex md:w-3/12 md:basis-3/12">
             <Sidebar />
           </div>
-          <div className="basis-9/12">
+          <div className="flex md:flex md:w-9/12 md:basis-9/12 ">
             <div className="flex flex-wrap -mx-2">
               {posts.map((_, index) => (
                 <PostCardMedium />

@@ -40,6 +40,7 @@ module.exports = {
         h4: '24px',
         h5: '20px',
         h6: '16px',
+        p: '9px',
       },
       colors: {
         primary: '#A0FF1F', // 自定义的主要颜色

@@ -8,16 +8,18 @@ export default function Index() {
 
   return (
     <>
+      <title>{'Community - Taipei Date'}</title>
+
       <div className="flex md:hidden">
         <TabbarMobile />
       </div>
 
       <div className="flex pt-16">
-        <div className="flex flex-row">
-          <div className="basis-3/12">
+        <div className="flex flex-row ">
+          <div className="hidden md:flex md:w-3/12 md:basis-3/12">
             <Sidebar />
           </div>
-          <div className="basis-9/12">
+          <div className="flex md:flex md:w-9/12 md:basis-9/12">
             <div className="flex flex-wrap -mx-2">
               {posts.map((_, index) => (
                 <EventCard />

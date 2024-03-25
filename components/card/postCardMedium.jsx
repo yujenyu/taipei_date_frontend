@@ -3,8 +3,11 @@ import { FiHeart, FiSend, FiMessageCircle, FiBookmark } from 'react-icons/fi';
 export default function PostCardMedium(index) {
   return (
     <>
-      <div key={index} className="px-2 mb-4 w-full sm:w-full md:w-1/2 lg:w-1/3">
-        <div className="card max-w-[270px] h-[380px] glass my-10 m-2 overflow-hidden">
+      <div
+        key={index}
+        className="px-2 mb-4 w-full sm:w-full md:w-1/2 lg:w-1/3 flex items-center justify-center"
+      >
+        <div className="flex card max-w-[270px] h-[380px] glass my-10 m-2 overflow-hidden items-center justify-center">
           <figure className="card-photo m-0">
             <img
               src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"

@@ -9,8 +9,11 @@ const mockData = {
 export default function EventCard(index) {
   return (
     <>
-      <div key={index} className="px-2 mb-4 w-full sm:w-full md:w-1/2 lg:w-1/3">
-        <div className="card w-[300px] h-[480px] glass mb-10 mt-10">
+      <div
+        key={index}
+        className="px-2 mb-4 w-full sm:w-full md:w-1/2 lg:w-1/3 flex items-center justify-center"
+      >
+        <div className="card w-[300px] h-[480px] glass mb-10 mt-10 flex items-center justify-center">
           <figure className="card-photo m-0">
             <img
               src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"

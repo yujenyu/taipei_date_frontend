@@ -6,6 +6,8 @@ import TabbarMobile from '@/components/tabbar/tabbarMobile';
 export default function Index() {
   return (
     <>
+      <title>{'Community - Taipei Date'}</title>
+
       {/* sidebar for mobile */}
       <div className="block md:hidden">
         <TabbarMobile />
@@ -13,7 +15,7 @@ export default function Index() {
 
       <div className="flex flex-col w-full pt-16">
         <div className="flex flex-wrap">
-          <div className="w-full hidden md:block md:basis-3/12">
+          <div className="hidden md:flex md:w-3/12 md:basis-3/12">
             <Sidebar />
           </div>
           <div className="w-full md:basis-6/12">
