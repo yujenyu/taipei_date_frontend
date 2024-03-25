@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Recbar() {
+export default function SuggestionBar() {
   return (
     <>
       <div className="recbar mt-8 mr-10 flex-row-reverse right-6 hidden lg:flex lg:w-48">

@@ -1,6 +1,6 @@
 import Sidebar from '@/components/sidebar/sidebar';
 import PostCardMedium from '@/components/card/postCardMedium';
-import SidebarMobile from '@/components/sidebar/sidebarMobile';
+import TabbarMobile from '@/components/tabbar/tabbarMobile';
 import ProfileInfo from '@/components/profileInfo/profileInfo';
 
 export default function Profile() {
@@ -11,10 +11,10 @@ export default function Profile() {
     <>
       {/* sidebar for mobile */}
       <div className="block md:hidden">
-        <SidebarMobile />
+        <TabbarMobile />
       </div>
 
-      <div className="flex flex-col w-full items-center">
+      <div className="flex flex-col w-full items-center pt-16">
         <div className="flex flex-wrap">
           <div className="w-full hidden md:block basis-3/12">
             <Sidebar />
@@ -28,12 +28,7 @@ export default function Profile() {
               <div className="w-full basis-9/12 ">
                 <div className="flex flex-wrap -mx-2">
                   {posts.map((_, index) => (
-                    <div
-                      key={index}
-                      className="px-2 mb-4 w-full sm:w-full md:w-1/2 lg:w-1/3"
-                    >
-                      <PostCardMedium />
-                    </div>
+                    <PostCardMedium />
                   ))}
                 </div>
               </div>

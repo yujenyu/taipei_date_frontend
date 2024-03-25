@@ -16,7 +16,7 @@ export default function Header() {
   // const login = false;
   return (
     <>
-      <div className="sticky top-0 z-50 navbar bg-dark w-full ">
+      <div className="fixed top-0 z-50 navbar bg-dark w-full h-16">
         <div className="navbar-start ml-3">
           <Link href="/">
             <Logo />

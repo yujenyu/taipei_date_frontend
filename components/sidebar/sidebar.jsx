@@ -8,7 +8,7 @@ import Link from 'next/link';
 export default function Sidebar() {
   return (
     <>
-      <div className="recbar mt-8 ml-8 right-6 hidden md:flex lg:w-48">
+      <div className="recbar mt-8 ml-8 right-6 hidden md:flex lg:w-48 top-[64px] left-0 fixed">
         <div className="sidebarWrapper">
           <ul className="sidebarList grid">
             <Link href="/community">
