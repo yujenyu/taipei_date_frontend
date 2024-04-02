@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Head from 'next/head';
-import DateCard from '@/components/index/date_card';
-import ThemeCard from '@/components/index/theme_card';
+import DateCard from '@/components/community/index/date_card';
+import ThemeCard from '@/components/community/index/theme_card';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });

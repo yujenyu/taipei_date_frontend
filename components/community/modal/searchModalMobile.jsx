@@ -4,8 +4,14 @@ import { FaRegCircleXmark } from 'react-icons/fa6';
 export default function SearchModal() {
   return (
     <>
-      <dialog id="search_modal" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box w-[500px] h-[500px]">
+      <dialog
+        id="search_modal_mobile"
+        className="modal modal-bottom sm:modal-middle"
+      >
+        <div
+          className="modal-box flex flex-col"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+        >
           <p className="font-bold text-lg mb-5 text-h5 ">搜尋</p>
           <label className="input input-bordered flex items-center gap-2 mb-3 ">
             <svg

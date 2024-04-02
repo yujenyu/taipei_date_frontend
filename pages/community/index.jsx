@@ -1,7 +1,7 @@
-import Feed from '@/components/feed/feed';
-import SuggestionBar from '@/components/suggestionbar/suggestionbar';
-import Sidebar from '@/components/sidebar/sidebar';
-import TabbarMobile from '@/components/tabbar/tabbarMobile';
+import Feed from '@/components/community/feed/feed';
+import SuggestionBar from '@/components/community/suggestionbar/SuggestionBar';
+import Sidebar from '@/components/community/sidebar/sidebar';
+import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 
 export default function Index() {
   return (
@@ -9,19 +9,19 @@ export default function Index() {
       <title>{'Community - Taipei Date'}</title>
 
       {/* sidebar for mobile */}
-      <div className="block md:hidden">
+      <div className="block md:hidden w-full">
         <TabbarMobile />
       </div>
 
-      <div className="flex flex-col w-full pt-16">
+      <div className="flex flex-col w-full pt-28">
         <div className="flex flex-wrap">
-          <div className="hidden md:flex md:w-3/12 md:basis-3/12">
+          <div className="hidden md:flex md:basis-3/12">
             <Sidebar />
           </div>
-          <div className="w-full md:basis-6/12">
+          <div className="flex w-full md:basis-6/12 justify-center">
             <Feed />
           </div>
-          <div className="w-full md:basis-3/12 flex justify-end">
+          <div className="w-full md:basis-3/12 flex  justify-end pr-10">
             <SuggestionBar />
           </div>
         </div>

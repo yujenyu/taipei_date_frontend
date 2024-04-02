@@ -1,7 +1,7 @@
-import Sidebar from '@/components/sidebar/sidebar';
-import PostCardMedium from '@/components/card/postCardMedium';
-import TabbarMobile from '@/components/tabbar/tabbarMobile';
-import ProfileInfo from '@/components/profileInfo/profileInfo';
+import Sidebar from '@/components/community/sidebar/sidebar';
+import ProfileCard from '@/components/community/card/profileCard';
+import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
+import ProfileInfo from '@/components/community/profileInfo/profileInfo';
 
 export default function Profile() {
   // 假設有12個假資料的數組
@@ -16,23 +16,21 @@ export default function Profile() {
         <TabbarMobile />
       </div>
 
-      <div className="flex flex-col w-full items-center pt-16">
-        <div className="flex flex-wrap">
-          <div className="hidden md:flex md:w-3/12 md:basis-3/12">
+      <div className="flex flex-col w-full items-center justify-center sm:w-full pt-28">
+        <div className="flex flex-wrap justify-center">
+          <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
 
-          <div className="w-full md:basis-9/12 mt-8 items-center">
-            <div className="flex flex-col">
+          <div className="flex flex-col w-full md:w-10/12 items-center">
+            <div className="flex flex-col items-center">
               {/* info area */}
               <ProfileInfo />
               {/* post area */}
-              <div className="flex md:flex md:w-9/12 md:basis-9/12 ">
-                <div className="flex flex-wrap -mx-2">
-                  {posts.map((_, index) => (
-                    <PostCardMedium />
-                  ))}
-                </div>
+              <div className="flex flex-wrap gap-8 justify-center ">
+                {posts.map((_, index) => (
+                  <ProfileCard key={index} />
+                ))}
               </div>
             </div>
           </div>

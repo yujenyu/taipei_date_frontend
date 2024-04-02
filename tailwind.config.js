@@ -19,6 +19,7 @@ module.exports = {
       silver: '#ecebff',
       bubblegum: '#ff77e9',
       bermuda: '#78dcca',
+      grayBorder: '#1d4357',
     },
     boxShadow: {
       xl3: '0 0 13.6px 10px rgba(160, 255, 31, 0.58)',
@@ -43,7 +44,7 @@ module.exports = {
         p: '9px',
       },
       colors: {
-        primary: '#A0FF1F', // 自定义的主要颜色
+        primary: '#A0FF1F',
         secondary: '#ff03ff',
         neongreen: '#A0FF1F',
         neonpink: '#ff03ff',
@@ -52,6 +53,12 @@ module.exports = {
       },
       btn: {
         primary: '#A0FF1F',
+      },
+      padding: {
+        sm: '8px',
+        md: '16px',
+        lg: '24px',
+        xl: '48px',
       },
     },
   },

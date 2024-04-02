@@ -67,7 +67,7 @@ export default function Header() {
           </ul>
         </div>
         <div className="navbar-end">
-          <div className="dropdown dropdown-bottom dropdown-end">
+          <div className="dropdown dropdown-bottom dropdown-end ">
             <button className=" btn-ghost btn-circle btn hover:shadow-xl3">
               <Link
                 className="flex justify-center text-2xl text-light hover:shadow-xl3 hover:text-neongreen align-middle"
@@ -80,7 +80,12 @@ export default function Header() {
               tabIndex={0}
               className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 h-3/4 text-h6"
               // fixed dropdown menu to top right
-              style={{ position: 'fixed', right: '30px', top: '70px' }}
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                position: 'fixed',
+                right: '30px',
+                top: '70px',
+              }}
             >
               <li>
                 <a>Noti 1</a>
@@ -113,7 +118,12 @@ export default function Header() {
               tabIndex={0}
               className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 h-3/4 text-h6"
               // fixed dropdown menu to top right
-              style={{ position: 'fixed', right: '30px', top: '70px' }}
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                position: 'fixed',
+                right: '30px',
+                top: '70px',
+              }}
             >
               <li>
                 <a>Bookmark 1</a>

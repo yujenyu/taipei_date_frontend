@@ -1,6 +1,6 @@
-import EventCard from '@/components/card/eventCard';
-import Sidebar from '@/components/sidebar/sidebar';
-import TabbarMobile from '@/components/tabbar/tabbarMobile';
+import EventCard from '@/components/community/card/eventCard';
+import Sidebar from '@/components/community/sidebar/sidebar';
+import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 
 export default function Index() {
   // 假設有12個假資料的數組
@@ -13,18 +13,15 @@ export default function Index() {
       <div className="flex md:hidden">
         <TabbarMobile />
       </div>
-
-      <div className="flex pt-16">
-        <div className="flex flex-row ">
-          <div className="hidden md:flex md:w-3/12 md:basis-3/12">
+      <div className="flex pt-28 items-center justify-center">
+        <div className="flex flex-row items-center justify-center">
+          <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
-          <div className="flex md:flex md:w-9/12 md:basis-9/12">
-            <div className="flex flex-wrap -mx-2">
-              {posts.map((_, index) => (
-                <EventCard />
-              ))}
-            </div>
+          <div className="flex md:w-10/12 flex-wrap gap-8 justify-center">
+            {posts.map((_, index) => (
+              <EventCard key={index} />
+            ))}
           </div>
         </div>
       </div>

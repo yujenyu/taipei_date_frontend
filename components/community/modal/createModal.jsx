@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaRegPlusSquare } from 'react-icons/fa';
+import { FaPhotoVideo } from 'react-icons/fa';
 
 export default function CreateModal() {
   // 選中的檔案
@@ -67,8 +67,11 @@ export default function CreateModal() {
 
   return (
     <>
-      <dialog id="create_modal" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box w-[500px] h-[500px] flex flex-col">
+      <dialog id="create_modal" className="modal modal-bottom sm:modal-middle ">
+        <div
+          className="modal-box w-[500px] h-[500px] flex flex-col"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+        >
           <p className="font-bold text-lg mb-5 text-h5 flex justify-center">
             創建新貼文
           </p>
@@ -76,14 +79,14 @@ export default function CreateModal() {
           {!previewUrl && (
             <>
               <div className="flex-grow flex flex-col items-center justify-center">
+                <FaPhotoVideo className="text-6xl mb-4" />
                 <p className="text-h6 mb-3">請拖曳照片</p>
-                <FaRegPlusSquare className="text-8xl mb-4" />
 
                 <label
                   htmlFor="photo-upload"
                   className="btn bg-neongreen hover:bg-neongreen text-light cursor-pointer flex justify-center"
                 >
-                  從電腦瀏覽
+                  從圖庫瀏覽
                 </label>
                 <input
                   id="photo-upload"
