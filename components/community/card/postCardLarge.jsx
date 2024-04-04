@@ -9,15 +9,19 @@ export default function PostCardLarge() {
       'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur corrupti aspernatur quas Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur corrupti aspernatur quas',
   };
   const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showReply, setShowReply] = useState(false);
 
   const handleLikedClick = () => {
     setIsLiked(!isLiked);
   };
 
-  const [isSaved, setIsSaved] = useState(false);
-
   const handleSavedClick = () => {
     setIsSaved(!isSaved);
+  };
+
+  const handleReplyClick = () => {
+    setShowReply(!showReply);
   };
 
   return (
@@ -53,7 +57,10 @@ export default function PostCardLarge() {
                 />
               )}
 
-              <FiMessageCircle className="card-icon hover:text-neongreen" />
+              <FiMessageCircle
+                className="card-icon hover:text-neongreen"
+                onClick={handleReplyClick}
+              />
               <FiSend className="card-icon hover:text-neongreen" />
             </div>
             <div className="card-iconListRight flex justify-end">
@@ -72,6 +79,17 @@ export default function PostCardLarge() {
           </div>
           {/* <h2 className="card-title">Life hack</h2> */}
           <p className="context">{mockData.context}</p>
+          {showReply && (
+            <div className="flex flex-col justify-center items-center">
+              <textarea
+                className="textarea textarea-ghost w-full h-16 resize-none"
+                placeholder="新增回覆"
+              />
+              <button className="btn bg-neongreen hover:bg-neongreen text-light w-24 flex justify-center">
+                分享
+              </button>
+            </div>
+          )}
           <div className="card-actions justify-end"></div>
         </div>
       </div>

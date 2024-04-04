@@ -16,7 +16,7 @@ export default function EventCard(index) {
 
   return (
     <>
-      <div className="card md:w-[330px] md:h-[480px] flex items-center justify-center border border-grayBorder">
+      <div className="flip-card-front eventCard card md:w-[330px] md:h-[480px] flex items-center justify-center border border-grayBorder">
         <figure className="card-photo">
           <img
             src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
@@ -39,9 +39,9 @@ export default function EventCard(index) {
               </div>
             </div>
           </div>
-          <div className="card-actions flex justify-center px-1 py-1">
+          <div className="card-actions flex justify-center px-1 py-1 ">
             <button
-              className="btn bg-neongreen hover:bg-neongreen text-light"
+              className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3"
               onClick={handleAttendedClick}
             >
               {isAttended ? <span>已參加</span> : <span>參加</span>}

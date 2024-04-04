@@ -27,11 +27,21 @@ export default function Profile() {
               {/* info area */}
               <ProfileInfo />
               {/* post area */}
-              <div className="flex flex-wrap gap-8 justify-center ">
+              <div className="flex flex-wrap gap-5 justify-center">
                 {posts.map((_, index) => (
                   <ProfileCard key={index} />
                 ))}
               </div>
+              {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
+                {posts.map((_, index) => (
+                  <ProfileCard key={index} />
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-5 mx-5 md:hidden">
+                {posts.map((_, index) => (
+                  <ProfileCard key={index} />
+                ))}
+              </div> */}
             </div>
           </div>
         </div>

@@ -21,7 +21,7 @@ export default function Index() {
           <div className="flex w-full md:basis-6/12 justify-center">
             <Feed />
           </div>
-          <div className="w-full md:basis-3/12 flex  justify-end pr-10">
+          <div className="hidden md:flex w-full md:basis-3/12 justify-end pr-10">
             <SuggestionBar />
           </div>
         </div>

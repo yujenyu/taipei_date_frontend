@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <>
-      <footer className="pb-16 items-center p-4 footer bg-dark text-neutral-content">
+      <footer className="items-center p-4 footer bg-dark text-neutral-content sm:pb-0 pb-20">
         <aside className="items-center grid-flow-col">
           <p>Copyright © 2024 - All right reserved</p>
         </aside>

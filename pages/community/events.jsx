@@ -18,7 +18,7 @@ export default function Index() {
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
-          <div className="flex md:w-10/12 flex-wrap gap-8 justify-center">
+          <div className="flex md:w-10/12 flex-wrap gap-5 justify-center">
             {posts.map((_, index) => (
               <EventCard key={index} />
             ))}

@@ -20,10 +20,22 @@ export default function Index() {
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
-          <div className="flex flex-wrap md:w-10/12 gap-8 justify-center">
-            {posts.map((_, index) => (
-              <PostCardMedium key={index} />
-            ))}
+          <div className="flex flex-wrap md:w-10/12 gap-5 justify-center">
+            <div className="flex flex-wrap gap-5 justify-center">
+              {posts.map((_, index) => (
+                <PostCardMedium key={index} />
+              ))}
+            </div>
+            {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
+              {posts.map((_, index) => (
+                <PostCardMedium key={index} />
+              ))}
+            </div>
+            <div className="grid grid-cols-3 gap-5 mx-5 md:hidden">
+              {posts.map((_, index) => (
+                <PostCardMedium key={index} />
+              ))}
+            </div> */}
           </div>
         </div>
       </div>
