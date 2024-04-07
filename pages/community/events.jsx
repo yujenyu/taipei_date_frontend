@@ -1,10 +1,24 @@
+import { useEffect, useState } from 'react';
 import EventCard from '@/components/community/card/eventCard';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 
 export default function Index() {
-  // 假設有12個假資料的數組
-  const posts = Array.from({ length: 12 }); // 創建一個包含12個元素的數組
+  const [events, setEvents] = useState([]);
+
+  const getCommetEvents = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/comm-events');
+      const data = await res.json();
+      setEvents(data);
+    } catch (error) {
+      console.error('Failed to fetch events:', error);
+    }
+  };
+
+  useEffect(() => {
+    getCommetEvents();
+  }, []);
 
   return (
     <>
@@ -19,8 +33,8 @@ export default function Index() {
             <Sidebar />
           </div>
           <div className="flex md:w-10/12 flex-wrap gap-5 justify-center">
-            {posts.map((_, index) => (
-              <EventCard key={index} />
+            {events.map((event, i) => (
+              <EventCard event={event} key={i} />
             ))}
           </div>
         </div>

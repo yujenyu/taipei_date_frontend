@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FiSend } from 'react-icons/fi';
 import styles from './card.module.css';
 
@@ -9,10 +9,10 @@ import styles from './card.module.css';
 //   details: '翻玩經典唱片，重溫老歌的美好回憶',
 // };
 
-export default function EventCard(index) {
+export default function EventCard({ event, key }) {
   const [isAttended, setIsAttended] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [eventData, setEventData] = useState([]);
+  // const [eventData, setEventData] = useState([]);
 
   const handleAttendedClick = () => {
     setIsAttended(!isAttended);
@@ -22,87 +22,58 @@ export default function EventCard(index) {
     setIsFlipped(!isFlipped);
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch('http://localhost:3001/api/comm-events');
-        const data = await res.json();
-        setEventData(data);
-      } catch (error) {
-        console.error('Failed to fetch events:', error);
-      }
-    }
-
-    fetchData();
-  }, []);
-
   return (
-    <>
-      {eventData.map((event, index) => (
+    <div key={key} className={styles['flip-card']} onClick={handleDoubleClick}>
+      <div
+        className={`${styles['flip-card-inner']} ${
+          isFlipped ? styles.flipped : ''
+        }`}
+      >
         <div
-          key={index}
-          className={styles['flip-card']}
-          onClick={handleDoubleClick}
+          className={`${styles['flip-card-front']} eventCard card md:w-[330px] md:h-[480px] flex items-center justify-center border border-grayBorder`}
         >
-          <div
-            className={`${styles['flip-card-inner']} ${
-              isFlipped ? styles.flipped : ''
-            }`}
-          >
-            <div
-              className={`${styles['flip-card-front']} eventCard card md:w-[330px] md:h-[480px] flex items-center justify-center border border-grayBorder`}
-            >
-              <figure className="card-photo">
-                <img
-                  src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-                  alt="car!"
-                  className="card-photo w-[330px] h-[330px] object-cover"
-                />
-              </figure>
-              <div className="card-body h-auto w-full p-0 overflow-auto flex flex-col justify-between">
-                <div className="card-info text-h4 flex flex-col justify-between">
-                  <div className="flex flex-row justify-between">
-                    <div className="card-infoLeft flex flex-row gap-2 px-1 py-1">
-                      <div className="flex flex-col">
-                        {/* <p className="text-h6">{mockData.time}</p>
-                      <p className="text-h6">{mockData.title}</p>
-                      <p className="text-h6">{mockData.location}</p> */}
-                        <p className="text-h6">{event.title}</p>
-                        <p className="text-h6">{event.description}</p>
-                        <p className="text-h6">{event.location}</p>
-                        <p className="text-h6">{event.start_time}</p>
-                        <p className="text-h6">{event.end_time}</p>
-                      </div>
-                    </div>
-                    <div className="card-iconListRight flex justify-end px-1 py-1">
-                      <FiSend className="card-icon hover:text-neongreen" />
-                    </div>
+          <figure className="card-photo">
+            <img
+              src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+              alt="car!"
+              className="card-photo w-[330px] h-[330px] object-cover"
+            />
+          </figure>
+          <div className="card-body h-auto w-full p-0 overflow-auto flex flex-col justify-between">
+            <div className="card-info text-h4 flex flex-col justify-between">
+              <div className="flex flex-row justify-between">
+                <div className="card-infoLeft flex flex-row gap-2 px-1 py-1">
+                  <div className="flex flex-col">
+                    <p className="text-h6">{event.title}</p>
+                    <p className="text-h6">{event.description}</p>
+                    <p className="text-h6">{event.location}</p>
+                    <p className="text-h6">{event.start_time}</p>
+                    <p className="text-h6">{event.end_time}</p>
                   </div>
                 </div>
-                <div className="card-actions flex justify-center px-1 py-1 ">
-                  <button
-                    className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3"
-                    onClick={handleAttendedClick}
-                  >
-                    {isAttended ? <span>已參加</span> : <span>參加</span>}
-                  </button>
+                <div className="card-iconListRight flex justify-end px-1 py-1">
+                  <FiSend className="card-icon hover:text-neongreen" />
                 </div>
               </div>
             </div>
-            <div className={styles['flip-card-back']}>
-              {/* <h1>{mockData.title}</h1>
-            <p>{mockData.location}</p>
-            <p>{mockData.time}</p>
-            <p>{mockData.details}</p> */}
-              <p className="text-h6">{event.title}</p>
-              <p className="text-h6">{event.description}</p>
-              <p className="text-h6">{event.location}</p>
-              <p className="text-h6">{event.start_time}</p>
-              <p className="text-h6">{event.end_time}</p>
+            <div className="card-actions flex justify-center px-1 py-1 ">
+              <button
+                className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3"
+                onClick={handleAttendedClick}
+              >
+                {isAttended ? <span>已參加</span> : <span>參加</span>}
+              </button>
             </div>
           </div>
         </div>
-      ))}
-    </>
+        <div className={styles['flip-card-back']}>
+          <p className="text-h6">{event.title}</p>
+          <p className="text-h6">{event.description}</p>
+          <p className="text-h6">{event.location}</p>
+          <p className="text-h6">{event.start_time}</p>
+          <p className="text-h6">{event.end_time}</p>
+        </div>
+      </div>
+    </div>
   );
 }
