@@ -1,8 +1,11 @@
 import ExploreModal from '../modal/exploreModal';
 
-export default function PostCardMedium(index) {
+export default function PostCardMedium({ post }) {
+  // 基於 post_id 的唯一 id
+  const modalId = `photo_modal_${post.post_id}`;
+
   const handleShowModal = () => {
-    document.getElementById('photo_modal').showModal();
+    document.getElementById(modalId).showModal();
   };
 
   return (
@@ -11,13 +14,13 @@ export default function PostCardMedium(index) {
         {/* <figure className="card-photo m-0" onDoubleClick={handleLikedClick}> */}
         <figure className="card-photo m-0" onClick={handleShowModal}>
           <img
-            src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-            alt="car!"
+            src={post.img || '../../../public/unavailable-image.jpg'}
+            alt={post.photo_name || 'No Image Available'}
             className="card-photo object-cover w-[330px] h-[330px]"
           />
         </figure>
 
-        <ExploreModal />
+        <ExploreModal post={post} modalId={modalId} />
       </div>
     </>
   );

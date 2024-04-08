@@ -1,10 +1,24 @@
+import { useEffect, useState } from 'react';
 import PostCardMedium from '@/components/community/card/postCardMedium';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 
 export default function Index() {
-  // 假設有12個假資料的數組
-  const posts = Array.from({ length: 12 }); // 創建一個包含12個元素的數組
+  const [posts, setPosts] = useState([]);
+
+  const getCommunityIndexPost = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/community/posts');
+      const data = await res.json();
+      setPosts(data);
+    } catch (error) {
+      console.error('Failed to fetch index posts:', error);
+    }
+  };
+
+  useEffect(() => {
+    getCommunityIndexPost();
+  }, []);
 
   return (
     <>
@@ -22,8 +36,8 @@ export default function Index() {
           </div>
           <div className="flex flex-wrap md:w-10/12 gap-5 justify-center">
             <div className="flex flex-wrap gap-5 justify-center">
-              {posts.map((_, index) => (
-                <PostCardMedium key={index} />
+              {posts.map((post, i) => (
+                <PostCardMedium post={post} key={post.post_id || i} />
               ))}
             </div>
             {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">

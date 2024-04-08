@@ -1,10 +1,11 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FiHome, FiSearch, FiCalendar, FiUser } from 'react-icons/fi';
 import { MdOutlineExplore } from 'react-icons/md';
 import { FaRegSquarePlus } from 'react-icons/fa6';
 import SearchModal from '../modal/searchModal';
+import CreateEventModal from '../modal/createEventModal';
 import CreateModal from '../modal/createModal';
-import Link from 'next/link';
 
 export default function Sidebar() {
   const router = useRouter();
@@ -57,17 +58,48 @@ export default function Sidebar() {
               </li>
             </Link>
 
-            <li
-              className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen"
-              onClick={() =>
-                document.getElementById('create_modal').showModal()
-              }
-            >
-              <FaRegSquarePlus className="sidebarIcon text-h3 mr-5" />
-              <span className="sidebarListItemText text-h6 lg:inline md:hidden">
-                建立
-              </span>
+            <li className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen">
+              <div className="dropdown">
+                <div
+                  tabIndex={0}
+                  className="flex items-center w-full text-left"
+                >
+                  <FaRegSquarePlus className="sidebarIcon text-h3 mr-5" />
+                  <span className="sidebarListItemText text-h6 lg:inline md:hidden">
+                    建立
+                  </span>
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                  style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                  }}
+                >
+                  <li>
+                    <a
+                      onClick={() =>
+                        document.getElementById('create_modal').showModal()
+                      }
+                    >
+                      建立貼文
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      onClick={() =>
+                        document
+                          .getElementById('create_event_modal')
+                          .showModal()
+                      }
+                    >
+                      建立活動
+                    </a>
+                  </li>
+                </ul>
+              </div>
               <CreateModal />
+              <CreateEventModal />
             </li>
 
             <Link href="/community/events">

@@ -1,11 +1,25 @@
+import { useEffect, useState } from 'react';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 import ProfileInfo from '@/components/community/profileInfo/profileInfo';
 
 export default function Profile() {
-  // 假設有12個假資料的數組
-  const posts = Array.from({ length: 12 }); // 創建一個包含12個元素的數組
+  const [posts, setPosts] = useState([]);
+
+  const getCommunityIndexPost = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/community/posts');
+      const data = await res.json();
+      setPosts(data);
+    } catch (error) {
+      console.error('Failed to fetch index posts:', error);
+    }
+  };
+
+  useEffect(() => {
+    getCommunityIndexPost();
+  }, []);
 
   return (
     <>
@@ -28,8 +42,8 @@ export default function Profile() {
               <ProfileInfo />
               {/* post area */}
               <div className="flex flex-wrap gap-5 justify-center">
-                {posts.map((_, index) => (
-                  <ProfileCard key={index} />
+                {posts.map((post, i) => (
+                  <ProfileCard post={post} key={post.post_id || i} />
                 ))}
               </div>
               {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">

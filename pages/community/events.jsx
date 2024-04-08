@@ -3,12 +3,12 @@ import EventCard from '@/components/community/card/eventCard';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 
-export default function Index() {
+export default function Events() {
   const [events, setEvents] = useState([]);
 
-  const getCommetEvents = async () => {
+  const getCommunityEvents = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/comm-events');
+      const res = await fetch('http://localhost:3001/community/events');
       const data = await res.json();
       setEvents(data);
     } catch (error) {
@@ -17,7 +17,7 @@ export default function Index() {
   };
 
   useEffect(() => {
-    getCommetEvents();
+    getCommunityEvents();
   }, []);
 
   return (
@@ -34,7 +34,7 @@ export default function Index() {
           </div>
           <div className="flex md:w-10/12 flex-wrap gap-5 justify-center">
             {events.map((event, i) => (
-              <EventCard event={event} key={i} />
+              <EventCard event={event} key={event.comm_event_id || i} />
             ))}
           </div>
         </div>

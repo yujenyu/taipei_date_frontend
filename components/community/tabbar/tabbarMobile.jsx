@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import CreateModalMobile from '../modal/createModalMobile';
 import SearchModalMobile from '../modal/searchModalMobile';
+import CreateEventModalMobile from '../modal/createEventModalMobile';
 
 export default function TabbarMobile() {
   const router = useRouter();
@@ -34,9 +35,9 @@ export default function TabbarMobile() {
         </Link>
         <a
           role="tab"
-          className={`tab ${activeTab === 'search' ? 'tab-active' : ''}`}
+          className="tab"
           onClick={() => {
-            handleTabClick('search');
+            // handleTabClick('search');
             document.getElementById('search_modal_mobile').showModal();
           }}
         >
@@ -51,17 +52,49 @@ export default function TabbarMobile() {
         >
           <span>探索</span>
         </Link>
-        <a
+
+        <div
           role="tab"
-          className={`tab ${activeTab === 'create' ? 'tab-active' : ''}`}
-          onClick={() => {
-            handleTabClick('create');
-            document.getElementById('create_modal_mobile').showModal();
-          }}
+          // className={`tab ${activeTab === 'create' ? 'tab-active' : ''}`}
+          className="tab"
         >
-          <span>建立</span>
+          <div className="dropdown">
+            <div tabIndex={0}>
+              <span>建立</span>
+            </div>
+            <ul
+              tabIndex={0}
+              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.85)',
+              }}
+            >
+              <li>
+                <a
+                  onClick={() => {
+                    // handleTabClick('create');
+                    document.getElementById('create_modal_mobile').showModal();
+                  }}
+                >
+                  建立貼文
+                </a>
+              </li>
+              <li>
+                <a
+                  onClick={() =>
+                    document
+                      .getElementById('create_event_modal_mobile')
+                      .showModal()
+                  }
+                >
+                  建立活動
+                </a>
+              </li>
+            </ul>
+          </div>
           <CreateModalMobile />
-        </a>
+          <CreateEventModalMobile />
+        </div>
         <Link
           role="tab"
           className={`tab ${activeTab === 'events' ? 'tab-active' : ''}`}

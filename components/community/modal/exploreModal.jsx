@@ -1,14 +1,9 @@
 import { useState } from 'react';
 import { FiSend, FiMessageCircle } from 'react-icons/fi';
 import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
+import ShareModal from '../modal/shareModal';
 
-export default function ExploreModal() {
-  const mockData = {
-    userId: 'USERID',
-    context:
-      'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur corrupti aspernatur quas Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur corrupti aspernatur quas',
-  };
-
+export default function ExploreModal({ post, modalId }) {
   // fake data
   const mockComments = Array.from({ length: 10 }, (_, i) => ({
     id: i,
@@ -30,7 +25,7 @@ export default function ExploreModal() {
 
   return (
     <>
-      <dialog id="photo_modal" className="modal">
+      <dialog id={modalId} className="modal">
         <div
           className="flex modal-box w-[90vw] max-w-[90vw] h-[90vh] overflow-auto"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
@@ -42,10 +37,13 @@ export default function ExploreModal() {
           </form>
 
           <div className="container flex flex-col md:flex-row">
-            <figure className="flex flex-col w-full md:w-1/2 card-photo m-0 ">
+            <figure
+              className="flex flex-col w-full md:w-1/2 card-photo m-0 "
+              onDoubleClick={handleLikedClick}
+            >
               <img
-                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-                alt="car!"
+                src={post.img || '../../../public/unavailable-image.jpg'}
+                alt={post.photo_name || 'No Image Available'}
                 className="object-contain h-full w-full"
               />
             </figure>
@@ -54,13 +52,16 @@ export default function ExploreModal() {
               <div className="flex flex-row first-letter:card-user h-10  items-center gap-2 m-2">
                 <div className="avatar">
                   <div className="w-10 rounded-full">
-                    <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                    <img
+                      src={post.img || '../../../public/unavailable-image.jpg'}
+                      alt={post.photo_name || 'No Image Available'}
+                    />
                   </div>
                 </div>
-                <span>{mockData.userId}</span>
+                <span>{post.user_id}</span>
               </div>
               <div className="context flex mb-10">
-                <p>{mockData.context}</p>
+                <p>{post.context}</p>
               </div>
 
               <div className="flex flex-col comment space-y-4 ">
@@ -96,7 +97,13 @@ export default function ExploreModal() {
                       />
                     )}
                     <FiMessageCircle className="card-icon hover:text-neongreen" />
-                    <FiSend className="card-icon hover:text-neongreen" />
+                    <FiSend
+                      className="card-icon hover:text-neongreen"
+                      onClick={() =>
+                        document.getElementById('share_modal').showModal()
+                      }
+                    />
+                    <ShareModal />
                   </div>
                   <div className="card-iconListRight flex justify-end">
                     {isSaved ? (

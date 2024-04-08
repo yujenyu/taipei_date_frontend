@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaPhotoVideo } from 'react-icons/fa';
 
-export default function CreateModalMobile() {
+export default function CreateEventModalMobile() {
   // 選中的檔案
   const [selectedFile, setSelectedFile] = useState(null);
   // 預覽圖片(呼叫URL.createObjectURL得到的網址)
@@ -68,21 +68,22 @@ export default function CreateModalMobile() {
   return (
     <>
       <dialog
-        id="create_modal_mobile"
-        className="modal modal-bottom sm:modal-middle max-w-full"
+        id="create_event_modal_mobile"
+        className="modal modal-bottom sm:modal-middle "
       >
         <div
-          className="modal-box flex flex-col"
+          className="modal-box w-[500px] h-[500px] flex flex-col"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
         >
           <p className="font-bold text-lg mb-5 text-h5 flex justify-center">
-            創建新貼文
+            創建新活動
           </p>
 
           {!previewUrl && (
             <>
-              <div className="flex-grow flex flex-col items-center justify-center ">
+              <div className="flex-grow flex flex-col items-center justify-center">
                 <FaPhotoVideo className="text-6xl mb-4" />
+                <p className="text-h6 mb-3">請拖曳照片</p>
 
                 <label
                   htmlFor="photo-upload"

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FiSend } from 'react-icons/fi';
+import ShareModal from '../modal/shareModal';
 import styles from './card.module.css';
 
 // const mockData = {
@@ -9,7 +10,7 @@ import styles from './card.module.css';
 //   details: '翻玩經典唱片，重溫老歌的美好回憶',
 // };
 
-export default function EventCard({ event, key }) {
+export default function EventCard({ event }) {
   const [isAttended, setIsAttended] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   // const [eventData, setEventData] = useState([]);
@@ -23,57 +24,67 @@ export default function EventCard({ event, key }) {
   };
 
   return (
-    <div key={key} className={styles['flip-card']} onClick={handleDoubleClick}>
-      <div
-        className={`${styles['flip-card-inner']} ${
-          isFlipped ? styles.flipped : ''
-        }`}
-      >
+    <>
+      <div className={styles['flip-card']} onDoubleClick={handleDoubleClick}>
         <div
-          className={`${styles['flip-card-front']} eventCard card md:w-[330px] md:h-[480px] flex items-center justify-center border border-grayBorder`}
+          className={`${styles['flip-card-inner']} ${
+            isFlipped ? styles.flipped : ''
+          }`}
         >
-          <figure className="card-photo">
-            <img
-              src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-              alt="car!"
-              className="card-photo w-[330px] h-[330px] object-cover"
-            />
-          </figure>
-          <div className="card-body h-auto w-full p-0 overflow-auto flex flex-col justify-between">
-            <div className="card-info text-h4 flex flex-col justify-between">
-              <div className="flex flex-row justify-between">
-                <div className="card-infoLeft flex flex-row gap-2 px-1 py-1">
-                  <div className="flex flex-col">
-                    <p className="text-h6">{event.title}</p>
-                    <p className="text-h6">{event.description}</p>
-                    <p className="text-h6">{event.location}</p>
-                    <p className="text-h6">{event.start_time}</p>
-                    <p className="text-h6">{event.end_time}</p>
+          <div
+            className={`${styles['flip-card-front']} eventCard card md:w-[330px] md:h-[480px] flex items-center justify-center border border-grayBorder`}
+          >
+            <figure className="card-photo">
+              <img
+                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+                alt="car!"
+                className="card-photo w-[330px] h-[330px] object-cover"
+              />
+            </figure>
+            <div className="card-body h-auto w-[330px] p-0 overflow-auto flex flex-col justify-between">
+              <div className="card-info text-h4 flex flex-col justify-between">
+                <div className="flex flex-row justify-between">
+                  <div className="card-infoLeft flex flex-row gap-2 px-1 py-1">
+                    <div className="flex flex-col gap-3">
+                      <p className="text-h6">{event.title}</p>
+                      <p className="text-h6">{event.description}</p>
+                      <p className="text-h6">{event.location}</p>
+                      <p className="text-h6">
+                        {`${event.start_time} - ${event.end_time}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="card-iconListRight flex justify-end px-1 py-1">
+                    <FiSend
+                      className="card-icon hover:text-neongreen"
+                      onClick={() =>
+                        document.getElementById('share_modal').showModal()
+                      }
+                    />
+                    <ShareModal />
                   </div>
                 </div>
-                <div className="card-iconListRight flex justify-end px-1 py-1">
-                  <FiSend className="card-icon hover:text-neongreen" />
-                </div>
+              </div>
+              <div className="card-actions flex justify-center px-1 py-1 ">
+                <button
+                  className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3"
+                  onClick={handleAttendedClick}
+                >
+                  {isAttended ? <span>已參加</span> : <span>參加</span>}
+                </button>
               </div>
             </div>
-            <div className="card-actions flex justify-center px-1 py-1 ">
-              <button
-                className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3"
-                onClick={handleAttendedClick}
-              >
-                {isAttended ? <span>已參加</span> : <span>參加</span>}
-              </button>
-            </div>
+          </div>
+          <div className={styles['flip-card-back']}>
+            <p className="text-h6">{event.title}</p>
+            <p className="text-h6">{event.description}</p>
+            <p className="text-h6">{event.location}</p>
+            <p className="text-h6">
+              {`${event.start_time} - ${event.end_time}`}{' '}
+            </p>
           </div>
         </div>
-        <div className={styles['flip-card-back']}>
-          <p className="text-h6">{event.title}</p>
-          <p className="text-h6">{event.description}</p>
-          <p className="text-h6">{event.location}</p>
-          <p className="text-h6">{event.start_time}</p>
-          <p className="text-h6">{event.end_time}</p>
-        </div>
       </div>
-    </div>
+    </>
   );
 }
