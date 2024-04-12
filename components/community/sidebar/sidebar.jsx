@@ -6,6 +6,7 @@ import { FaRegSquarePlus } from 'react-icons/fa6';
 import SearchModal from '../modal/searchModal';
 import CreateEventModal from '../modal/createEventModal';
 import CreateModal from '../modal/createModal';
+import styles from '../modal/modal.module.css';
 
 export default function Sidebar() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function Sidebar() {
               <span className="sidebarListItemText text-h6 lg:inline md:hidden">
                 搜尋
               </span>
-              <SearchModal />
+              <SearchModal className={styles['']} />
             </li>
 
             <Link href="/community/explore">

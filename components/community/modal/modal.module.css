@@ -1,0 +1,12 @@
+.searchModalListItemText,
+.searchModalListItemIcon,
+.createModalListItemText,
+.createModalListItemIcon {
+  color: white;
+}
+.searchModalListItemText:hover,
+.searchModalListItemIcon:hover,
+.createModalListItemText:hover,
+.createModalListItemIcon:hover {
+  color: #a0ff1f;
+}

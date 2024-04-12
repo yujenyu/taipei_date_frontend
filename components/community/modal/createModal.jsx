@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaPhotoVideo } from 'react-icons/fa';
+import styles from './modal.module.css';
 
 export default function CreateModal() {
   // 選中的檔案
@@ -72,19 +73,27 @@ export default function CreateModal() {
           className="modal-box w-[500px] h-[500px] flex flex-col"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
         >
-          <p className="font-bold text-lg mb-5 text-h5 flex justify-center">
+          <p
+            className={`${styles['createModalListItemText']} font-bold text-lg mb-5 text-h5 flex justify-center`}
+          >
             創建新貼文
           </p>
 
           {!previewUrl && (
             <>
               <div className="flex-grow flex flex-col items-center justify-center">
-                <FaPhotoVideo className="text-6xl mb-4" />
-                <p className="text-h6 mb-3">請拖曳照片</p>
+                <FaPhotoVideo
+                  className={`${styles['createModalListItemIcon']} text-6xl mb-4`}
+                />
+                <p
+                  className={`${styles['createModalListItemText']} text-h6 mb-3`}
+                >
+                  請拖曳照片
+                </p>
 
                 <label
                   htmlFor="photo-upload"
-                  className="btn bg-neongreen hover:bg-neongreen text-light cursor-pointer flex justify-center"
+                  className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3 cursor-pointer flex justify-center`}
                 >
                   從圖庫瀏覽
                 </label>
@@ -110,7 +119,7 @@ export default function CreateModal() {
                   placeholder="貼文內容"
                 />
                 <button
-                  className="btn bg-neongreen hover:bg-neongreen text-light"
+                  className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3`}
                   onClick={handleFileUpload}
                 >
                   分享

@@ -96,7 +96,7 @@ export default function PostCardLarge({ post }) {
                 className="textarea textarea-ghost w-full h-16 resize-none"
                 placeholder="新增回覆"
               />
-              <button className="btn bg-neongreen hover:bg-neongreen text-light w-24 flex justify-center">
+              <button className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3 flex justify-center">
                 分享
               </button>
             </div>
