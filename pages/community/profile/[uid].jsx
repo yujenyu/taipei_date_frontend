@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 import ProfileInfo from '@/components/community/profileInfo/profileInfo';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import styles from './page.module.css';
+import styles from '../page.module.css';
 
 export default function Profile() {
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { uid } = router.query;
 
   const getCommunityProfilePost = async () => {
     if (!hasMore) return; // 防止重複請求
     setIsLoading(true); // 開始加載
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts?page=${page}&limit=12`
+        `http://localhost:3001/community/posts/${uid}?page=${page}&limit=12`
       );
       const data = await res.json();
       if (data.length === 0) {
@@ -33,8 +36,11 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    getCommunityProfilePost();
-  }, []);
+    // 確保 uid 已定義且不為空
+    if (uid) {
+      getCommunityProfilePost();
+    }
+  }, [uid]); // 添加 uid 為依賴，這樣只有 uid 變化時才重新調用
 
   return (
     <>
