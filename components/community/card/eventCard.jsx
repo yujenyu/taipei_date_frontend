@@ -36,9 +36,10 @@ export default function EventCard({ event }) {
           >
             <figure className="card-photo">
               <img
-                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-                alt="car!"
+                src={event.img || '../../../public/unavailable-image.jpg'}
+                alt={event.photo_name || 'No Image Available'}
                 className="card-photo w-[330px] h-[330px] object-cover"
+                loading="lazy"
               />
             </figure>
             <div className="card-body h-auto w-[330px] p-0 overflow-auto flex flex-col justify-between">
