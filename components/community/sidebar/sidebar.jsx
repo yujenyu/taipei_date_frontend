@@ -79,6 +79,7 @@ export default function Sidebar() {
                 >
                   <li>
                     <a
+                      className={`${styles['createModalListItemText']}`}
                       onClick={() =>
                         document.getElementById('create_modal').showModal()
                       }
@@ -88,6 +89,7 @@ export default function Sidebar() {
                   </li>
                   <li>
                     <a
+                      className={`${styles['createModalListItemText']}`}
                       onClick={() =>
                         document
                           .getElementById('create_event_modal')
