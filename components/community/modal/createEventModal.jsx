@@ -8,6 +8,7 @@ export default function CreateEventModal() {
   const [selectedFile, setSelectedFile] = useState(null);
   // 預覽圖片(呼叫URL.createObjectURL得到的網址)
   const [previewUrl, setPreviewUrl] = useState('');
+
   const fileInputRef = useRef(null);
   const createModalRef = useRef(null);
 
@@ -33,7 +34,7 @@ export default function CreateEventModal() {
     createModalRef.current.close();
   };
 
-  // 上傳到伺服器
+  // 上傳圖片到伺服器
   const handleFileUpload = async () => {
     const fd = new FormData();
 
@@ -61,6 +62,7 @@ export default function CreateEventModal() {
         icon: 'success',
         confirmButtonText: '關閉',
         confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
       }).then((result) => {
         if (result.isConfirmed) {
           resetAndCloseModal();
@@ -74,6 +76,7 @@ export default function CreateEventModal() {
         icon: 'error',
         confirmButtonText: '關閉',
         confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
       }).then((result) => {
         if (result.isConfirmed) {
           resetAndCloseModal();
@@ -109,6 +112,20 @@ export default function CreateEventModal() {
   const handleFilePicker = () => {
     // 利用 ref 引用來觸發 input 的點擊事件
     fileInputRef.current.click();
+  };
+
+  const handleDateFocus = (e) => {
+    e.target.type = 'date';
+  };
+
+  const handleBlur = (e) => {
+    if (e.target.value === '') {
+      e.target.type = 'text';
+    }
+  };
+
+  const handleTimeFocus = (e) => {
+    e.target.type = 'time';
   };
 
   return (
@@ -159,16 +176,77 @@ export default function CreateEventModal() {
           )}
           {selectedFile && (
             <>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center gap-2">
                 <img
                   src={previewUrl}
                   alt="Preview"
                   className="w-full max-h-full object-cover mb-4"
                 />
-                <textarea
-                  className="textarea textarea-ghost w-full h-32 resize-none"
-                  placeholder="貼文內容"
-                />
+                <div className="flex flex-col inputFrom w-full gap-2">
+                  <label className="input input-bordered flex items-center rounded-full">
+                    <input
+                      type="text"
+                      className="grow"
+                      placeholder="活動名稱"
+                    />
+                  </label>
+                  <label className="input input-bordered flex items-center rounded-full">
+                    <input
+                      type="text"
+                      className="grow"
+                      placeholder="活動描述"
+                    />
+                  </label>
+                  <label className="input input-bordered flex items-center rounded-full">
+                    <input
+                      type="text"
+                      className="grow"
+                      placeholder="活動地點"
+                    />
+                  </label>
+                  <div className="flex w-full justify-between">
+                    <label className="input input-bordered flex items-center rounded-full">
+                      <input
+                        type="text"
+                        placeholder="開始日期"
+                        onFocus={handleDateFocus}
+                        onBlur={handleBlur}
+                        className="grow"
+                      />
+                    </label>
+                    <label className="input input-bordered flex items-center rounded-full">
+                      <input
+                        type="text"
+                        placeholder="開始時間"
+                        onFocus={handleTimeFocus}
+                        onBlur={handleBlur}
+                        className="grow"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="flex w-full justify-between">
+                    <label className="input input-bordered flex items-center rounded-full">
+                      <input
+                        type="text"
+                        placeholder="結束日期"
+                        onFocus={handleDateFocus}
+                        onBlur={handleBlur}
+                        className="grow"
+                      />
+                    </label>
+                    <label className="input input-bordered flex items-center rounded-full">
+                      <input
+                        type="text"
+                        placeholder="結束時間"
+                        onFocus={handleTimeFocus}
+                        onBlur={handleBlur}
+                        className="grow"
+                      />
+                    </label>
+                  </div>
+                </div>
+
                 <button
                   className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3`}
                   onClick={handleFileUpload}

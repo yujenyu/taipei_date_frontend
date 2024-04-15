@@ -61,6 +61,7 @@ export default function CreateEventModalMobile() {
         icon: 'success',
         confirmButtonText: '關閉',
         confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
       }).then((result) => {
         if (result.isConfirmed) {
           resetAndCloseModal();
@@ -74,6 +75,7 @@ export default function CreateEventModalMobile() {
         icon: 'error',
         confirmButtonText: '關閉',
         confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
       }).then((result) => {
         if (result.isConfirmed) {
           resetAndCloseModal();

@@ -88,7 +88,7 @@ export default function Index() {
                   }}
                 >
                   {posts.map((post, i) => (
-                    <PostCardMedium post={post} key={post.post_id} />
+                    <PostCardMedium post={post} key={i} />
                   ))}
                 </InfiniteScroll>
               </div>

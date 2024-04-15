@@ -90,7 +90,7 @@ export default function Index() {
                     }}
                   >
                     {posts.map((post, i) => (
-                      <PostCardLarge post={post} key={post.post_id} />
+                      <PostCardLarge post={post} key={i} />
                     ))}
                   </InfiniteScroll>
                 </div>

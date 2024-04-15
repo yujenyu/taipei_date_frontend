@@ -85,7 +85,7 @@ export default function Events() {
                 }}
               >
                 {events.map((event, i) => (
-                  <EventCard event={event} key={event.comm_event_id} />
+                  <EventCard event={event} key={i} />
                 ))}
               </InfiniteScroll>
             </div>

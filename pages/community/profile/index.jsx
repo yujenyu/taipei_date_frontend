@@ -90,7 +90,7 @@ export default function Profile() {
                     }}
                   >
                     {posts.map((post, i) => (
-                      <ProfileCard post={post} key={post.post_id} />
+                      <ProfileCard post={post} key={i} />
                     ))}
                   </InfiniteScroll>
                 </div>

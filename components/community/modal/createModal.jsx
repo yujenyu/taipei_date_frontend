@@ -8,8 +8,18 @@ export default function CreateModal() {
   const [selectedFile, setSelectedFile] = useState(null);
   // 預覽圖片(呼叫URL.createObjectURL得到的網址)
   const [previewUrl, setPreviewUrl] = useState('');
+  const [postContent, setPostContent] = useState('');
+  // 標示貼文是否已創建
+  const [postCreated, setPostCreated] = useState(false);
+  // 儲存創立貼文後的 post id
+  const [postId, setPostId] = useState('');
+
   const fileInputRef = useRef(null);
   const createModalRef = useRef(null);
+
+  const handlePostContentChange = (e) => {
+    setPostContent(e.target.value);
+  };
 
   // 選擇檔案有變動時的處理函式
   const handleFileChange = (e) => {
@@ -33,12 +43,67 @@ export default function CreateModal() {
     createModalRef.current.close();
   };
 
-  // 上傳到伺服器
+  // 上傳貼文
+  const handlePostUpload = async () => {
+    if (!postContent) {
+      Swal.fire('請輸入貼文內容', '', 'warning');
+      return;
+    }
+    try {
+      // 用fetch送出檔案
+      const res = await fetch('http://localhost:3001/community/create-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // ==================================== TODO TODO TODO ====================================
+        body: JSON.stringify({ context: postContent, userId: 1 }), // TODO: 需動態更改 userId
+        // ==================================== TODO TODO TODO ====================================
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPostId(data.postId.insertId);
+        setPostCreated(true);
+        return data.postId.insertId; // 返回 postId 給 handleFileUpload
+      } else {
+        throw new Error(data.message || '新增貼文失敗');
+      }
+    } catch (error) {
+      console.error('upload post failed:', error);
+      createModalRef.current.close();
+      Swal.fire({
+        title: '分享失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
+  // 上傳圖片到伺服器
   const handleFileUpload = async () => {
+    let currentPostId = postId;
+
+    if (!postCreated) {
+      currentPostId = await handlePostUpload();
+      console.log('postId:', currentPostId);
+      if (!currentPostId) {
+        console.error('No post ID returned');
+        return; // 如果新增貼文失敗或沒有 postID 則停止執行
+      }
+      setPostId(currentPostId);
+      setPostCreated(true);
+    }
+
     const fd = new FormData();
 
     // 對照server上要獲取的檔案名稱(req.files.photo)
     fd.append('photo', selectedFile);
+    fd.append('postId', currentPostId);
+
     try {
       // 用fetch送出檔案
       const res = await fetch('http://localhost:3001/community/upload-photo', {
@@ -61,6 +126,7 @@ export default function CreateModal() {
         icon: 'success',
         confirmButtonText: '關閉',
         confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
       }).then((result) => {
         if (result.isConfirmed) {
           resetAndCloseModal();
@@ -74,6 +140,7 @@ export default function CreateModal() {
         icon: 'error',
         confirmButtonText: '關閉',
         confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
       }).then((result) => {
         if (result.isConfirmed) {
           resetAndCloseModal();
@@ -168,6 +235,7 @@ export default function CreateModal() {
                 <textarea
                   className="textarea textarea-ghost w-full h-32 resize-none"
                   placeholder="貼文內容"
+                  onChange={handlePostContentChange}
                 />
                 <button
                   className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3`}
