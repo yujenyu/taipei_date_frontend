@@ -11,7 +11,6 @@ export default function PostCardMedium({ post }) {
   return (
     <>
       <div className="flex aspect-square card w-[330px] h-[330px] overflow-hidden items-center justify-center border border-grayBorder">
-        {/* <figure className="card-photo m-0" onDoubleClick={handleLikedClick}> */}
         <figure className="card-photo m-0" onClick={handleShowModal}>
           <img
             src={post.img || '../../../public/unavailable-image.jpg'}

@@ -89,7 +89,7 @@ export default function CreateModalMobile() {
 
     if (!postCreated) {
       currentPostId = await handlePostUpload();
-      console.log('postId:', currentPostId);
+      // console.log('postId:', currentPostId);
       if (!currentPostId) {
         console.error('No post ID returned');
         return; // 如果新增貼文失敗或沒有 postID 則停止執行

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FiSend } from 'react-icons/fi';
 import ShareModal from '../modal/shareModal';
 import styles from './card.module.css';
@@ -15,13 +15,88 @@ export default function EventCard({ event }) {
   const [isFlipped, setIsFlipped] = useState(false);
   // const [eventData, setEventData] = useState([]);
 
-  const handleAttendedClick = () => {
-    setIsAttended(!isAttended);
+  const handleAttendedClick = async () => {
+    // 如果已參加, 則取消參加
+    if (isAttended) {
+      // 發送取消參加的請求
+      try {
+        const res = await fetch(
+          'http://localhost:3001/community/notattend-event',
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            // ==================================== TODO TODO TODO ====================================
+            body: JSON.stringify({ eventId: event.comm_event_id, userId: 1 }), // TODO: 需動態更改 userId
+            // ==================================== TODO TODO TODO ====================================
+          }
+        );
+        if (res.ok) {
+          setIsAttended(false);
+          // console.log('取消參加成功');
+        } else {
+          throw new Error('取消參加失敗');
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    } else {
+      try {
+        const res = await fetch(
+          'http://localhost:3001/community/attend-event',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            // ==================================== TODO TODO TODO ====================================
+            body: JSON.stringify({ eventId: event.comm_event_id, userId: 1 }), // TODO: 需動態更改 userId
+            // ==================================== TODO TODO TODO ====================================
+          }
+        );
+        if (res.ok) {
+          setIsAttended(true);
+          // console.log('參加成功');
+        } else {
+          throw new Error('參加失敗');
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
+  };
+
+  // 檢查當前用戶是否已參加活動
+  const fetchIsAttended = async () => {
+    try {
+      // ==================================== TODO TODO TODO ====================================
+      const response = await fetch(
+        `http://localhost:3001/community/isAttended-event?eventId=${event.comm_event_id}&userId=1`
+      ); // TODO: 需動態更改 userId
+      // ==================================== TODO TODO TODO ====================================
+      const data = await response.json();
+      if (data.isAttended) {
+        setIsAttended(data.isAttended);
+      }
+    } catch (error) {
+      console.error('無法獲取收藏狀態:', error);
+    }
   };
 
   const handleDoubleClick = () => {
     setIsFlipped(!isFlipped);
   };
+
+  // 於前端處理地點顯示
+  const formatLocation = (location) => {
+    // 檢查 location 是否有足夠長度, 如果沒有直接返回原字串
+    return location.length > 6 ? location.substring(0, 6) : location;
+  };
+
+  useEffect(() => {
+    fetchIsAttended();
+  }, [[event.comm_event_id]]); // 依賴 event.comm_event_id 確保當活動更新時重新檢查
 
   return (
     <>
@@ -48,10 +123,11 @@ export default function EventCard({ event }) {
                   <div className="card-infoLeft flex flex-row gap-2 px-1 py-1">
                     <div className="flex flex-col gap-3">
                       <p className="text-h6">{event.title}</p>
-                      <p className="text-h6">{event.description}</p>
-                      <p className="text-h6">{event.location}</p>
                       <p className="text-h6">
-                        {`${event.start_time} - ${event.end_time}`}
+                        {formatLocation(event.location)}
+                      </p>
+                      <p className="text-h6">
+                        {`${event.start_date} ${event.start_time}`}
                       </p>
                     </div>
                   </div>
@@ -76,12 +152,12 @@ export default function EventCard({ event }) {
               </div>
             </div>
           </div>
-          <div className={styles['flip-card-back']}>
+          <div className={`${styles['flip-card-back']} flex flex-col gap-5`}>
             <p className="text-h6">{event.title}</p>
             <p className="text-h6">{event.description}</p>
             <p className="text-h6">{event.location}</p>
             <p className="text-h6">
-              {`${event.start_time} - ${event.end_time}`}{' '}
+              {`${event.start_date} ${event.start_time} - ${event.end_date} ${event.end_time}`}
             </p>
           </div>
         </div>

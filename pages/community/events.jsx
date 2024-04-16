@@ -33,6 +33,7 @@ export default function Events() {
   };
 
   useEffect(() => {
+    console.log('Component mounted');
     getCommunityEvents();
   }, []);
 
