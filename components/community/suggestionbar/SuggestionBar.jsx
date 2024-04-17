@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function SuggestionBar() {
   const [users, setUsers] = useState([]);
@@ -29,12 +30,19 @@ export default function SuggestionBar() {
               key={i}
               className="recbarListItem flex mb-3 p-2 gap-3 items-center"
             >
-              <div className="avatar">
-                <div className="w-10 rounded-full">
-                  <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+              <Link href={`/community/profile/${user.user_id}`}>
+                <div className="avatar">
+                  <div className="w-10 rounded-full">
+                    <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                  </div>
                 </div>
-              </div>
-              <span className="recbarListItemText text-h6">{user.user_id}</span>
+              </Link>
+              <Link href={`/community/profile/${user.user_id}`}>
+                <span className="recbarListItemText text-h6">
+                  {/* 處理從 member_user 拿到的 email, 僅保留 @ 之前的 id */}
+                  {user.email ? user.email.split('@')[0] : 'Unknown User'}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

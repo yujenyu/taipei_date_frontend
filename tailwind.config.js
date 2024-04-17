@@ -20,6 +20,7 @@ module.exports = {
       bubblegum: '#ff77e9',
       bermuda: '#78dcca',
       grayBorder: '#1d4357',
+      grayBlue: '#7d8491',
     },
     boxShadow: {
       xl3: '0 0 13.6px 10px rgba(160, 255, 31, 0.58)',

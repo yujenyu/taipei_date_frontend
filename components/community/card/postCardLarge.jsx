@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { FiSend, FiMessageCircle } from 'react-icons/fi';
 import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
 import ShareModal from '../modal/shareModal';
+import PostModal from '../modal/postModal';
 
 // const mockData = {
 //   userId: 'USERID',
@@ -12,7 +14,14 @@ import ShareModal from '../modal/shareModal';
 export default function PostCardLarge({ post }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [showReply, setShowReply] = useState(false);
+  // const [showReply, setShowReply] = useState(false);
+
+  // 基於 post_id 的唯一 id
+  const modalId = `photo_modal_${post.post_id}`;
+
+  const handleShowModal = () => {
+    document.getElementById(modalId).showModal();
+  };
 
   const handleLikedClick = async () => {
     // 如果已喜愛, 則取消喜愛
@@ -140,9 +149,9 @@ export default function PostCardLarge({ post }) {
     }
   };
 
-  const handleReplyClick = () => {
-    setShowReply(!showReply);
-  };
+  // const handleReplyClick = () => {
+  //   setShowReply(!showReply);
+  // };
 
   useEffect(() => {
     fetchIsLiked();
@@ -153,15 +162,19 @@ export default function PostCardLarge({ post }) {
     <>
       <div className="card w-[480px] h-[700px] overflow-hidden flex border border-grayBorder">
         <div className="card-user h-10 flex items-center gap-2 m-2">
-          <div className="avatar">
-            <div className="w-10 rounded-full">
-              <img
-                src={post.img || '../../../public/unavailable-image.jpg'}
-                alt={post.photo_name || 'No Image Available'}
-              />
+          <Link href={`/community/profile/${post.post_userId}`}>
+            <div className="avatar">
+              <div className="w-10 rounded-full">
+                <img
+                  src={post.img || '../../../public/unavailable-image.jpg'}
+                  alt={post.photo_name || 'No Image Available'}
+                />
+              </div>
             </div>
-          </div>
-          <span>{post.user_id}</span>
+          </Link>
+          <Link href={`/community/profile/${post.post_userId}`}>
+            <span>{post.email ? post.email.split('@')[0] : 'unknownuser'}</span>
+          </Link>
         </div>
         <figure className="card-photo m-0" onDoubleClick={handleLikedClick}>
           <img
@@ -170,7 +183,7 @@ export default function PostCardLarge({ post }) {
             className="card-photo w-[480px] h-[480px] object-cover"
           />
         </figure>
-        <div className="card-body w-full p-0 overflow-auto max-w-[480px] px-1 py-1">
+        <div className="card-body w-full p-0 overflow-auto max-w-[480px] px-3 py-3">
           <div className="card-iconList text-h4 flex flex-row justify-between">
             <div className="card-iconListLeft flex flex-row gap-1">
               {isLiked ? (
@@ -187,7 +200,7 @@ export default function PostCardLarge({ post }) {
 
               <FiMessageCircle
                 className="card-icon hover:text-neongreen"
-                onClick={handleReplyClick}
+                onClick={handleShowModal}
               />
               <FiSend
                 className="card-icon hover:text-neongreen"
@@ -212,18 +225,27 @@ export default function PostCardLarge({ post }) {
             </div>
           </div>
           {/* <h2 className="card-title">Life hack</h2> */}
-          <p className="context">{post.context}</p>
-          {showReply && (
+          <p className="postContext">{post.post_context}</p>
+          <p
+            className="commentontext text-[12px] text-grayBlue cursor-pointer"
+            onClick={handleShowModal}
+          >
+            查看回覆
+          </p>
+
+          <PostModal post={post} modalId={modalId} />
+
+          {/* {showReply && (
             <div className="flex flex-col justify-center items-center">
               <textarea
-                className="textarea textarea-ghost w-full h-16 resize-none"
+                className="textarea textarea-ghost w-full h-16 resize-none rounded-full mb-3"
                 placeholder="新增回覆"
               />
               <button className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3 flex justify-center">
                 分享
               </button>
             </div>
-          )}
+          )} */}
           <div className="card-actions justify-end"></div>
         </div>
       </div>
