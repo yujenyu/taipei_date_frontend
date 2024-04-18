@@ -50,51 +50,46 @@ export default function Profile() {
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
-          {isLoading ? (
-            <div
-              className="flex items-center justify-center w-full"
-              style={{ minHeight: '100vh' }}
-            >
-              <div className={`${styles[`lds-heart`]}`}>
-                <div></div>
+          <div className="flex flex-col w-full md:w-10/12 items-center">
+            <div className="flex flex-col items-center">
+              {/* info area */}
+              <ProfileInfo posts={posts} />
+              {/* post area */}
+              <div className="flex flex-wrap gap-5 justify-center">
+                <InfiniteScroll
+                  dataLength={posts.length}
+                  next={getCommunityProfilePost}
+                  hasMore={hasMore}
+                  loader={
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: '100%',
+                        textAlign: 'center',
+                        minHeight: '100vh',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div className={`${styles[`lds-heart`]}`}>
+                        <div></div>
+                      </div>
+                    </div>
+                  }
+                  // endMessage={<p>No more posts</p>}
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: '1.25rem',
+                  }}
+                >
+                  {posts.map((post, i) => (
+                    <ProfileCard post={post} key={i} />
+                  ))}
+                </InfiniteScroll>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col w-full md:w-10/12 items-center">
-              <div className="flex flex-col items-center">
-                {/* info area */}
-                <ProfileInfo />
-                {/* post area */}
-                <div className="flex flex-wrap gap-5 justify-center">
-                  <InfiniteScroll
-                    dataLength={posts.length}
-                    next={getCommunityProfilePost}
-                    hasMore={hasMore}
-                    loader={
-                      <p
-                        style={{
-                          width: '100%',
-                          textAlign: 'center',
-                          marginTop: '20px',
-                        }}
-                      >
-                        Loading...
-                      </p>
-                    }
-                    endMessage={<p>No more posts</p>}
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      justifyContent: 'center',
-                      gap: '1.25rem',
-                    }}
-                  >
-                    {posts.map((post, i) => (
-                      <ProfileCard post={post} key={i} />
-                    ))}
-                  </InfiniteScroll>
-                </div>
-                {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
+              {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
                 {posts.map((_, index) => (
                   <ProfileCard key={index} />
                 ))}
@@ -104,9 +99,8 @@ export default function Profile() {
                   <ProfileCard key={index} />
                 ))}
               </div> */}
-              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </>

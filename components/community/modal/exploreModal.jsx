@@ -207,7 +207,7 @@ export default function ExploreModal({ post, modalId }) {
     fetchIsLiked();
     fetchIsSaved();
     getPostComment();
-  }, [[post.post_id]]); // 依賴 post.post_id 確保當貼文更新時重新檢查
+  }, [post.post_id]); // 依賴 post.post_id 確保當貼文更新時重新檢查
 
   return (
     <>

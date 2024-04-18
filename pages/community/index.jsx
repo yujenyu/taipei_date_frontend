@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { usePostContext } from '@/context/post-context';
 import SuggestionBar from '@/components/community/suggestionbar/SuggestionBar';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
@@ -10,11 +11,11 @@ export default function Index() {
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   const getCommunityIndexPost = async () => {
     if (!hasMore) return; // 防止重複請求
-    setIsLoading(true); // 開始加載
+    // setIsLoading(true); // 開始加載
 
     try {
       const res = await fetch(
@@ -26,10 +27,10 @@ export default function Index() {
       }
       setPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
       setPage((prevPage) => prevPage + 1); // 更新頁碼
-      setIsLoading(false); // 結束加載
+      // setIsLoading(false); // 結束加載
     } catch (error) {
       console.error('Failed to fetch index posts:', error);
-      setIsLoading(false); // 確保即使出錯也要結束加載
+      // setIsLoading(false); // 確保即使出錯也要結束加載
     }
   };
 
@@ -51,56 +52,46 @@ export default function Index() {
           <div className="hidden md:flex md:basis-3/12">
             <Sidebar />
           </div>
-          {isLoading ? (
-            <div className="flex w-full md:basis-6/12 justify-center">
-              <div
-                className="flex items-center justify-center w-full"
-                style={{ minHeight: '100vh' }}
-              >
-                <div className={`${styles[`lds-heart`]}`}>
-                  <div></div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="flex w-full md:basis-6/12 justify-center">
-                <div className="grid grid-cols-1 gap-8 min-h-screen">
-                  <InfiniteScroll
-                    dataLength={posts.length}
-                    next={getCommunityIndexPost}
-                    hasMore={hasMore}
-                    loader={
-                      <p
-                        style={{
-                          width: '100%',
-                          textAlign: 'center',
-                          marginTop: '20px',
-                        }}
-                      >
-                        Loading...
-                      </p>
-                    }
-                    endMessage={<p>No more posts</p>}
+          <div className="flex w-full md:basis-6/12 justify-center">
+            <div className="grid grid-cols-1 gap-8 min-h-screen">
+              <InfiniteScroll
+                dataLength={posts.length}
+                next={getCommunityIndexPost}
+                hasMore={hasMore}
+                loader={
+                  <div
                     style={{
                       display: 'flex',
-                      flexWrap: 'wrap',
+                      width: '100%',
+                      textAlign: 'center',
+                      minHeight: '100vh',
                       justifyContent: 'center',
-                      gap: '1.25rem',
+                      alignItems: 'center',
                     }}
                   >
-                    {posts.map((post, i) => (
-                      <PostCardLarge post={post} key={i} />
-                    ))}
-                  </InfiniteScroll>
-                </div>
-              </div>
+                    <div className={`${styles[`lds-heart`]}`}>
+                      <div></div>
+                    </div>
+                  </div>
+                }
+                // endMessage={<p>No more posts</p>}
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  gap: '1.25rem',
+                }}
+              >
+                {posts.map((post, i) => (
+                  <PostCardLarge post={post} key={i} />
+                ))}
+              </InfiniteScroll>
+            </div>
+          </div>
 
-              <div className="hidden lg:flex w-full lg:basis-3/12 justify-end pr-10">
-                <SuggestionBar />
-              </div>
-            </>
-          )}
+          <div className="hidden lg:flex w-full lg:basis-3/12 justify-end pr-10">
+            <SuggestionBar />
+          </div>
         </div>
       </div>
     </>

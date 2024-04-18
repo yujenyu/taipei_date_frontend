@@ -48,48 +48,40 @@ export default function Events() {
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
-          {isLoading ? (
-            <div className="flex w-full md:basis-6/12 justify-center">
-              <div
-                className="flex items-center justify-center w-full"
-                style={{ minHeight: '100vh' }}
-              >
-                <div className={`${styles[`lds-heart`]}`}>
-                  <div></div>
+          <div className="flex md:w-10/12 flex-wrap gap-5 justify-center">
+            <InfiniteScroll
+              dataLength={events.length}
+              next={getCommunityEvents}
+              hasMore={hasMore}
+              loader={
+                <div
+                  style={{
+                    display: 'flex',
+                    width: '100%',
+                    textAlign: 'center',
+                    minHeight: '100vh',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div className={`${styles[`lds-heart`]}`}>
+                    <div></div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex md:w-10/12 flex-wrap gap-5 justify-center">
-              <InfiniteScroll
-                dataLength={events.length}
-                next={getCommunityEvents}
-                hasMore={hasMore}
-                loader={
-                  <p
-                    style={{
-                      width: '100%',
-                      textAlign: 'center',
-                      marginTop: '20px',
-                    }}
-                  >
-                    Loading...
-                  </p>
-                }
-                endMessage={<p>No more events</p>}
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                  gap: '1.25rem',
-                }}
-              >
-                {events.map((event, i) => (
-                  <EventCard event={event} key={i} />
-                ))}
-              </InfiniteScroll>
-            </div>
-          )}
+              }
+              // endMessage={<p>No more events</p>}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: '1.25rem',
+              }}
+            >
+              {events.map((event, i) => (
+                <EventCard event={event} key={i} />
+              ))}
+            </InfiniteScroll>
+          </div>
         </div>
       </div>
     </>

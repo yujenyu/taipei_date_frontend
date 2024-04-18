@@ -5,7 +5,7 @@ import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './page.module.css';
 
-export default function Index() {
+export default function Explore() {
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
@@ -50,49 +50,54 @@ export default function Index() {
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
-          {isLoading ? (
-            <div className="flex w-full md:basis-6/12 justify-center">
-              <div
-                className="flex items-center justify-center w-full"
-                style={{ minHeight: '100vh' }}
-              >
-                <div className={`${styles[`lds-heart`]}`}>
-                  <div></div>
-                </div>
+
+          {/* <div className="flex w-full md:basis-6/12 justify-center">
+            <div
+              className="flex items-center justify-center w-full"
+              style={{ minHeight: '100vh' }}
+            >
+              <div className={`${styles[`lds-heart`]}`}>
+                <div></div>
               </div>
             </div>
-          ) : (
-            <div className="flex flex-wrap md:w-10/12 gap-5 justify-center">
-              <div className="flex flex-wrap gap-5 justify-center">
-                <InfiniteScroll
-                  dataLength={posts.length}
-                  next={getCommunityExplorePost}
-                  hasMore={hasMore}
-                  loader={
-                    <p
-                      style={{
-                        width: '100%',
-                        textAlign: 'center',
-                        marginTop: '20px',
-                      }}
-                    >
-                      Loading...
-                    </p>
-                  }
-                  endMessage={<p>No more posts</p>}
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    gap: '1.25rem',
-                  }}
-                >
-                  {posts.map((post, i) => (
-                    <PostCardMedium post={post} key={i} />
-                  ))}
-                </InfiniteScroll>
-              </div>
-              {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
+          </div> */}
+
+          <div className="flex flex-wrap md:w-10/12 gap-5 justify-center">
+            <div className="flex flex-wrap gap-5 justify-center">
+              <InfiniteScroll
+                dataLength={posts.length}
+                next={getCommunityExplorePost}
+                hasMore={hasMore}
+                loader={
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: '100%',
+                      textAlign: 'center',
+                      minHeight: '100vh',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div className={`${styles[`lds-heart`]}`}>
+                      <div></div>
+                    </div>
+                  </div>
+                }
+                // endMessage={<p>No more posts</p>}
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  gap: '1.25rem',
+                }}
+              >
+                {posts.map((post) => (
+                  <PostCardMedium post={post} key={post.post_id} />
+                ))}
+              </InfiniteScroll>
+            </div>
+            {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
               {posts.map((_, index) => (
                 <PostCardMedium key={index} />
               ))}
@@ -102,8 +107,7 @@ export default function Index() {
                 <PostCardMedium key={index} />
               ))}
             </div> */}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </>

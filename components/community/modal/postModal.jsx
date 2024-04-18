@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePostContext } from '@/context/post-context';
 import Link from 'next/link';
 import { FiSend, FiMessageCircle } from 'react-icons/fi';
 import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
@@ -32,7 +33,7 @@ export default function PostModal({ post, modalId }) {
         setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       }
     } catch (error) {
-      console.error('Failed to fetch index posts:', error);
+      console.error('Failed to fetch comments:', error);
     }
   };
 
@@ -207,7 +208,7 @@ export default function PostModal({ post, modalId }) {
     fetchIsLiked();
     fetchIsSaved();
     getPostComment();
-  }, [[post.post_id]]); // 依賴 post.post_id 確保當貼文更新時重新檢查
+  }, [post.post_id]); // 依賴 post.post_id 確保當貼文更新時重新檢查
 
   return (
     <>
