@@ -11,6 +11,7 @@ export const PostProvider = ({ children }) => {
   const [page, setPage] = useState(1);
   const [likedPosts, setLikedPosts] = useState({});
   const [savedPosts, setSavedPosts] = useState({});
+  const [attendedEvents, setAttendedEvents] = useState({});
 
   const getCommunityIndexPost = async () => {
     if (!hasMore) return; // 防止重複請求
@@ -104,6 +105,10 @@ export const PostProvider = ({ children }) => {
       if (data.length === 0) {
         setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       } else {
+        const eventIds = data.map((event) => event.comm_event_id).join(',');
+
+        await checkEventsStatus(eventIds); // 檢查活動狀態
+
         setEvents((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
         setPage((prevPage) => prevPage + 1); // 更新頁碼
         // setIsLoading(false); // 結束加載
@@ -170,14 +175,12 @@ export const PostProvider = ({ children }) => {
       const res = await fetch('http://localhost:3001/community/add-comment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // ==================================== TODO TODO TODO ====================================
         body: JSON.stringify({
           context: newComment,
           status: 'posted',
           postId,
           userId,
-        }), // TODO: 需動態更改 userId
-        // ==================================== TODO TODO TODO ====================================
+        }),
       });
       const data = await res.json();
 
@@ -236,6 +239,37 @@ export const PostProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error updating like status:', error);
+    }
+  };
+
+  const handleAttendedClick = async (event) => {
+    const eventId = event.comm_event_id;
+    // ==================================== TODO TODO TODO ====================================
+    const userId = 1; // TODO: 需動態更改 userId
+    // ==================================== TODO TODO TODO ===================================
+
+    const wasAttended = attendedEvents[eventId] || false;
+    const newAttendedState = !wasAttended;
+
+    try {
+      const url = wasAttended ? '/notattend-event' : '/attend-event';
+      const res = await fetch(`http://localhost:3001/community/${url}`, {
+        method: wasAttended ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ eventId, userId }),
+      });
+      if (res.ok) {
+        setAttendedEvents((prev) => ({
+          ...prev,
+          [eventId]: newAttendedState,
+        }));
+      } else {
+        throw new Error('Failed to update attendance status');
+      }
+    } catch (error) {
+      console.error('Error updating event attendance:', error);
     }
   };
 
@@ -298,6 +332,33 @@ export const PostProvider = ({ children }) => {
     }
   };
 
+  const checkEventsStatus = async (eventIds) => {
+    // ==================================== TODO TODO TODO ====================================
+    const userId = 1; // TODO: 需動態更改 userId
+    // ==================================== TODO TODO TODO ===================================
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/community/check-event-status?userId=${userId}&eventIds=${eventIds}`
+      );
+      const data = await response.json();
+
+      // 初始化對象來存儲所有活動參加狀態
+      const newAttendedEvents = { ...attendedEvents };
+
+      // 遍歷從後端獲取的每個活動的狀態數據
+      data.forEach((status) => {
+        // 將每個活動參加狀態存儲到 newAttendedEvents 對象中
+        newAttendedEvents[status.eventId] = status.isAttended;
+      });
+
+      // 更新 React 狀態以觸發界面更新，以顯示最新的參加狀態
+      setAttendedEvents(newAttendedEvents);
+    } catch (error) {
+      console.error('無法獲取活動狀態:', error);
+    }
+  };
+
   return (
     <PostContext.Provider
       value={{
@@ -317,8 +378,10 @@ export const PostProvider = ({ children }) => {
         handleCommentUpload,
         handleLikedClick,
         handleSavedClick,
+        handleAttendedClick,
         likedPosts,
         savedPosts,
+        attendedEvents,
       }}
     >
       {children}
