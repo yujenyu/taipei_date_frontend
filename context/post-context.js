@@ -45,7 +45,7 @@ export const PostProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts?page=${page}&limit=12`
+        `http://localhost:3001/community/get-random-posts?page=${page}&limit=12`
       );
       const data = await res.json();
       if (data.length === 0) {
