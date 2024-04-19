@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { usePostContext } from '@/context/post-context';
 import SuggestionBar from '@/components/community/suggestionbar/SuggestionBar';
 import Sidebar from '@/components/community/sidebar/sidebar';
@@ -8,31 +8,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './page.module.css';
 
 export default function Index() {
-  const [posts, setPosts] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
-  // const [isLoading, setIsLoading] = useState(true);
-
-  const getCommunityIndexPost = async () => {
-    if (!hasMore) return; // 防止重複請求
-    // setIsLoading(true); // 開始加載
-
-    try {
-      const res = await fetch(
-        `http://localhost:3001/community/posts?page=${page}&limit=12`
-      );
-      const data = await res.json();
-      if (data.length === 0) {
-        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
-      }
-      setPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
-      setPage((prevPage) => prevPage + 1); // 更新頁碼
-      // setIsLoading(false); // 結束加載
-    } catch (error) {
-      console.error('Failed to fetch index posts:', error);
-      // setIsLoading(false); // 確保即使出錯也要結束加載
-    }
-  };
+  const { posts, hasMore, getCommunityIndexPost } = usePostContext();
 
   useEffect(() => {
     getCommunityIndexPost();

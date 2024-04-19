@@ -17,7 +17,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className="recbar ml-8 right-6 hidden md:flex lg:w-48 top-[112px] left-0 fixed">
+      <div className="sidebar ml-8 right-6 hidden md:flex md:w-2/12 top-[112px] left-0 fixed">
         <div className="sidebarWrapper">
           <ul className="sidebarList grid">
             <Link href="/community">

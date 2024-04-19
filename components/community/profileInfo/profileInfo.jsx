@@ -58,12 +58,12 @@ export default function ProfileInfo({ posts }) {
     getFollowUsers();
     getPostsCount();
     getUserInfo();
-  }, []);
+  }, [uid]);
 
   return (
     <>
       <div className="w-full flex items-center justify-center px-8 py-5">
-        <div className="flex flex-col sm:flex-row justify-center gap-2">
+        <div className="flex flex-col sm:flex-row justify-center gap-2 w-full flex-grow">
           {/* Profile avatar */}
           <div className="basis-3/12 flex items-center justify-center">
             <div className="avatar">
@@ -75,9 +75,9 @@ export default function ProfileInfo({ posts }) {
           {/* Profile info */}
           <div className="basis-8/12 flex flex-col justify-between item-center gap-2 w-full flex-grow">
             <div className="flex items-center">
-              {posts[0].email ? posts[0].email.split('@')[0] : 'unknownuser'}
+              {userInfo.email ? userInfo.email.split('@')[0] : 'unknownuser'}
             </div>
-            <div className="flex flex-row justify-center items-center gap-2">
+            <div className="flex flex-row justify-center items-center gap-2 whitespace-nowrap">
               <div className="basis-1/3">{postsCount} 貼文</div>
               <div className="basis-1/3">{followersCount} 追蹤者</div>
               <div className="basis-1/3">{followingCount} 追蹤中</div>

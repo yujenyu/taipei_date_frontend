@@ -51,52 +51,51 @@ export default function Profile() {
         <TabbarMobile />
       </div>
 
-      <div className="flex flex-col w-full items-center justify-center sm:w-full pt-28">
-        <div className="flex flex-wrap justify-center">
+      <div className="flex flex-col w-full items-center justify-center pt-28">
+        <div className="flex flex-wrap justify-center w-full">
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
 
-          <div className="flex flex-col w-full md:w-10/12 items-center">
-            <div className="flex flex-col items-center">
-              {/* info area */}
-              <ProfileInfo posts={posts} />
-              {/* post area */}
-              <div className="flex flex-wrap gap-5 justify-center">
-                <InfiniteScroll
-                  dataLength={posts.length}
-                  next={getCommunityProfilePost}
-                  hasMore={hasMore}
-                  loader={
-                    <div
-                      style={{
-                        display: 'flex',
-                        width: '100%',
-                        textAlign: 'center',
-                        minHeight: '100vh',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <div className={`${styles[`lds-heart`]}`}>
-                        <div></div>
-                      </div>
+          <div className="flex flex-col md:w-10/12 items-center">
+            {/* info area */}
+            <ProfileInfo posts={posts} />
+            {/* post area */}
+            <div className="flex flex-wrap gap-5 justify-center">
+              <InfiniteScroll
+                dataLength={posts.length}
+                next={getCommunityProfilePost}
+                hasMore={hasMore}
+                loader={
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: '100%',
+                      textAlign: 'center',
+                      minHeight: '100vh',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div className={`${styles[`lds-heart`]}`}>
+                      <div></div>
                     </div>
-                  }
-                  // endMessage={<p>No more posts</p>}
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    gap: '1.25rem',
-                  }}
-                >
-                  {posts.map((post, i) => (
-                    <ProfileCard post={post} key={post.post_id} />
-                  ))}
-                </InfiniteScroll>
-              </div>
-              {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
+                  </div>
+                }
+                // endMessage={<p>No more posts</p>}
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  gap: '1.25rem',
+                }}
+              >
+                {posts.map((post, i) => (
+                  <ProfileCard post={post} key={i} />
+                ))}
+              </InfiniteScroll>
+            </div>
+            {/* <div className="md:flex md:flex-wrap md:gap-5 md:justify-center hidden">
                 {posts.map((_, index) => (
                   <ProfileCard key={index} />
                 ))}
@@ -106,7 +105,6 @@ export default function Profile() {
                   <ProfileCard key={index} />
                 ))}
               </div> */}
-            </div>
           </div>
         </div>
       </div>

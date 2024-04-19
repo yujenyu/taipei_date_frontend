@@ -1,14 +1,8 @@
+import { usePostContext } from '@/context/post-context';
 import { useState, useEffect } from 'react';
 import { FiSend } from 'react-icons/fi';
 import ShareModal from '../modal/shareModal';
 import styles from './card.module.css';
-
-// const mockData = {
-//   time: '2024 年 5 月 18 日 9:00 下午',
-//   title: '復古派對',
-//   location: '台北, 台灣',
-//   details: '翻玩經典唱片，重溫老歌的美好回憶',
-// };
 
 export default function EventCard({ event }) {
   const [isAttended, setIsAttended] = useState(false);

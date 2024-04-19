@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { usePostContext } from '@/context/post-context';
 import Link from 'next/link';
 import { FiSend, FiMessageCircle } from 'react-icons/fi';
@@ -6,16 +5,12 @@ import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
 import ShareModal from '../modal/shareModal';
 import PostModal from '../modal/postModal';
 
-// const mockData = {
-//   userId: 'USERID',
-//   context:
-//     'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur corrupti aspernatur quas Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consequatur corrupti aspernatur quas',
-// };
-
 export default function PostCardLarge({ post }) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  // const [showReply, setShowReply] = useState(false);
+  const { handleLikedClick, handleSavedClick, likedPosts, savedPosts } =
+    usePostContext();
+
+  const isLiked = likedPosts[post.post_id] || false;
+  const isSaved = savedPosts[post.post_id] || false;
 
   // 基於 post_id 的唯一 id
   const modalId = `photo_modal_${post.post_id}`;
@@ -23,141 +18,6 @@ export default function PostCardLarge({ post }) {
   const handleShowModal = () => {
     document.getElementById(modalId).showModal();
   };
-
-  const handleLikedClick = async () => {
-    // 如果已喜愛, 則取消喜愛
-    if (isLiked) {
-      // 發送取消收藏的請求
-      try {
-        const res = await fetch('http://localhost:3001/community/unlike-post', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          // ==================================== TODO TODO TODO ====================================
-          body: JSON.stringify({ postId: post.post_id, userId: 1 }), // TODO: 需動態更改 userId
-          // ==================================== TODO TODO TODO ====================================
-        });
-        if (res.ok) {
-          setIsLiked(false);
-          // console.log('取消喜愛成功');
-        } else {
-          throw new Error('取消喜愛失敗');
-        }
-      } catch (error) {
-        console.error(error.message);
-      }
-    } else {
-      try {
-        const res = await fetch('http://localhost:3001/community/like-post', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          // ==================================== TODO TODO TODO ====================================
-          body: JSON.stringify({ postId: post.post_id, userId: 1 }), // TODO: 需動態更改 userId
-          // ==================================== TODO TODO TODO ====================================
-        });
-        if (res.ok) {
-          setIsLiked(true);
-          // console.log('喜愛成功');
-        } else {
-          throw new Error('喜愛失敗');
-        }
-      } catch (error) {
-        console.error(error.message);
-      }
-    }
-  };
-
-  const handleSavedClick = async () => {
-    // 如果已收藏, 則取消收藏
-    if (isSaved) {
-      // 發送取消收藏的請求
-      try {
-        const res = await fetch('http://localhost:3001/community/unsave-post', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          // ==================================== TODO TODO TODO ====================================
-          body: JSON.stringify({ postId: post.post_id, userId: 1 }), // TODO: 需動態更改 userId
-          // ==================================== TODO TODO TODO ====================================
-        });
-        if (res.ok) {
-          setIsSaved(false);
-          // console.log('取消收藏成功');
-        } else {
-          throw new Error('取消收藏失敗');
-        }
-      } catch (error) {
-        console.error(error.message);
-      }
-    } else {
-      try {
-        const res = await fetch('http://localhost:3001/community/save-post', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          // ==================================== TODO TODO TODO ====================================
-          body: JSON.stringify({ postId: post.post_id, userId: 1 }), // TODO: 需動態更改 userId
-          // ==================================== TODO TODO TODO ====================================
-        });
-        if (res.ok) {
-          setIsSaved(true);
-          // console.log('收藏成功');
-        } else {
-          throw new Error('收藏失敗');
-        }
-      } catch (error) {
-        console.error(error.message);
-      }
-    }
-  };
-
-  // 檢查貼文是否已被當前用戶收藏
-  const fetchIsLiked = async () => {
-    try {
-      // ==================================== TODO TODO TODO ====================================
-      const response = await fetch(
-        `http://localhost:3001/community/isLiked-post?postId=${post.post_id}&userId=1`
-      ); // TODO: 需動態更改 userId
-      // ==================================== TODO TODO TODO ====================================
-      const data = await response.json();
-      if (data.isLiked) {
-        setIsLiked(data.isLiked);
-      }
-    } catch (error) {
-      console.error('無法獲取收藏狀態:', error);
-    }
-  };
-
-  // 檢查貼文是否已被當前用戶收藏
-  const fetchIsSaved = async () => {
-    try {
-      // ==================================== TODO TODO TODO ====================================
-      const response = await fetch(
-        `http://localhost:3001/community/isSaved-post?postId=${post.post_id}&userId=1`
-      ); // TODO: 需動態更改 userId
-      // ==================================== TODO TODO TODO ====================================
-      const data = await response.json();
-      if (data.isSaved) {
-        setIsSaved(data.isSaved);
-      }
-    } catch (error) {
-      console.error('無法獲取收藏狀態:', error);
-    }
-  };
-
-  // const handleReplyClick = () => {
-  //   setShowReply(!showReply);
-  // };
-
-  useEffect(() => {
-    fetchIsLiked();
-    fetchIsSaved();
-  }, [post.post_id]); // 依賴 post.post_id 確保當貼文更新時重新檢查
 
   return (
     <>
@@ -190,12 +50,12 @@ export default function PostCardLarge({ post }) {
               {isLiked ? (
                 <FaHeart
                   className="card-icon hover:text-neongreen"
-                  onClick={handleLikedClick}
+                  onClick={() => handleLikedClick(post)}
                 />
               ) : (
                 <FaRegHeart
                   className="card-icon  hover:text-neongreen"
-                  onClick={handleLikedClick}
+                  onClick={() => handleLikedClick(post)}
                 />
               )}
 
@@ -215,12 +75,12 @@ export default function PostCardLarge({ post }) {
               {isSaved ? (
                 <FaBookmark
                   className="card-icon hover:text-neongreen"
-                  onClick={handleSavedClick}
+                  onClick={() => handleSavedClick(post)}
                 />
               ) : (
                 <FaRegBookmark
                   className="card-icon hover:text-neongreen"
-                  onClick={handleSavedClick}
+                  onClick={() => handleSavedClick(post)}
                 />
               )}
             </div>
