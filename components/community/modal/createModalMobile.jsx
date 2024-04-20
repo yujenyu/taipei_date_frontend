@@ -1,152 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import { usePostContext } from '@/context/post-context';
 import { FaPhotoVideo } from 'react-icons/fa';
 import styles from './modal.module.css';
-import Swal from 'sweetalert2';
 
 export default function CreateModalMobile() {
-  // 選中的檔案
-  const [selectedFile, setSelectedFile] = useState(null);
-  // 預覽圖片(呼叫URL.createObjectURL得到的網址)
-  const [previewUrl, setPreviewUrl] = useState('');
-  const [postContent, setPostContent] = useState('');
-  // 標示貼文是否已創建
-  const [postCreated, setPostCreated] = useState(false);
-  // 儲存創立貼文後的 post id
-  const [postId, setPostId] = useState('');
-
-  const fileInputRef = useRef(null);
-  const createModalRef = useRef(null);
+  const {
+    selectedFile,
+    previewUrl,
+    setPreviewUrl,
+    setPostContent,
+    handleFileChange,
+    resetAndCloseModal,
+    handleFilePicker,
+    handleFileUpload,
+    fileInputRef,
+    createModalMobileRef,
+  } = usePostContext();
 
   const handlePostContentChange = (e) => {
     setPostContent(e.target.value);
-  };
-
-  // 選擇檔案有變動時的處理函式
-  const handleFileChange = (e) => {
-    // 取得檔案，只取第一個檔案
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      // 檔案有變時設定回初始值
-      setPreviewUrl('');
-    } else {
-      setSelectedFile(null);
-      // 檔案有變時設定回初始值
-      setPreviewUrl('');
-    }
-  };
-
-  // 重置選取內容並關閉視窗
-  const resetAndCloseModal = () => {
-    setSelectedFile(null);
-    setPreviewUrl('');
-    createModalRef.current.close();
-  };
-
-  // 上傳貼文
-  const handlePostUpload = async () => {
-    if (!postContent) {
-      Swal.fire('請輸入貼文內容', '', 'warning');
-      return;
-    }
-    try {
-      // 用fetch送出檔案
-      const res = await fetch('http://localhost:3001/community/create-post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // ==================================== TODO TODO TODO ====================================
-        body: JSON.stringify({ context: postContent, userId: 1 }), // TODO: 需動態更改 userId
-        // ==================================== TODO TODO TODO ====================================
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setPostId(data.postId.insertId);
-        setPostCreated(true);
-        return data.postId.insertId; // 返回 postId 給 handleFileUpload
-      } else {
-        throw new Error(data.message || '新增貼文失敗');
-      }
-    } catch (error) {
-      console.error('upload post failed:', error);
-      createModalRef.current.close();
-      Swal.fire({
-        title: '分享失敗!',
-        icon: 'error',
-        confirmButtonText: '關閉',
-        confirmButtonColor: '#A0FF1F',
-        background: 'rgba(0, 0, 0, 0.85)',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          resetAndCloseModal();
-        }
-      });
-    }
-  };
-
-  // 上傳圖片到伺服器
-  const handleFileUpload = async () => {
-    let currentPostId = postId;
-
-    if (!postCreated) {
-      currentPostId = await handlePostUpload();
-      // console.log('postId:', currentPostId);
-      if (!currentPostId) {
-        console.error('No post ID returned');
-        return; // 如果新增貼文失敗或沒有 postID 則停止執行
-      }
-      setPostId(currentPostId);
-      setPostCreated(true);
-    }
-
-    const fd = new FormData();
-
-    // 對照server上要獲取的檔案名稱(req.files.photo)
-    fd.append('photo', selectedFile);
-    fd.append('postId', currentPostId);
-
-    try {
-      // 用fetch送出檔案
-      const res = await fetch('http://localhost:3001/community/upload-photo', {
-        method: 'POST',
-        body: fd,
-      });
-
-      if (!res.ok) {
-        throw new Error('Network response was not ok.');
-      }
-
-      const data = await res.json();
-
-      // console.log(data);
-
-      // 關閉 create modal
-      createModalRef.current.close();
-      Swal.fire({
-        title: '分享成功!',
-        icon: 'success',
-        confirmButtonText: '關閉',
-        confirmButtonColor: '#A0FF1F',
-        background: 'rgba(0, 0, 0, 0.85)',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          resetAndCloseModal();
-        }
-      });
-    } catch (error) {
-      console.error('upload failed:', error);
-      createModalRef.current.close();
-      Swal.fire({
-        title: '分享失敗!',
-        icon: 'error',
-        confirmButtonText: '關閉',
-        confirmButtonColor: '#A0FF1F',
-        background: 'rgba(0, 0, 0, 0.85)',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          resetAndCloseModal();
-        }
-      });
-    }
   };
 
   // 當選擇檔案時，建立預覽圖的網址。使用的是狀態連鎖更動的樣式 A狀態 -> B狀態
@@ -172,17 +44,11 @@ export default function CreateModalMobile() {
   }, [selectedFile]);
   // ^^^^^^^^^^^^^^ 這裡代表只有在selectedFile有變動(之後)才會執行
 
-  // 觸發隱藏的 file input 點擊事件
-  const handleFilePicker = () => {
-    // 利用 ref 引用來觸發 input 的點擊事件
-    fileInputRef.current.click();
-  };
-
   return (
     <>
       <dialog
         id="create_modal_mobile"
-        ref={createModalRef}
+        ref={createModalMobileRef}
         className="modal modal-bottom sm:modal-middle max-w-full"
       >
         <div
@@ -228,7 +94,7 @@ export default function CreateModalMobile() {
                   className="w-full max-h-full object-cover mb-4"
                 />
                 <textarea
-                  className="textarea textarea-ghost w-full h-32 resize-none rounded-full"
+                  className="textarea textarea-ghost w-full h-32 resize-none my-3s"
                   placeholder="貼文內容"
                   onChange={handlePostContentChange}
                 />

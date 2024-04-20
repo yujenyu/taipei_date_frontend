@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { usePostContext } from '@/context/post-context';
 import { FaPhotoVideo } from 'react-icons/fa';
 import styles from './modal.module.css';
 import Swal from 'sweetalert2';
@@ -25,7 +26,7 @@ export default function CreateEventModalMobile() {
   });
 
   const fileInputRef = useRef(null);
-  const createModalRef = useRef(null);
+  const createEventModalMobileRef = useRef(null);
 
   const handleEventContentChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +55,7 @@ export default function CreateEventModalMobile() {
   const resetAndCloseModal = () => {
     setSelectedFile(null);
     setPreviewUrl('');
-    createModalRef.current.close();
+    createEventModalMobileRef.current.close();
   };
 
   // 上傳活動資訊
@@ -87,7 +88,7 @@ export default function CreateEventModalMobile() {
       }
     } catch (error) {
       console.error('upload event failed:', error);
-      createModalRef.current.close();
+      createEventModalMobileRef.current.close();
       Swal.fire({
         title: '創建活動失敗!',
         icon: 'error',
@@ -142,7 +143,7 @@ export default function CreateEventModalMobile() {
       // console.log(data);
 
       // 關閉 create modal
-      createModalRef.current.close();
+      createEventModalMobileRef.current.close();
       Swal.fire({
         title: '創建活動成功!',
         icon: 'success',
@@ -156,7 +157,7 @@ export default function CreateEventModalMobile() {
       });
     } catch (error) {
       console.error('upload failed:', error);
-      createModalRef.current.close();
+      createEventModalMobileRef.current.close();
       Swal.fire({
         title: '創建活動失敗!',
         icon: 'error',
@@ -218,7 +219,7 @@ export default function CreateEventModalMobile() {
     <>
       <dialog
         id="create_event_modal_mobile"
-        ref={createModalRef}
+        ref={createEventModalMobileRef}
         className="modal modal-bottom sm:modal-middle "
       >
         <div

@@ -1,9 +1,15 @@
-import { useState, createContext, useContext } from 'react';
+import { useState, createContext, useContext, useRef } from 'react';
+import Swal from 'sweetalert2';
 
 const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
+  const [postContent, setPostContent] = useState('');
+  const [postCreated, setPostCreated] = useState(false); // 標示貼文是否已創建
+  const [postId, setPostId] = useState(''); // 儲存創立貼文後的 post id
+  const [selectedFile, setSelectedFile] = useState(null); // 選中的檔案
+  const [previewUrl, setPreviewUrl] = useState(''); // 預覽圖片(呼叫URL.createObjectURL得到的網址)
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [events, setEvents] = useState([]);
@@ -12,6 +18,12 @@ export const PostProvider = ({ children }) => {
   const [likedPosts, setLikedPosts] = useState({});
   const [savedPosts, setSavedPosts] = useState({});
   const [attendedEvents, setAttendedEvents] = useState({});
+
+  const fileInputRef = useRef(null);
+  const createModalRef = useRef(null);
+  const createModalMobileRef = useRef(null);
+  const createEventModalRef = useRef(null);
+  const createEventModalMobileRef = useRef(null);
 
   const getCommunityIndexPost = async () => {
     if (!hasMore) return; // 防止重複請求
@@ -214,6 +226,148 @@ export const PostProvider = ({ children }) => {
     }
   };
 
+  // 選擇檔案有變動時的處理函式
+  const handleFileChange = (e) => {
+    // 取得檔案，只取第一個檔案
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // 檔案有變時設定回初始值
+      setPreviewUrl('');
+    } else {
+      setSelectedFile(null);
+      // 檔案有變時設定回初始值
+      setPreviewUrl('');
+    }
+  };
+
+  // 重置選取內容並關閉視窗
+  const resetAndCloseModal = () => {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    createModalRef.current.close();
+    createModalMobileRef.current.close();
+  };
+
+  // 觸發隱藏的 file input 點擊事件
+  const handleFilePicker = () => {
+    // 利用 ref 引用來觸發 input 的點擊事件
+    fileInputRef.current.click();
+  };
+
+  // 上傳貼文
+  const handlePostUpload = async () => {
+    // ==================================== TODO TODO TODO ====================================
+    const userId = 1; // TODO: 需動態更改 userId
+    // ==================================== TODO TODO TODO ===================================
+
+    if (!postContent) {
+      Swal.fire('請輸入貼文內容', '', 'warning');
+      return;
+    }
+    try {
+      // 用fetch送出檔案
+      const res = await fetch('http://localhost:3001/community/create-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ context: postContent, userId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPostId(data.post.post_id);
+        setPostCreated(true);
+        return data.post.post_id; // 返回 postId 給 handleFileUpload
+      } else {
+        throw new Error(data.message || '新增貼文失敗');
+      }
+    } catch (error) {
+      console.error('upload post failed:', error);
+      createModalRef.current.close();
+      createModalMobileRef.current.close();
+
+      Swal.fire({
+        title: '分享失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
+  // 上傳圖片到伺服器
+  const handleFileUpload = async () => {
+    let currentPostId = postId;
+
+    if (!postCreated) {
+      currentPostId = await handlePostUpload();
+      if (!currentPostId) {
+        console.error('No post ID returned');
+        return; // 如果新增貼文失敗或沒有 postID 則停止執行
+      }
+      setPostId(currentPostId);
+      setPostCreated(true);
+    }
+
+    const fd = new FormData();
+
+    // 對照server上要獲取的檔案名稱(req.files.photo)
+    fd.append('photo', selectedFile);
+    fd.append('postId', currentPostId);
+
+    try {
+      // 用fetch送出檔案
+      const res = await fetch('http://localhost:3001/community/upload-photo', {
+        method: 'POST',
+        body: fd,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPosts((prevPosts) => [data.post, ...prevPosts]);
+      } else {
+        throw new Error('Network response was not ok.');
+      }
+
+      // 關閉 create modal
+      createModalRef.current.close();
+      createModalMobileRef.current.close();
+
+      Swal.fire({
+        title: '分享成功!',
+        icon: 'success',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    } catch (error) {
+      console.error('upload failed:', error);
+      createModalRef.current.close();
+      createModalMobileRef.current.close();
+
+      Swal.fire({
+        title: '分享失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
   const handleLikedClick = async (post) => {
     const postId = post.post_id;
     // ==================================== TODO TODO TODO ====================================
@@ -367,6 +521,7 @@ export const PostProvider = ({ children }) => {
         getCommunityProfilePost,
         getCommunityEvents,
         posts,
+        setPostContent,
         comments,
         setComments,
         newComment,
@@ -376,12 +531,25 @@ export const PostProvider = ({ children }) => {
         hasMore,
         getPostComments,
         handleCommentUpload,
+        handlePostUpload,
+        handleFileUpload,
+        handleFileChange,
+        selectedFile,
+        previewUrl,
+        setPreviewUrl,
+        resetAndCloseModal,
+        handleFilePicker,
         handleLikedClick,
         handleSavedClick,
         handleAttendedClick,
         likedPosts,
         savedPosts,
         attendedEvents,
+        fileInputRef,
+        createModalRef,
+        createModalMobileRef,
+        createEventModalRef,
+        createEventModalMobileRef,
       }}
     >
       {children}
