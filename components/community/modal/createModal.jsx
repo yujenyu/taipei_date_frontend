@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { usePostContext } from '@/context/post-context';
 import { FaPhotoVideo } from 'react-icons/fa';
 import styles from './modal.module.css';
+import Dropzone from 'react-dropzone';
 
 export default function CreateModal() {
   const {
@@ -9,11 +10,10 @@ export default function CreateModal() {
     previewUrl,
     setPreviewUrl,
     setPostContent,
-    handleFileChange,
     resetAndCloseModal,
     handleFilePicker,
     handleFileUpload,
-    fileInputRef,
+    onDrop,
     createModalRef,
   } = usePostContext();
 
@@ -63,31 +63,35 @@ export default function CreateModal() {
 
           {!selectedFile && (
             <>
-              <div className="flex-grow flex flex-col items-center justify-center">
-                <FaPhotoVideo
-                  className={`${styles['createModalListItemIcon']} text-6xl mb-4`}
-                />
-                <p
-                  className={`${styles['createModalListItemText']} text-h6 mb-3`}
-                >
-                  請拖曳照片
-                </p>
-
-                <button
-                  onClick={handleFilePicker}
-                  htmlFor="photo-upload"
-                  className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3 cursor-pointer flex justify-center`}
-                >
-                  從圖庫瀏覽
-                </button>
-                <input
-                  id="photo-upload"
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </div>
+              <Dropzone onDrop={onDrop}>
+                {({ getRootProps, getInputProps }) => (
+                  <div
+                    {...getRootProps()}
+                    className="flex-grow flex flex-col items-center justify-center"
+                  >
+                    <input {...getInputProps()} />
+                    {!selectedFile && (
+                      <>
+                        <FaPhotoVideo
+                          className={`${styles['createModalListItemIcon']} text-6xl mb-4`}
+                        />
+                        <p
+                          className={`${styles['createModalListItemText']} text-h6 mb-3`}
+                        >
+                          請拖曳照片
+                        </p>
+                        <button
+                          onClick={handleFilePicker}
+                          htmlFor="photo-upload"
+                          className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3 cursor-pointer flex justify-center`}
+                        >
+                          從圖庫瀏覽
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </Dropzone>
             </>
           )}
           {selectedFile && (

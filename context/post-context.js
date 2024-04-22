@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, useRef } from 'react';
+import { useState, createContext, useContext, useRef, useEffect } from 'react';
 import Swal from 'sweetalert2';
 
 const PostContext = createContext();
@@ -13,6 +13,18 @@ export const PostProvider = ({ children }) => {
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [events, setEvents] = useState([]);
+  const [eventCreated, setEventCreated] = useState(false); // 標示活動是否已創建
+  const [eventId, setEventId] = useState(''); // 儲存創立貼文後的 event id
+  const [eventDetails, setEventDetails] = useState({
+    title: '',
+    description: '',
+    status: 'upcoming',
+    location: '',
+    startDate: '',
+    startTime: '',
+    endDate: '',
+    endTime: '',
+  });
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [likedPosts, setLikedPosts] = useState({});
@@ -121,13 +133,13 @@ export const PostProvider = ({ children }) => {
 
         await checkEventsStatus(eventIds); // 檢查活動狀態
 
-        setEvents((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+        setEvents((prevEvents) => [...prevEvents, ...data]); // 更新posts狀態
         setPage((prevPage) => prevPage + 1); // 更新頁碼
         // setIsLoading(false); // 結束加載
       }
     } catch (error) {
       console.error('Failed to fetch events:', error);
-      setIsLoading(false); // 確保即使出錯也要結束加載
+      // setIsLoading(false); // 確保即使出錯也要結束加載
     }
   };
 
@@ -247,12 +259,20 @@ export const PostProvider = ({ children }) => {
     setPreviewUrl('');
     createModalRef.current.close();
     createModalMobileRef.current.close();
+    createEventModalRef.current.close();
+    createEventModalMobileRef.current.close();
   };
 
   // 觸發隱藏的 file input 點擊事件
   const handleFilePicker = () => {
     // 利用 ref 引用來觸發 input 的點擊事件
     fileInputRef.current.click();
+  };
+
+  // 重置貼文狀態
+  const resetPostState = () => {
+    setPostId('');
+    setPostCreated(false);
   };
 
   // 上傳貼文
@@ -265,6 +285,7 @@ export const PostProvider = ({ children }) => {
       Swal.fire('請輸入貼文內容', '', 'warning');
       return;
     }
+
     try {
       // 用fetch送出檔案
       const res = await fetch('http://localhost:3001/community/create-post', {
@@ -329,6 +350,7 @@ export const PostProvider = ({ children }) => {
       const data = await res.json();
 
       if (res.ok) {
+        // 更新貼文以觸發刷新頁面 !!!Important!!!
         setPosts((prevPosts) => [data.post, ...prevPosts]);
       } else {
         throw new Error('Network response was not ok.');
@@ -347,6 +369,7 @@ export const PostProvider = ({ children }) => {
       }).then((result) => {
         if (result.isConfirmed) {
           resetAndCloseModal();
+          resetPostState();
         }
       });
     } catch (error) {
@@ -513,6 +536,156 @@ export const PostProvider = ({ children }) => {
     }
   };
 
+  // 重置貼文狀態
+  const resetEventState = () => {
+    setEventId('');
+    setEventCreated(false);
+  };
+
+  // 上傳活動資訊
+  const handleEventUpload = async () => {
+    // ==================================== TODO TODO TODO ====================================
+    const userId = 1; // TODO: 需動態更改 userId
+    // ==================================== TODO TODO TODO ===================================
+
+    if (!eventDetails) {
+      Swal.fire('請輸入活動內容', '', 'warning');
+      return;
+    }
+
+    try {
+      // 用fetch送出檔案
+      const res = await fetch('http://localhost:3001/community/create-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...eventDetails,
+          status: 'upcoming',
+          userId,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEventId(data.event.comm_event_id);
+        setEventCreated(true);
+        return data.event.comm_event_id; // 返回 eventId 給 handleEventFileUpload
+      } else {
+        throw new Error(data.message || '新增活動失敗');
+      }
+    } catch (error) {
+      console.error('upload event failed:', error);
+      createEventModalRef.current.close();
+      createEventModalMobileRef.current.close();
+
+      Swal.fire({
+        title: '創建活動失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
+  // 上傳圖片到伺服器
+  const handleEventFileUpload = async () => {
+    let currentEventId = eventId;
+
+    if (!eventCreated) {
+      currentEventId = await handleEventUpload();
+      // console.log('eventId:', currentEventId);
+      if (!currentEventId) {
+        console.error('No event ID returned');
+        return; // 如果新增貼文失敗或沒有 eventID 則停止執行
+      }
+      setEventId(currentEventId);
+      setEventCreated(true);
+    }
+
+    const fd = new FormData();
+
+    // 對照server上要獲取的檔案名稱(req.files.photo)
+    fd.append('photo', selectedFile);
+    fd.append('eventId', currentEventId);
+
+    try {
+      // 用fetch送出檔案
+      const res = await fetch(
+        'http://localhost:3001/community/upload-event-photo',
+        {
+          method: 'POST',
+          body: fd,
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // 更新活動以觸發刷新頁面 !!!Important!!!
+        setEvents((prevEvents) => [data.event, ...prevEvents]);
+      } else {
+        throw new Error('Network response was not ok.');
+      }
+
+      // 關閉 create modal
+      createEventModalRef.current.close();
+      createEventModalMobileRef.current.close();
+
+      Swal.fire({
+        title: '創建活動成功!',
+        icon: 'success',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+          resetEventState();
+        }
+      });
+    } catch (error) {
+      console.error('upload failed:', error);
+      createEventModalRef.current.close();
+      createEventModalMobileRef.current.close();
+
+      Swal.fire({
+        title: '創建活動失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
+  const handleDateFocus = (e) => {
+    e.target.type = 'date';
+  };
+
+  const handleBlur = (e) => {
+    if (e.target.value === '') {
+      e.target.type = 'text';
+    }
+  };
+
+  const handleTimeFocus = (e) => {
+    e.target.type = 'time';
+  };
+
+  const onDrop = (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    setSelectedFile(file); // 假設你有這樣的函數設置選中的檔案
+    handleFileChange({ target: { files: acceptedFiles } });
+  };
+
   return (
     <PostContext.Provider
       value={{
@@ -535,6 +708,7 @@ export const PostProvider = ({ children }) => {
         handleFileUpload,
         handleFileChange,
         selectedFile,
+        setSelectedFile,
         previewUrl,
         setPreviewUrl,
         resetAndCloseModal,
@@ -545,6 +719,13 @@ export const PostProvider = ({ children }) => {
         likedPosts,
         savedPosts,
         attendedEvents,
+        setEventDetails,
+        handleEventUpload,
+        handleEventFileUpload,
+        handleDateFocus,
+        handleBlur,
+        handleTimeFocus,
+        onDrop,
         fileInputRef,
         createModalRef,
         createModalMobileRef,

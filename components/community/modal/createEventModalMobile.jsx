@@ -1,32 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { usePostContext } from '@/context/post-context';
 import { FaPhotoVideo } from 'react-icons/fa';
 import styles from './modal.module.css';
-import Swal from 'sweetalert2';
 
 export default function CreateEventModalMobile() {
-  // 選中的檔案
-  const [selectedFile, setSelectedFile] = useState(null);
-  // 預覽圖片(呼叫URL.createObjectURL得到的網址)
-  const [previewUrl, setPreviewUrl] = useState('');
-  // 標示活動是否已創建
-  const [eventCreated, setEventCreated] = useState(false);
-  // 儲存創立貼文後的 event id
-  const [eventId, setEventId] = useState('');
-
-  const [eventDetails, setEventDetails] = useState({
-    title: '',
-    description: '',
-    status: 'upcoming',
-    location: '',
-    startDate: '',
-    startTime: '',
-    endDate: '',
-    endTime: '',
-  });
-
-  const fileInputRef = useRef(null);
-  const createEventModalMobileRef = useRef(null);
+  const {
+    selectedFile,
+    previewUrl,
+    setPreviewUrl,
+    setEventDetails,
+    fileInputRef,
+    handleFileChange,
+    resetAndCloseModal,
+    handleEventFileUpload,
+    handleFilePicker,
+    handleDateFocus,
+    handleBlur,
+    handleTimeFocus,
+    createEventModalMobileRef,
+  } = usePostContext();
 
   const handleEventContentChange = (e) => {
     const { name, value } = e.target;
@@ -34,142 +26,6 @@ export default function CreateEventModalMobile() {
       ...prevDetails,
       [name]: value,
     }));
-  };
-
-  // 選擇檔案有變動時的處理函式
-  const handleFileChange = (e) => {
-    // 取得檔案，只取第一個檔案
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      // 檔案有變時設定回初始值
-      setPreviewUrl('');
-    } else {
-      setSelectedFile(null);
-      // 檔案有變時設定回初始值
-      setPreviewUrl('');
-    }
-  };
-
-  // 重置選取內容並關閉視窗
-  const resetAndCloseModal = () => {
-    setSelectedFile(null);
-    setPreviewUrl('');
-    createEventModalMobileRef.current.close();
-  };
-
-  // 上傳活動資訊
-  const handleEventUpload = async () => {
-    // console.log('Submitting event details:', eventDetails);
-    if (!eventDetails) {
-      Swal.fire('請輸入貼文內容', '', 'warning');
-      return;
-    }
-    try {
-      // 用fetch送出檔案
-      const res = await fetch('http://localhost:3001/community/create-event', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // ==================================== TODO TODO TODO ====================================
-        body: JSON.stringify({
-          ...eventDetails,
-          status: 'upcoming',
-          userId: 1,
-        }), // TODO: 需動態更改 userId
-        // ==================================== TODO TODO TODO ====================================
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setEventId(data.eventId.insertId);
-        setEventCreated(true);
-        return data.eventId.insertId; // 返回 eventId 給 handleFileUpload
-      } else {
-        throw new Error(data.message || '新增活動失敗');
-      }
-    } catch (error) {
-      console.error('upload event failed:', error);
-      createEventModalMobileRef.current.close();
-      Swal.fire({
-        title: '創建活動失敗!',
-        icon: 'error',
-        confirmButtonText: '關閉',
-        confirmButtonColor: '#A0FF1F',
-        background: 'rgba(0, 0, 0, 0.85)',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          resetAndCloseModal();
-        }
-      });
-    }
-  };
-
-  // 上傳圖片到伺服器
-  const handleFileUpload = async () => {
-    let currentEventId = eventId;
-
-    if (!eventCreated) {
-      currentEventId = await handleEventUpload();
-      // console.log('eventId:', currentEventId);
-      if (!currentEventId) {
-        console.error('No event ID returned');
-        return; // 如果新增貼文失敗或沒有 eventID 則停止執行
-      }
-      setEventId(currentEventId);
-      setEventCreated(true);
-    }
-
-    const fd = new FormData();
-
-    // 對照server上要獲取的檔案名稱(req.files.photo)
-    fd.append('photo', selectedFile);
-    fd.append('eventId', currentEventId);
-
-    try {
-      // 用fetch送出檔案
-      const res = await fetch(
-        'http://localhost:3001/community/upload-event-photo',
-        {
-          method: 'POST',
-          body: fd,
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error('Network response was not ok.');
-      }
-
-      const data = await res.json();
-
-      // console.log(data);
-
-      // 關閉 create modal
-      createEventModalMobileRef.current.close();
-      Swal.fire({
-        title: '創建活動成功!',
-        icon: 'success',
-        confirmButtonText: '關閉',
-        confirmButtonColor: '#A0FF1F',
-        background: 'rgba(0, 0, 0, 0.85)',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          resetAndCloseModal();
-        }
-      });
-    } catch (error) {
-      console.error('upload failed:', error);
-      createEventModalMobileRef.current.close();
-      Swal.fire({
-        title: '創建活動失敗!',
-        icon: 'error',
-        confirmButtonText: '關閉',
-        confirmButtonColor: '#A0FF1F',
-        background: 'rgba(0, 0, 0, 0.85)',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          resetAndCloseModal();
-        }
-      });
-    }
   };
 
   // 當選擇檔案時，建立預覽圖的網址。使用的是狀態連鎖更動的樣式 A狀態 -> B狀態
@@ -194,26 +50,6 @@ export default function CreateEventModalMobile() {
     };
   }, [selectedFile]);
   // ^^^^^^^^^^^^^^ 這裡代表只有在selectedFile有變動(之後)才會執行
-
-  // 觸發隱藏的 file input 點擊事件
-  const handleFilePicker = () => {
-    // 利用 ref 引用來觸發 input 的點擊事件
-    fileInputRef.current.click();
-  };
-
-  const handleDateFocus = (e) => {
-    e.target.type = 'date';
-  };
-
-  const handleBlur = (e) => {
-    if (e.target.value === '') {
-      e.target.type = 'text';
-    }
-  };
-
-  const handleTimeFocus = (e) => {
-    e.target.type = 'time';
-  };
 
   return (
     <>
@@ -345,7 +181,7 @@ export default function CreateEventModalMobile() {
 
                 <button
                   className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3`}
-                  onClick={handleFileUpload}
+                  onClick={handleEventFileUpload}
                 >
                   分享
                 </button>
