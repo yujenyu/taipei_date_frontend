@@ -7,7 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './page.module.css';
 
 export default function Explore() {
-  const { posts, hasMore, getCommunityExplorePost } = usePostContext();
+  const { randomPosts, hasMore, getCommunityExplorePost } = usePostContext();
 
   useEffect(() => {
     getCommunityExplorePost();
@@ -42,7 +42,7 @@ export default function Explore() {
           <div className="flex flex-wrap md:w-10/12 gap-5 justify-center">
             <div className="flex flex-wrap gap-5 justify-center">
               <InfiniteScroll
-                dataLength={posts.length}
+                dataLength={randomPosts.length}
                 next={getCommunityExplorePost}
                 hasMore={hasMore}
                 loader={
@@ -69,7 +69,7 @@ export default function Explore() {
                   gap: '1.25rem',
                 }}
               >
-                {posts.map((post, i) => (
+                {randomPosts.map((post, i) => (
                   <PostCardMedium post={post} key={i} />
                 ))}
               </InfiniteScroll>

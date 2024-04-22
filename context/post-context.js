@@ -1,10 +1,11 @@
-import { useState, createContext, useContext, useRef, useEffect } from 'react';
+import { useState, createContext, useContext, useRef } from 'react';
 import Swal from 'sweetalert2';
 
 const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
+  const [randomPosts, setRandomPosts] = useState([]);
   const [postContent, setPostContent] = useState('');
   const [postCreated, setPostCreated] = useState(false); // 標示貼文是否已創建
   const [postId, setPostId] = useState(''); // 儲存創立貼文後的 post id
@@ -27,6 +28,7 @@ export const PostProvider = ({ children }) => {
   });
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [eventPage, setEventPage] = useState(1);
   const [likedPosts, setLikedPosts] = useState({});
   const [savedPosts, setSavedPosts] = useState({});
   const [attendedEvents, setAttendedEvents] = useState({});
@@ -81,7 +83,7 @@ export const PostProvider = ({ children }) => {
         await checkPostsStatus(postIds); // 檢查貼文狀態
         await getPostComments(postIds);
 
-        setPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+        setRandomPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
         setPage((prevPage) => prevPage + 1); // 更新頁碼
         // setIsLoading(false); // 結束加載
       }
@@ -123,7 +125,7 @@ export const PostProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:3001/community/events?page=${page}&limit=12`
+        `http://localhost:3001/community/events?page=${eventPage}&limit=12`
       );
       const data = await res.json();
       if (data.length === 0) {
@@ -134,7 +136,7 @@ export const PostProvider = ({ children }) => {
         await checkEventsStatus(eventIds); // 檢查活動狀態
 
         setEvents((prevEvents) => [...prevEvents, ...data]); // 更新posts狀態
-        setPage((prevPage) => prevPage + 1); // 更新頁碼
+        setEventPage((prevPage) => prevPage + 1); // 更新頁碼
         // setIsLoading(false); // 結束加載
       }
     } catch (error) {
@@ -686,6 +688,15 @@ export const PostProvider = ({ children }) => {
     handleFileChange({ target: { files: acceptedFiles } });
   };
 
+  // useEffect(() => {
+  //   console.log(router.pathname);
+  //   if (router.pathname === '/community/explore') {
+  //     getCommunityExplorePost();
+  //   } else {
+  //     getCommunityIndexPost();
+  //   }
+  // }, [router.pathname]);
+
   return (
     <PostContext.Provider
       value={{
@@ -694,6 +705,7 @@ export const PostProvider = ({ children }) => {
         getCommunityProfilePost,
         getCommunityEvents,
         posts,
+        randomPosts,
         setPostContent,
         comments,
         setComments,

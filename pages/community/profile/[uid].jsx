@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+// import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/router';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
@@ -8,6 +9,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from '../page.module.css';
 
 export default function Profile() {
+  // const { getAuthHeader } = useAuth();
+
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
