@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
@@ -9,7 +8,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from '../page.module.css';
 
 export default function Profile() {
-  const { getAuthHeader } = useAuth();
   const { posts, hasMore, getCommunityProfilePost } = usePostContext();
 
   useEffect(() => {

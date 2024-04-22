@@ -9,13 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "firebase": "^10.11.0",
+    "formik": "^2.4.5",
+    "install": "^0.13.0",
     "next": "14.1.4",
+    "npm": "^10.5.2",
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
+    "react-firebase-hooks": "^5.1.1",
+    "react-hot-toast": "^2.4.1",
     "react-icons": "^5.0.1",
     "react-infinite-scroll-component": "^6.1.0",
-    "sweetalert2": "^11.10.7"
+    "socket.io-client": "^4.7.5",
+    "sweetalert2": "^11.10.7",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",

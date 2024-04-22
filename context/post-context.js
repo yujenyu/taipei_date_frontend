@@ -1,9 +1,14 @@
 import { useState, createContext, useContext, useRef } from 'react';
+import { useAuth } from '@/context/auth-context';
+import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 
 const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
+  const { auth, getAuthHeader } = useAuth();
+
   const [posts, setPosts] = useState([]);
   const [randomPosts, setRandomPosts] = useState([]);
   const [postContent, setPostContent] = useState('');
@@ -38,6 +43,9 @@ export const PostProvider = ({ children }) => {
   const createModalMobileRef = useRef(null);
   const createEventModalRef = useRef(null);
   const createEventModalMobileRef = useRef(null);
+
+  const router = useRouter();
+  const { uid } = router.query;
 
   const getCommunityIndexPost = async () => {
     if (!hasMore) return; // 防止重複請求
@@ -98,7 +106,8 @@ export const PostProvider = ({ children }) => {
     // setIsLoading(true); // 開始加載
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts?page=${page}&limit=12`
+        `http://localhost:3001/community/posts?page=${page}&limit=12`,
+        { headers: { ...getAuthHeader() } }
       );
       const data = await res.json();
       if (data.length === 0) {
@@ -115,6 +124,42 @@ export const PostProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Failed to fetch profile posts:', error);
+      // setIsLoading(false); // 確保即使出錯也要結束加載
+    }
+  };
+
+  const getCommunityUserProfilePost = async () => {
+    if (!hasMore) return; // 防止重複請求
+    // setIsLoading(true); // 開始加載
+    try {
+      const res = await fetch(
+        `http://localhost:3001/community/posts/${uid}?page=${page}&limit=12`,
+        { headers: { ...getAuthHeader() } }
+      );
+      const data = await res.json();
+
+      if (data[0].success) {
+        if (data.length === 0) {
+          setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        } else {
+          const postIds = data.map((post) => post.post_id).join(',');
+
+          await checkPostsStatus(postIds); // 檢查貼文狀態
+          await getPostComments(postIds);
+
+          setPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+          setPage((prevPage) => prevPage + 1); // 更新頁碼
+          // setIsLoading(false); // 結束加載
+        }
+      } else {
+        toast.error(data.error, {
+          duration: 1500,
+        });
+        router.push('/');
+        return;
+      }
+    } catch (error) {
+      console.error('Failed to fetch index posts:', error);
       // setIsLoading(false); // 確保即使出錯也要結束加載
     }
   };
@@ -192,9 +237,11 @@ export const PostProvider = ({ children }) => {
   // 上傳回覆
   const handleCommentUpload = async (post, newComment) => {
     const postId = post.post_id;
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
 
     try {
       // 用fetch送出檔案
@@ -279,9 +326,11 @@ export const PostProvider = ({ children }) => {
 
   // 上傳貼文
   const handlePostUpload = async () => {
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
 
     if (!postContent) {
       Swal.fire('請輸入貼文內容', '', 'warning');
@@ -395,10 +444,11 @@ export const PostProvider = ({ children }) => {
 
   const handleLikedClick = async (post) => {
     const postId = post.post_id;
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
 
+    if (userId === 0) {
+      return;
+    }
     const wasLiked = likedPosts[postId] || false;
     const newLikedState = !wasLiked;
 
@@ -423,9 +473,11 @@ export const PostProvider = ({ children }) => {
 
   const handleAttendedClick = async (event) => {
     const eventId = event.comm_event_id;
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
 
     const wasAttended = attendedEvents[eventId] || false;
     const newAttendedState = !wasAttended;
@@ -454,9 +506,11 @@ export const PostProvider = ({ children }) => {
 
   const handleSavedClick = async (post) => {
     const postId = post.post_id;
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
 
     const wasSaved = savedPosts[postId] || false;
     const newSavedState = !wasSaved;
@@ -481,9 +535,11 @@ export const PostProvider = ({ children }) => {
   };
 
   const checkPostsStatus = async (postIds) => {
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -512,9 +568,11 @@ export const PostProvider = ({ children }) => {
   };
 
   const checkEventsStatus = async (eventIds) => {
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -546,9 +604,11 @@ export const PostProvider = ({ children }) => {
 
   // 上傳活動資訊
   const handleEventUpload = async () => {
-    // ==================================== TODO TODO TODO ====================================
-    const userId = 1; // TODO: 需動態更改 userId
-    // ==================================== TODO TODO TODO ===================================
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
 
     if (!eventDetails) {
       Swal.fire('請輸入活動內容', '', 'warning');
@@ -703,7 +763,9 @@ export const PostProvider = ({ children }) => {
         getCommunityIndexPost,
         getCommunityExplorePost,
         getCommunityProfilePost,
+        getCommunityUserProfilePost,
         getCommunityEvents,
+        uid,
         posts,
         randomPosts,
         setPostContent,

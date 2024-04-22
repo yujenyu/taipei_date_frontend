@@ -68,7 +68,10 @@ export default function ProfileInfo({ posts }) {
           <div className="basis-3/12 flex items-center justify-center">
             <div className="avatar">
               <div className="w-32 rounded-full">
-                <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                <img
+                  src={userInfo.avatar || '/unknown-user-image.jpg'}
+                  alt={userInfo.username || 'No Image Available'}
+                />
               </div>
             </div>
           </div>

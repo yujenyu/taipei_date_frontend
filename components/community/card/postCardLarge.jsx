@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import Link from 'next/link';
 import { FiSend, FiMessageCircle } from 'react-icons/fi';
@@ -6,8 +7,11 @@ import ShareModal from '../modal/shareModal';
 import PostModal from '../modal/postModal';
 
 export default function PostCardLarge({ post }) {
+  const { auth } = useAuth();
   const { handleLikedClick, handleSavedClick, likedPosts, savedPosts } =
     usePostContext();
+
+  const userId = auth.id;
 
   const isLiked = likedPosts[post.post_id] || false;
   const isSaved = savedPosts[post.post_id] || false;
@@ -27,7 +31,7 @@ export default function PostCardLarge({ post }) {
             <div className="avatar">
               <div className="w-10 rounded-full">
                 <img
-                  src={post.img || '../../../public/unavailable-image.jpg'}
+                  src={post.avatar || '/unknown-user-image.jpg'}
                   alt={post.photo_name || 'No Image Available'}
                 />
               </div>
@@ -39,53 +43,55 @@ export default function PostCardLarge({ post }) {
         </div>
         <figure className="card-photo m-0" onDoubleClick={handleLikedClick}>
           <img
-            src={post.img || '../../../public/unavailable-image.jpg'}
+            src={post.img || '/unavailable-image.jpg'}
             alt={post.photo_name || 'No Image Available'}
             className="card-photo w-[480px] h-[480px] object-cover"
           />
         </figure>
         <div className="card-body w-full p-0 overflow-auto max-w-[480px] px-3 py-3">
-          <div className="card-iconList text-h4 flex flex-row justify-between">
-            <div className="card-iconListLeft flex flex-row gap-1">
-              {isLiked ? (
-                <FaHeart
-                  className="card-icon hover:text-neongreen"
-                  onClick={() => handleLikedClick(post)}
-                />
-              ) : (
-                <FaRegHeart
-                  className="card-icon  hover:text-neongreen"
-                  onClick={() => handleLikedClick(post)}
-                />
-              )}
+          {/* 只有當用戶登入時顯示這些元件 */}
+          {userId !== 0 && userId !== null && (
+            <div className="card-iconList text-h4 flex flex-row justify-between">
+              <div className="card-iconListLeft flex flex-row gap-1">
+                {isLiked ? (
+                  <FaHeart
+                    className="card-icon hover:text-neongreen"
+                    onClick={() => handleLikedClick(post)}
+                  />
+                ) : (
+                  <FaRegHeart
+                    className="card-icon  hover:text-neongreen"
+                    onClick={() => handleLikedClick(post)}
+                  />
+                )}
 
-              <FiMessageCircle
-                className="card-icon hover:text-neongreen"
-                onClick={handleShowModal}
-              />
-              <FiSend
-                className="card-icon hover:text-neongreen"
-                onClick={() =>
-                  document.getElementById('share_modal').showModal()
-                }
-              />
-              <ShareModal />
-            </div>
-            <div className="card-iconListRight flex justify-end">
-              {isSaved ? (
-                <FaBookmark
+                <FiMessageCircle
                   className="card-icon hover:text-neongreen"
-                  onClick={() => handleSavedClick(post)}
+                  onClick={handleShowModal}
                 />
-              ) : (
-                <FaRegBookmark
+                <FiSend
                   className="card-icon hover:text-neongreen"
-                  onClick={() => handleSavedClick(post)}
+                  onClick={() =>
+                    document.getElementById('share_modal').showModal()
+                  }
                 />
-              )}
+                <ShareModal />
+              </div>
+              <div className="card-iconListRight flex justify-end">
+                {isSaved ? (
+                  <FaBookmark
+                    className="card-icon hover:text-neongreen"
+                    onClick={() => handleSavedClick(post)}
+                  />
+                ) : (
+                  <FaRegBookmark
+                    className="card-icon hover:text-neongreen"
+                    onClick={() => handleSavedClick(post)}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-          {/* <h2 className="card-title">Life hack</h2> */}
+          )}
           <p className="postContext">{post.post_context}</p>
           <p
             className="commentontext text-[12px] text-grayBlue cursor-pointer"
@@ -93,9 +99,7 @@ export default function PostCardLarge({ post }) {
           >
             查看回覆
           </p>
-
           <PostModal post={post} modalId={modalId} />
-
           {/* {showReply && (
             <div className="flex flex-col justify-center items-center">
               <textarea

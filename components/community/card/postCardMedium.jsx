@@ -13,7 +13,7 @@ export default function PostCardMedium({ post }) {
       <div className="flex aspect-square card w-[330px] h-[330px] overflow-hidden items-center justify-center border border-grayBorder">
         <figure className="card-photo m-0" onClick={handleShowModal}>
           <img
-            src={post.img || '../../../public/unavailable-image.jpg'}
+            src={post.img || '/unavailable-image.jpg'}
             alt={post.photo_name || 'No Image Available'}
             className="card-photo object-cover w-[330px] h-[330px]"
           />

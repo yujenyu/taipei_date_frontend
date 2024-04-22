@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import { useState } from 'react';
 import { FiSend } from 'react-icons/fi';
@@ -5,8 +6,11 @@ import ShareModal from '../modal/shareModal';
 import styles from './card.module.css';
 
 export default function EventCard({ event }) {
+  const { auth } = useAuth();
   const { handleAttendedClick, attendedEvents } = usePostContext();
   const [isFlipped, setIsFlipped] = useState(false);
+
+  const userId = auth.id;
 
   const isAttended = attendedEvents[event.comm_event_id] || false;
 
@@ -33,7 +37,7 @@ export default function EventCard({ event }) {
           >
             <figure className="card-photo">
               <img
-                src={event.img || '../../../public/unavailable-image.jpg'}
+                src={event.img || '/unavailable-image.jpg'}
                 alt={event.photo_name || 'No Image Available'}
                 className="card-photo w-[330px] h-[330px] object-cover"
                 loading="lazy"
@@ -53,25 +57,29 @@ export default function EventCard({ event }) {
                       </p>
                     </div>
                   </div>
-                  <div className="card-iconListRight flex justify-end px-1 py-1">
-                    <FiSend
-                      className="card-icon hover:text-neongreen"
-                      onClick={() =>
-                        document.getElementById('share_modal').showModal()
-                      }
-                    />
-                    <ShareModal />
-                  </div>
+                  {userId !== 0 && userId !== null && (
+                    <div className="card-iconListRight flex justify-end px-1 py-1">
+                      <FiSend
+                        className="card-icon hover:text-neongreen"
+                        onClick={() =>
+                          document.getElementById('share_modal').showModal()
+                        }
+                      />
+                      <ShareModal />
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="card-actions flex justify-center px-1 py-1 ">
-                <button
-                  className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3"
-                  onClick={() => handleAttendedClick(event)}
-                >
-                  {isAttended ? <span>已參加</span> : <span>參加</span>}
-                </button>
-              </div>
+              {userId !== 0 && userId !== null && (
+                <div className="card-actions flex justify-center px-1 py-1 ">
+                  <button
+                    className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3"
+                    onClick={() => handleAttendedClick(event)}
+                  >
+                    {isAttended ? <span>已參加</span> : <span>參加</span>}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className={`${styles['flip-card-back']} flex flex-col gap-5`}>

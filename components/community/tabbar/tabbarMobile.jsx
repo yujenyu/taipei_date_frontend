@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/auth-context';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -6,8 +7,11 @@ import SearchModalMobile from '../modal/searchModalMobile';
 import CreateEventModalMobile from '../modal/createEventModalMobile';
 
 export default function TabbarMobile() {
+  const { auth } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('home');
+
+  const userId = auth.id;
 
   // 使用URL變化來設置活動標籤
   useEffect(() => {
@@ -53,48 +57,53 @@ export default function TabbarMobile() {
           <span>探索</span>
         </Link>
 
-        <div
-          role="tab"
-          // className={`tab ${activeTab === 'create' ? 'tab-active' : ''}`}
-          className="tab"
-        >
-          <div className="dropdown">
-            <div tabIndex={0}>
-              <span>建立</span>
+        {userId !== 0 && userId !== null && (
+          <div
+            role="tab"
+            // className={`tab ${activeTab === 'create' ? 'tab-active' : ''}`}
+            className="tab"
+          >
+            <div className="dropdown">
+              <div tabIndex={0}>
+                <span>建立</span>
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                style={{
+                  backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                }}
+              >
+                <li>
+                  <a
+                    onClick={() => {
+                      // handleTabClick('create');
+                      document
+                        .getElementById('create_modal_mobile')
+                        .showModal();
+                    }}
+                  >
+                    建立貼文
+                  </a>
+                </li>
+                <li>
+                  <a
+                    onClick={() =>
+                      document
+                        .getElementById('create_event_modal_mobile')
+                        .showModal()
+                    }
+                  >
+                    建立活動
+                  </a>
+                </li>
+              </ul>
             </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.85)',
-              }}
-            >
-              <li>
-                <a
-                  onClick={() => {
-                    // handleTabClick('create');
-                    document.getElementById('create_modal_mobile').showModal();
-                  }}
-                >
-                  建立貼文
-                </a>
-              </li>
-              <li>
-                <a
-                  onClick={() =>
-                    document
-                      .getElementById('create_event_modal_mobile')
-                      .showModal()
-                  }
-                >
-                  建立活動
-                </a>
-              </li>
-            </ul>
+            <CreateModalMobile />
+            <CreateEventModalMobile />
           </div>
-          <CreateModalMobile />
-          <CreateEventModalMobile />
-        </div>
+        )}
+
         <Link
           role="tab"
           className={`tab ${activeTab === 'events' ? 'tab-active' : ''}`}
@@ -103,14 +112,17 @@ export default function TabbarMobile() {
         >
           <span>活動</span>
         </Link>
-        <Link
-          role="tab"
-          className={`tab ${activeTab === 'profile' ? 'tab-active' : ''}`}
-          href="/community/profile"
-          onClick={() => handleTabClick('profile')}
-        >
-          <span>個人</span>
-        </Link>
+
+        {userId !== 0 && userId !== null && (
+          <Link
+            role="tab"
+            className={`tab ${activeTab === 'profile' ? 'tab-active' : ''}`}
+            href="/community/profile"
+            onClick={() => handleTabClick('profile')}
+          >
+            <span>個人</span>
+          </Link>
+        )}
       </div>
     </>
   );
