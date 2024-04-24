@@ -14,6 +14,7 @@ export default function CreateModal() {
     handleFilePicker,
     handleFileUpload,
     onDrop,
+    handleKeyPress,
     createModalRef,
   } = usePostContext();
 
@@ -106,6 +107,10 @@ export default function CreateModal() {
                   className="textarea textarea-ghost w-full h-32 resize-none my-3"
                   placeholder="貼文內容"
                   onChange={handlePostContentChange}
+                  onKeyDown={(e) =>
+                    // 使用 onKeyDown 並檢查是否按下 Enter 鍵
+                    handleKeyPress(e, () => handleFileUpload())
+                  }
                 />
                 <button
                   className={`${styles['createModalListItemText']} btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3`}

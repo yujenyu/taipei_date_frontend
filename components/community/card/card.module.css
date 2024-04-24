@@ -50,3 +50,113 @@
   border: solid 1px #1d4357;
   border-radius: 20px;
 }
+
+.parallaxContainer {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  height: 100%;
+}
+
+.parallaxMedia {
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 16px 32px 8px rgba(0, 0, 0, 0.25);
+}
+
+.parallax {
+  display: block;
+  position: relative;
+  height: auto;
+  width: auto;
+  /* max-width: 300px; */
+  margin: auto;
+}
+
+.parallaxHoverTopLeft,
+.parallaxHoverTopRight,
+.parallaxHoverBottomLeft,
+.parallaxHoverBottomRight {
+  position: absolute;
+  z-index: 2;
+  width: 50%;
+  height: 50%;
+  cursor: pointer;
+}
+
+.parallaxHoverTopLeft {
+  top: 0;
+  left: 0;
+}
+
+.parallaxHoverTopRight {
+  top: 0;
+  right: 0;
+}
+
+.parallaxHoverBottomLeft {
+  bottom: 0;
+  left: 0;
+}
+
+.parallaxHoverBottomRight {
+  bottom: 0;
+  right: 0;
+}
+
+.parallaxContent {
+  height: auto;
+  transform: perspective(1600px);
+  transform-style: preserve-3d;
+  transition: all 0.66s ease;
+  width: 100%;
+}
+
+.parallaxContentFront {
+  align-items: center;
+  color: #fff;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  text-align: center;
+  text-shadow: 0 0 3rem rgba(69, 77, 93, 0.95);
+  top: 0;
+  transform: translateZ(16px) scale(0.9);
+  transition: all 0.4s ease;
+  width: 100%;
+  z-index: 1;
+}
+
+.parallaxHoverTopLeft:hover ~ .parallaxContent {
+  transform: perspective(1600px) rotateX(-15deg) rotateY(15deg);
+}
+
+.parallaxHoverTopLeft:hover ~ .parallaxContent .parallaxContent-front {
+  transform: translate3d(-0.1px, -0.1px, 16px) scale(0.9);
+}
+
+.parallaxHoverTopRight:hover ~ .parallaxContent {
+  transform: perspective(1600px) rotateX(-15deg) rotateY(-15deg);
+}
+
+.parallaxHoverTopRight:hover ~ .parallaxContent .parallaxContentFront {
+  transform: translate3d(0.1px, -0.1px, 16px) scale(0.9);
+}
+
+.parallaxHoverBottomLeft:hover ~ .parallaxContent {
+  transform: perspective(1600px) rotateX(15deg) rotateY(15deg);
+}
+
+.parallaxHoverBottomLeft:hover ~ .parallaxContent .parallaxContentFront {
+  transform: translate3d(-0.1px, 0.1px, 16px) scale(0.9);
+}
+
+.parallaxHoverBottomRight:hover ~ .parallaxContent {
+  transform: perspective(1600px) rotateX(15deg) rotateY(-15deg);
+}
+
+.parallaxHoverBottomRight:hover ~ .parallaxContent .parallaxContentFront {
+  transform: translate3d(0.1px, 0.1px, 16px) scale(0.9);
+}

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import PostCardMedium from '@/components/community/card/postCardMedium';
 import Sidebar from '@/components/community/sidebar/sidebar';
@@ -7,11 +8,17 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './page.module.css';
 
 export default function Explore() {
+  const { auth } = useAuth();
+
   const { randomPosts, hasMore, getCommunityExplorePost } = usePostContext();
 
   useEffect(() => {
+    if (auth.id === 0) {
+      return;
+    }
+
     getCommunityExplorePost();
-  }, []);
+  }, [auth.id]);
 
   return (
     <>
@@ -23,7 +30,7 @@ export default function Explore() {
       </div>
 
       <div className="flex pt-28 items-center justify-center">
-        <div className="flex flex-row items-center justify-center ">
+        <div className="flex flex-row items-center justify-center min-h-screen">
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
@@ -8,11 +9,17 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from '../page.module.css';
 
 export default function Profile() {
+  const { auth } = useAuth();
+
   const { posts, hasMore, getCommunityProfilePost } = usePostContext();
 
   useEffect(() => {
+    if (auth.id === 0) {
+      return;
+    }
+
     getCommunityProfilePost();
-  }, []);
+  }, [auth.id]);
 
   return (
     <>
@@ -24,7 +31,7 @@ export default function Profile() {
       </div>
 
       <div className="flex flex-col w-full items-center justify-center pt-28">
-        <div className="flex flex-wrap justify-center w-full">
+        <div className="flex flex-wrap justify-center w-full min-h-screen">
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>

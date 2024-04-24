@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
@@ -8,14 +9,18 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from '../page.module.css';
 
 export default function Profile() {
-  const { uid, posts, hasMore, getCommunityUserProfilePost } = usePostContext();
+  const { auth } = useAuth();
+
+  const { uid, profilePosts, hasMore, getCommunityUserProfilePost } =
+    usePostContext();
 
   useEffect(() => {
-    // 確保 uid 已定義且不為空
-    if (uid) {
-      getCommunityUserProfilePost();
+    if (auth.id === 0 || !uid) {
+      return;
     }
-  }, [uid]); // 添加 uid 為依賴，這樣只有 uid 變化時才重新調用
+
+    getCommunityUserProfilePost();
+  }, [auth.id, uid]); // 添加 auth.id, uid 為依賴，這樣只有 uid 變化時才重新調用
 
   return (
     <>
@@ -26,19 +31,19 @@ export default function Profile() {
         <TabbarMobile />
       </div>
 
-      <div className="flex flex-col w-full items-center justify-center pt-28">
-        <div className="flex flex-wrap justify-center w-full">
+      <div className="flex flex-col w-full items-center justify-center pt-28 ">
+        <div className="flex flex-wrap justify-center w-full min-h-screen">
           <div className="hidden md:flex md:w-2/12">
             <Sidebar />
           </div>
 
           <div className="flex flex-col md:w-10/12 items-center">
             {/* info area */}
-            <ProfileInfo posts={posts} />
+            <ProfileInfo posts={profilePosts} />
             {/* post area */}
             <div className="flex flex-wrap gap-5 justify-center">
               <InfiniteScroll
-                dataLength={posts.length}
+                dataLength={profilePosts.length}
                 next={getCommunityUserProfilePost}
                 hasMore={hasMore}
                 loader={
@@ -65,7 +70,7 @@ export default function Profile() {
                   gap: '1.25rem',
                 }}
               >
-                {posts.map((post, i) => (
+                {profilePosts.map((post, i) => (
                   <ProfileCard post={post} key={i} />
                 ))}
               </InfiniteScroll>

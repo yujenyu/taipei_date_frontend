@@ -31,7 +31,7 @@ module.exports = {
         p: '9px',
       },
       colors: {
-        primary: '#A0FF1F', // 自定义的主要颜色
+        primary: '#A0FF1F',
         secondary: '#ff03ff',
         neongreen: '#A0FF1F',
         neonpink: '#ff03ff',
@@ -60,4 +60,7 @@ module.exports = {
     },
   },
   plugins: [require('daisyui')],
+  daisyui: {
+    themes: ['black'],
+  },
 };

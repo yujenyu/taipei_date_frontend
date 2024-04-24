@@ -10,6 +10,9 @@ export const PostProvider = ({ children }) => {
   const { auth, getAuthHeader } = useAuth();
 
   const [posts, setPosts] = useState([]);
+  const [profilePosts, setProfilePosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [currentKeyword, setCurrentKeyword] = useState('');
   const [randomPosts, setRandomPosts] = useState([]);
   const [postContent, setPostContent] = useState('');
   const [postCreated, setPostCreated] = useState(false); // 標示貼文是否已創建
@@ -33,10 +36,15 @@ export const PostProvider = ({ children }) => {
   });
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [profilePage, setProfilePage] = useState(1);
+  const [filteredPage, setFilteredPage] = useState(1);
   const [eventPage, setEventPage] = useState(1);
   const [likedPosts, setLikedPosts] = useState({});
   const [savedPosts, setSavedPosts] = useState({});
   const [attendedEvents, setAttendedEvents] = useState({});
+  const [following, setFollowing] = useState({});
+  const [postModalToggle, setPostModalToggle] = useState(false);
+  const [isFilterActive, setIsFilterActive] = useState(false);
 
   const fileInputRef = useRef(null);
   const createModalRef = useRef(null);
@@ -66,6 +74,34 @@ export const PostProvider = ({ children }) => {
 
         setPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
         setPage((prevPage) => prevPage + 1); // 更新頁碼
+        // setIsLoading(false); // 結束加載
+      }
+    } catch (error) {
+      console.error('Failed to fetch index posts:', error);
+      // setIsLoading(false); // 確保即使出錯也要結束加載
+    }
+  };
+
+  const getCommunityIndexFilteredPost = async (keyword) => {
+    if (!hasMore) return; // 防止重複請求
+    // setIsLoading(true); // 開始加載
+
+    try {
+      const res = await fetch(
+        `http://localhost:3001/community/get-posts-by-keyword?keyword=${keyword}&page=${filteredPage}&limit=12`
+      );
+      const data = await res.json();
+      if (data.length === 0) {
+        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+      } else {
+        const postIds = data.map((post) => post.post_id).join(',');
+
+        await checkPostsStatus(postIds); // 檢查貼文狀態
+        await getPostComments(postIds);
+
+        setFilteredPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+        setFilteredPage((prevPage) => prevPage + 1); // 更新頁碼
+        setIsFilterActive(true);
         // setIsLoading(false); // 結束加載
       }
     } catch (error) {
@@ -131,9 +167,10 @@ export const PostProvider = ({ children }) => {
   const getCommunityUserProfilePost = async () => {
     if (!hasMore) return; // 防止重複請求
     // setIsLoading(true); // 開始加載
+
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts/${uid}?page=${page}&limit=12`,
+        `http://localhost:3001/community/posts/${uid}?page=${profilePage}&limit=12`,
         { headers: { ...getAuthHeader() } }
       );
       const data = await res.json();
@@ -144,11 +181,13 @@ export const PostProvider = ({ children }) => {
         } else {
           const postIds = data.map((post) => post.post_id).join(',');
 
+          await checkFollowingStatus(uid);
+
           await checkPostsStatus(postIds); // 檢查貼文狀態
           await getPostComments(postIds);
 
-          setPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
-          setPage((prevPage) => prevPage + 1); // 更新頁碼
+          setProfilePosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+          setProfilePage((prevPage) => prevPage + 1); // 更新頁碼
           // setIsLoading(false); // 結束加載
         }
       } else {
@@ -312,6 +351,16 @@ export const PostProvider = ({ children }) => {
     createEventModalMobileRef.current.close();
   };
 
+  // 重置篩選
+  const handleFilterClick = (keyword) => {
+    // reset
+    setFilteredPosts([]);
+    setFilteredPage(1);
+
+    setCurrentKeyword(keyword);
+    setIsFilterActive(true);
+  };
+
   // 觸發隱藏的 file input 點擊事件
   const handleFilePicker = () => {
     // 利用 ref 引用來觸發 input 的點擊事件
@@ -403,6 +452,7 @@ export const PostProvider = ({ children }) => {
       if (res.ok) {
         // 更新貼文以觸發刷新頁面 !!!Important!!!
         setPosts((prevPosts) => [data.post, ...prevPosts]);
+        setProfilePosts((prevPosts) => [data.post, ...prevPosts]);
       } else {
         throw new Error('Network response was not ok.');
       }
@@ -483,7 +533,7 @@ export const PostProvider = ({ children }) => {
     const newAttendedState = !wasAttended;
 
     try {
-      const url = wasAttended ? '/notattend-event' : '/attend-event';
+      const url = wasAttended ? 'notattend-event' : 'attend-event';
       const res = await fetch(`http://localhost:3001/community/${url}`, {
         method: wasAttended ? 'DELETE' : 'POST',
         headers: {
@@ -532,6 +582,243 @@ export const PostProvider = ({ children }) => {
     } catch (error) {
       console.error('Error updating save status:', error);
     }
+  };
+
+  const handleFollowClick = async (FollowingId) => {
+    const userId = auth.id; // 當前登入用戶的ID
+
+    if (userId === 0) return; // 未登入狀態直接返回
+
+    const isFollowing = following[FollowingId] || false; // 檢查是否已追蹤該用戶
+    const newFollowingState = !isFollowing; // 新的追蹤狀態為當前狀態的反向值
+
+    try {
+      const url = isFollowing ? 'unfollow' : 'follow';
+      const res = await fetch(`http://localhost:3001/community/${url}`, {
+        method: isFollowing ? 'DELETE' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, FollowingId }),
+      });
+
+      if (res.ok) {
+        setFollowing((prev) => ({
+          ...prev,
+          [FollowingId]: newFollowingState,
+        }));
+      } else {
+        throw new Error('Failed to update follow status');
+      }
+    } catch (error) {
+      console.error('Error updating follow status:', error);
+    }
+  };
+
+  const handleDeletePostClick = async (post, modalId) => {
+    const postId = post.post_id;
+
+    if (!postId) return;
+
+    Swal.fire({
+      title: '確定刪除?',
+      showCancelButton: true,
+      confirmButtonText: '確認',
+      cancelButtonText: `取消`,
+      confirmButtonColor: '#A0FF1F',
+      background: 'rgba(0, 0, 0, 0.85)',
+    }).then(async (result) => {
+      // 如果點擊確認刪除才執行
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(
+            `http://localhost:3001/community/delete-post`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ postId }),
+            }
+          );
+
+          if (res.ok) {
+            // 更新 posts, randomPosts 狀態以移除已刪除的貼文
+            setPosts((prevPosts) => {
+              console.log(prevPosts);
+              return prevPosts.filter((post) => post.post_id !== postId);
+            });
+            setRandomPosts((prevPosts) => {
+              console.log(prevPosts);
+              return prevPosts.filter((post) => post.post_id !== postId);
+            });
+
+            Swal.fire({
+              title: '刪除成功!',
+              icon: 'success',
+              confirmButtonText: '關閉',
+              confirmButtonColor: '#A0FF1F',
+              background: 'rgba(0, 0, 0, 0.85)',
+            });
+          } else {
+            Swal.fire({
+              title: '刪除失敗!',
+              icon: 'error',
+              confirmButtonText: '關閉',
+              confirmButtonColor: '#A0FF1F',
+              background: 'rgba(0, 0, 0, 0.85)',
+            });
+          }
+        } catch (error) {
+          console.error('Error delete post status:', error);
+          Swal.fire({
+            title: '刪除失敗!',
+            icon: 'error',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          });
+        }
+      }
+    });
+  };
+
+  const handleDeleteEventClick = async (event, modalId) => {
+    const eventId = event.comm_event_id;
+
+    if (!eventId) return;
+
+    Swal.fire({
+      title: '確定刪除?',
+      showCancelButton: true,
+      confirmButtonText: '確認',
+      cancelButtonText: `取消`,
+      confirmButtonColor: '#A0FF1F',
+      background: 'rgba(0, 0, 0, 0.85)',
+    }).then(async (result) => {
+      // 如果點擊確認刪除才執行
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(
+            `http://localhost:3001/community/delete-event`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ eventId }),
+            }
+          );
+
+          if (res.ok) {
+            // 更新 events 狀態以移除已刪除的貼文
+            setEvents((prevEvents) => {
+              return prevEvents.filter(
+                (event) => event.comm_event_id !== eventId
+              );
+            });
+
+            Swal.fire({
+              title: '刪除成功!',
+              icon: 'success',
+              confirmButtonText: '關閉',
+              confirmButtonColor: '#A0FF1F',
+              background: 'rgba(0, 0, 0, 0.85)',
+            });
+          } else {
+            Swal.fire({
+              title: '刪除失敗!',
+              icon: 'error',
+              confirmButtonText: '關閉',
+              confirmButtonColor: '#A0FF1F',
+              background: 'rgba(0, 0, 0, 0.85)',
+            });
+          }
+        } catch (error) {
+          console.error('Error delete post status:', error);
+          Swal.fire({
+            title: '刪除失敗!',
+            icon: 'error',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          });
+        }
+      }
+    });
+  };
+
+  const handleDeleteCommentClick = async (comment, modalId) => {
+    const commentId = comment.comm_comment_id;
+
+    if (!commentId) return;
+
+    Swal.fire({
+      title: '確定刪除?',
+      showCancelButton: true,
+      confirmButtonText: '確認',
+      cancelButtonText: `取消`,
+      confirmButtonColor: '#A0FF1F',
+      background: 'rgba(0, 0, 0, 0.85)',
+    }).then(async (result) => {
+      // 如果點擊確認刪除才執行
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(
+            `http://localhost:3001/community/delete-comment`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ commentId }),
+            }
+          );
+
+          if (res.ok) {
+            // 更新 comments 狀態以移除已刪除的回覆
+            setComments((prevComments) => {
+              // 遍歷所有貼文的評論
+              const updatedComments = { ...prevComments };
+
+              for (const postId in updatedComments) {
+                // 過濾出除了要刪除的那個評論外的所有評論
+                updatedComments[postId] = updatedComments[postId].filter(
+                  (comment) => comment.comm_comment_id !== commentId
+                );
+              }
+
+              return updatedComments; // 返回更新後的評論對象
+            });
+
+            Swal.fire({
+              title: '刪除成功!',
+              icon: 'success',
+              confirmButtonText: '關閉',
+              confirmButtonColor: '#A0FF1F',
+              background: 'rgba(0, 0, 0, 0.85)',
+            });
+          } else {
+            Swal.fire({
+              title: '刪除失敗!',
+              icon: 'error',
+              confirmButtonText: '關閉',
+              confirmButtonColor: '#A0FF1F',
+              background: 'rgba(0, 0, 0, 0.85)',
+            });
+          }
+        } catch (error) {
+          console.error('Error delete post status:', error);
+          Swal.fire({
+            title: '刪除失敗!',
+            icon: 'error',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          });
+        }
+      }
+    });
   };
 
   const checkPostsStatus = async (postIds) => {
@@ -593,6 +880,27 @@ export const PostProvider = ({ children }) => {
       setAttendedEvents(newAttendedEvents);
     } catch (error) {
       console.error('無法獲取活動狀態:', error);
+    }
+  };
+
+  const checkFollowingStatus = async (followingId) => {
+    const userId = auth.id;
+
+    if (userId === 0) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/community/check-follow-status?userId=${userId}&followingId=${followingId}`
+      );
+      const data = await response.json();
+
+      // 更新追蹤狀態
+      setFollowing((prev) => ({
+        ...prev,
+        [followingId]: data.isFollowing,
+      }));
+    } catch (error) {
+      console.error('無法獲取追蹤狀態:', error);
     }
   };
 
@@ -748,25 +1056,28 @@ export const PostProvider = ({ children }) => {
     handleFileChange({ target: { files: acceptedFiles } });
   };
 
-  // useEffect(() => {
-  //   console.log(router.pathname);
-  //   if (router.pathname === '/community/explore') {
-  //     getCommunityExplorePost();
-  //   } else {
-  //     getCommunityIndexPost();
-  //   }
-  // }, [router.pathname]);
+  const handleKeyPress = (e, action) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // 防止預設行為，如換行
+      action(); // 執行傳入的回調函數
+    }
+  };
 
   return (
     <PostContext.Provider
       value={{
         getCommunityIndexPost,
+        getCommunityIndexFilteredPost,
         getCommunityExplorePost,
         getCommunityProfilePost,
         getCommunityUserProfilePost,
         getCommunityEvents,
         uid,
         posts,
+        profilePosts,
+        filteredPosts,
+        filteredPage,
+        currentKeyword,
         randomPosts,
         setPostContent,
         comments,
@@ -790,16 +1101,27 @@ export const PostProvider = ({ children }) => {
         handleLikedClick,
         handleSavedClick,
         handleAttendedClick,
+        handleFollowClick,
+        handleDeletePostClick,
+        handleDeleteEventClick,
+        handleDeleteCommentClick,
+        handleFilterClick,
         likedPosts,
         savedPosts,
         attendedEvents,
         setEventDetails,
+        following,
+        setFollowing,
         handleEventUpload,
         handleEventFileUpload,
         handleDateFocus,
         handleBlur,
         handleTimeFocus,
         onDrop,
+        handleKeyPress,
+        postModalToggle,
+        setPostModalToggle,
+        isFilterActive,
         fileInputRef,
         createModalRef,
         createModalMobileRef,

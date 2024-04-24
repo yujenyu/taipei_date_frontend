@@ -46,6 +46,7 @@ body input:-webkit-autofill {
 /* 預設字體 背景 顏色 不然手機會看不到 */
 body {
   color: #a6adbb;
+  min-height: 100vh;
 }
 
 .bg-base-300 {

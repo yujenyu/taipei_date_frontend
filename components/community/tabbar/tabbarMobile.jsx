@@ -117,7 +117,7 @@ export default function TabbarMobile() {
           <Link
             role="tab"
             className={`tab ${activeTab === 'profile' ? 'tab-active' : ''}`}
-            href="/community/profile"
+            href={`/community/profile/${userId}`}
             onClick={() => handleTabClick('profile')}
           >
             <span>個人</span>

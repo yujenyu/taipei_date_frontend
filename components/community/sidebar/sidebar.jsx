@@ -17,6 +17,10 @@ export default function Sidebar() {
   const userId = auth.id;
 
   const isActive = (pathname) => {
+    // 使用正則表達式來檢查路由是否匹配 /community/profile/ 加上任何數字的模式
+    if (pathname === '/community/profile') {
+      return router.pathname.startsWith('/community/profile/');
+    }
     return router.pathname === pathname;
   };
 
@@ -126,7 +130,7 @@ export default function Sidebar() {
             </Link>
 
             {userId !== 0 && userId !== null && (
-              <Link href="/community/profile">
+              <Link href={`/community/profile/${userId}`}>
                 <li
                   className={`${
                     isActive('/community/profile') ? 'text-neongreen' : ''

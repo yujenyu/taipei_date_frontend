@@ -1,13 +1,14 @@
 import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import { useState } from 'react';
-import { FiSend } from 'react-icons/fi';
+import { FiSend, FiMoreHorizontal } from 'react-icons/fi';
 import ShareModal from '../modal/shareModal';
 import styles from './card.module.css';
 
 export default function EventCard({ event }) {
   const { auth } = useAuth();
-  const { handleAttendedClick, attendedEvents } = usePostContext();
+  const { handleAttendedClick, attendedEvents, handleDeleteEventClick } =
+    usePostContext();
   const [isFlipped, setIsFlipped] = useState(false);
 
   const userId = auth.id;
@@ -45,7 +46,7 @@ export default function EventCard({ event }) {
             </figure>
             <div className="card-body h-auto w-[330px] p-0 overflow-auto flex flex-col justify-between">
               <div className="card-info text-h4 flex flex-col justify-between">
-                <div className="flex flex-row justify-between">
+                <div className="flex flex-row justify-between items-start">
                   <div className="card-infoLeft flex flex-row gap-2 px-1 py-1">
                     <div className="flex flex-col gap-3">
                       <p className="text-h6">{event.title}</p>
@@ -58,7 +59,7 @@ export default function EventCard({ event }) {
                     </div>
                   </div>
                   {userId !== 0 && userId !== null && (
-                    <div className="card-iconListRight flex justify-end px-1 py-1">
+                    <div className="card-iconListRight flex justify-end items-center px-1 py-1 ">
                       <FiSend
                         className="card-icon hover:text-neongreen"
                         onClick={() =>
@@ -66,6 +67,27 @@ export default function EventCard({ event }) {
                         }
                       />
                       <ShareModal />
+                      <div className="dropdown dropdown-end">
+                        <div tabIndex={0} className="m-2">
+                          <FiMoreHorizontal className="card-icon hover:text-neongreen" />
+                        </div>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32"
+                          style={{
+                            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                          }}
+                        >
+                          <li>
+                            <a
+                              className="hover:text-neongreen"
+                              onClick={() => handleDeleteEventClick(event)}
+                            >
+                              刪除活動
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   )}
                 </div>
