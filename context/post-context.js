@@ -34,7 +34,14 @@ export const PostProvider = ({ children }) => {
     endDate: '',
     endTime: '',
   });
-  const [hasMore, setHasMore] = useState(true);
+  const [indexHasMore, setIndexHasMore] = useState(true);
+  const [indexFilteredHasMore, setIndexFilteredHasMore] = useState(true);
+  const [exploreHasMore, setExploreHasMore] = useState(true);
+  const [profileHasMore, setProfileHasMore] = useState(true);
+  const [userProfileHasMore, setUserProfileHasMore] = useState(true);
+  const [eventHasMore, setEventHasMore] = useState(true);
+  const [commentHasMore, setCommentHasMore] = useState(true);
+
   const [page, setPage] = useState(1);
   const [profilePage, setProfilePage] = useState(1);
   const [filteredPage, setFilteredPage] = useState(1);
@@ -56,7 +63,7 @@ export const PostProvider = ({ children }) => {
   const { uid } = router.query;
 
   const getCommunityIndexPost = async () => {
-    if (!hasMore) return; // 防止重複請求
+    if (!indexHasMore) return; // 防止重複請求
     // setIsLoading(true); // 開始加載
 
     try {
@@ -65,7 +72,7 @@ export const PostProvider = ({ children }) => {
       );
       const data = await res.json();
       if (data.length === 0) {
-        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        setIndexHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       } else {
         const postIds = data.map((post) => post.post_id).join(',');
 
@@ -83,7 +90,7 @@ export const PostProvider = ({ children }) => {
   };
 
   const getCommunityIndexFilteredPost = async (keyword) => {
-    if (!hasMore) return; // 防止重複請求
+    if (!indexFilteredHasMore) return; // 防止重複請求
     // setIsLoading(true); // 開始加載
 
     try {
@@ -92,7 +99,7 @@ export const PostProvider = ({ children }) => {
       );
       const data = await res.json();
       if (data.length === 0) {
-        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        setIndexFilteredHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       } else {
         const postIds = data.map((post) => post.post_id).join(',');
 
@@ -111,7 +118,7 @@ export const PostProvider = ({ children }) => {
   };
 
   const getCommunityExplorePost = async () => {
-    if (!hasMore) return; // 防止重複請求
+    if (!exploreHasMore) return; // 防止重複請求
     // setIsLoading(true); // 開始加載
 
     try {
@@ -120,7 +127,7 @@ export const PostProvider = ({ children }) => {
       );
       const data = await res.json();
       if (data.length === 0) {
-        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        setExploreHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       } else {
         const postIds = data.map((post) => post.post_id).join(',');
 
@@ -138,7 +145,7 @@ export const PostProvider = ({ children }) => {
   };
 
   const getCommunityProfilePost = async () => {
-    if (!hasMore) return; // 防止重複請求
+    if (!profileHasMore) return; // 防止重複請求
     // setIsLoading(true); // 開始加載
     try {
       const res = await fetch(
@@ -147,7 +154,7 @@ export const PostProvider = ({ children }) => {
       );
       const data = await res.json();
       if (data.length === 0) {
-        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        setProfileHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       } else {
         const postIds = data.map((post) => post.post_id).join(',');
 
@@ -165,7 +172,7 @@ export const PostProvider = ({ children }) => {
   };
 
   const getCommunityUserProfilePost = async () => {
-    if (!hasMore) return; // 防止重複請求
+    if (!userProfileHasMore) return; // 防止重複請求
     // setIsLoading(true); // 開始加載
 
     try {
@@ -175,28 +182,29 @@ export const PostProvider = ({ children }) => {
       );
       const data = await res.json();
 
-      if (data[0].success) {
-        if (data.length === 0) {
-          setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
-        } else {
-          const postIds = data.map((post) => post.post_id).join(',');
+      if (data.length === 0) {
+        setUserProfileHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        return; // 提前停止加載
+      }
 
-          await checkFollowingStatus(uid);
-
-          await checkPostsStatus(postIds); // 檢查貼文狀態
-          await getPostComments(postIds);
-
-          setProfilePosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
-          setProfilePage((prevPage) => prevPage + 1); // 更新頁碼
-          // setIsLoading(false); // 結束加載
-        }
-      } else {
-        toast.error(data.error, {
+      if (!data[0].success) {
+        toast.error(data[0].error, {
           duration: 1500,
         });
         router.push('/');
         return;
       }
+
+      const postIds = data.map((post) => post.post_id).join(',');
+
+      await checkFollowingStatus(uid);
+
+      await checkPostsStatus(postIds); // 檢查貼文狀態
+      await getPostComments(postIds);
+
+      setProfilePosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+      setProfilePage((prevPage) => prevPage + 1); // 更新頁碼
+      // setIsLoading(false); // 結束加載
     } catch (error) {
       console.error('Failed to fetch index posts:', error);
       // setIsLoading(false); // 確保即使出錯也要結束加載
@@ -204,7 +212,7 @@ export const PostProvider = ({ children }) => {
   };
 
   const getCommunityEvents = async () => {
-    if (!hasMore) return; // 防止重複請求
+    if (!eventHasMore) return; // 防止重複請求
     // setIsLoading(true); // 開始加載
 
     try {
@@ -213,7 +221,7 @@ export const PostProvider = ({ children }) => {
       );
       const data = await res.json();
       if (data.length === 0) {
-        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        setEventHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       } else {
         const eventIds = data.map((event) => event.comm_event_id).join(',');
 
@@ -266,7 +274,7 @@ export const PostProvider = ({ children }) => {
       });
 
       if (data.length === 0) {
-        setHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        setCommentHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
       }
     } catch (error) {
       console.error('Failed to fetch comments:', error);
@@ -1086,7 +1094,13 @@ export const PostProvider = ({ children }) => {
         setNewComment,
         events,
         setEvents,
-        hasMore,
+        indexHasMore,
+        indexFilteredHasMore,
+        exploreHasMore,
+        profileHasMore,
+        userProfileHasMore,
+        eventHasMore,
+        commentHasMore,
         getPostComments,
         handleCommentUpload,
         handlePostUpload,

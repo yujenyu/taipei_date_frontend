@@ -15,7 +15,9 @@ export default function Index() {
     posts,
     currentKeyword,
     filteredPosts,
-    hasMore,
+    indexHasMore,
+    indexFilteredHasMore,
+
     filteredPage,
     isFilterActive,
     handleFilterClick,
@@ -115,7 +117,7 @@ export default function Index() {
                     ? () => getCommunityIndexFilteredPost(currentKeyword)
                     : getCommunityIndexPost
                 }
-                hasMore={hasMore}
+                hasMore={isFilterActive ? indexHasMore : indexFilteredHasMore}
                 loader={
                   <div
                     style={{

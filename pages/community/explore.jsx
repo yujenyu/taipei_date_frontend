@@ -10,7 +10,8 @@ import styles from './page.module.css';
 export default function Explore() {
   const { auth } = useAuth();
 
-  const { randomPosts, hasMore, getCommunityExplorePost } = usePostContext();
+  const { randomPosts, exploreHasMore, getCommunityExplorePost } =
+    usePostContext();
 
   useEffect(() => {
     if (auth.id === 0) {
@@ -51,7 +52,7 @@ export default function Explore() {
               <InfiniteScroll
                 dataLength={randomPosts.length}
                 next={getCommunityExplorePost}
-                hasMore={hasMore}
+                hasMore={exploreHasMore}
                 loader={
                   <div
                     style={{

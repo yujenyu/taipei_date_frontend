@@ -10,7 +10,7 @@ import styles from './page.module.css';
 export default function Events() {
   const { auth } = useAuth();
 
-  const { events, hasMore, getCommunityEvents } = usePostContext();
+  const { events, eventHasMore, getCommunityEvents } = usePostContext();
 
   useEffect(() => {
     if (auth.id === 0) {
@@ -36,7 +36,7 @@ export default function Events() {
             <InfiniteScroll
               dataLength={events.length}
               next={getCommunityEvents}
-              hasMore={hasMore}
+              hasMore={eventHasMore}
               loader={
                 <div
                   style={{

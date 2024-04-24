@@ -11,7 +11,7 @@ import styles from '../page.module.css';
 export default function Profile() {
   const { auth } = useAuth();
 
-  const { posts, hasMore, getCommunityProfilePost } = usePostContext();
+  const { posts, profileHasMore, getCommunityProfilePost } = usePostContext();
 
   useEffect(() => {
     if (auth.id === 0) {
@@ -43,7 +43,7 @@ export default function Profile() {
               <InfiniteScroll
                 dataLength={posts.length}
                 next={getCommunityProfilePost}
-                hasMore={hasMore}
+                hasMore={profileHasMore}
                 loader={
                   <div
                     style={{
