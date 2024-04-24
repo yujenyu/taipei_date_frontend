@@ -5,6 +5,7 @@ import { FiSend, FiMessageCircle, FiMoreHorizontal } from 'react-icons/fi';
 import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
 import ShareModal from '../modal/shareModal';
 import PostModal from '../modal/postModal';
+import styles from './card.module.css';
 
 export default function PostCardLarge({ post }) {
   const { auth } = useAuth();
@@ -32,7 +33,7 @@ export default function PostCardLarge({ post }) {
 
   return (
     <>
-      <div className="card w-[480px] h-[700px] overflow-hidden flex border border-grayBorder">
+      <div className="card w-[480px] h-[700px] overflow-hidden flex border-grayBorder">
         <div className="card-user flex h-10 items-center gap-2 m-2 justify-between">
           <div className="flex justify-start items-center gap-2 ">
             <Link href={`/community/profile/${post.post_userId}`}>
@@ -78,12 +79,27 @@ export default function PostCardLarge({ post }) {
             </div>
           )}
         </div>
-        <figure className="card-photo m-0" onDoubleClick={handleLikedClick}>
-          <img
-            src={post.img || '/unavailable-image.jpg'}
-            alt={post.photo_name || 'No Image Available'}
-            className="card-photo w-[480px] h-[480px] object-cover"
-          />
+        <figure
+          className="card-photo m-0 z-40"
+          onDoubleClick={() => handleLikedClick(post)}
+        >
+          <div className={styles.parallaxContainer}>
+            <div className={styles.parallax}>
+              <div className={styles.parallaxHoverTopLeft}></div>
+              <div className={styles.parallaxHoverTopRight}></div>
+              <div className={styles.parallaxHoverBottomLeft}></div>
+              <div className={styles.parallaxHoverBottomRight}></div>
+              <div className={styles.parallaxContent}>
+                <div className="parallaxContentBack">
+                  <img
+                    src={post.img || '/unavailable-image.jpg'}
+                    alt={post.photo_name || 'No Image Available'}
+                    className={`${styles.parallaxMedia} card-photo w-[480px] h-[480px] object-cover`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </figure>
         <div className="card-body w-full p-0 overflow-auto max-w-[480px] px-3 py-3">
           {/* 只有當用戶登入時顯示這些元件 */}

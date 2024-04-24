@@ -17,11 +17,15 @@ export const PostProvider = ({ children }) => {
   const [postContent, setPostContent] = useState('');
   const [postCreated, setPostCreated] = useState(false); // 標示貼文是否已創建
   const [postId, setPostId] = useState(''); // 儲存創立貼文後的 post id
+
   const [selectedFile, setSelectedFile] = useState(null); // 選中的檔案
   const [previewUrl, setPreviewUrl] = useState(''); // 預覽圖片(呼叫URL.createObjectURL得到的網址)
+
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const [events, setEvents] = useState([]);
+  const [minDate, setMinDate] = useState(''); // 建立event 當下時間紀錄
+  const [minEndDate, setMinEndDate] = useState(minDate); // 活動結束日期必須大於等於開始日期
   const [eventCreated, setEventCreated] = useState(false); // 標示活動是否已創建
   const [eventId, setEventId] = useState(''); // 儲存創立貼文後的 event id
   const [eventDetails, setEventDetails] = useState({
@@ -34,6 +38,7 @@ export const PostProvider = ({ children }) => {
     endDate: '',
     endTime: '',
   });
+
   const [indexHasMore, setIndexHasMore] = useState(true);
   const [indexFilteredHasMore, setIndexFilteredHasMore] = useState(true);
   const [exploreHasMore, setExploreHasMore] = useState(true);
@@ -48,10 +53,15 @@ export const PostProvider = ({ children }) => {
   const [eventPage, setEventPage] = useState(1);
   const [likedPosts, setLikedPosts] = useState({});
   const [savedPosts, setSavedPosts] = useState({});
+
   const [attendedEvents, setAttendedEvents] = useState({});
   const [following, setFollowing] = useState({});
   const [postModalToggle, setPostModalToggle] = useState(false);
   const [isFilterActive, setIsFilterActive] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const fileInputRef = useRef(null);
   const createModalRef = useRef(null);
@@ -332,6 +342,37 @@ export const PostProvider = ({ children }) => {
       // 清空textarea
       setNewComment(''); // 清空 textarea
     }
+  };
+
+  const getSearchUsers = async (value) => {
+    setSearchTerm(value);
+
+    if (!value.trim()) {
+      setSearchResults([]);
+      setHasSearched(false);
+      return;
+    }
+
+    // 確保空字串不會觸發
+    if (value.trim()) {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/community/search-users?searchTerm=${value}`
+        );
+        const data = await response.json();
+        setSearchResults(data);
+        setHasSearched(true);
+      } catch (error) {
+        console.error('Search error:', error);
+      }
+    }
+  };
+
+  // 重置搜尋內容並關閉視窗
+  const resetAndCloseSearchModal = () => {
+    setSearchTerm('');
+    setSearchResults([]);
+    setHasSearched(false);
   };
 
   // 選擇檔案有變動時的處理函式
@@ -1094,6 +1135,10 @@ export const PostProvider = ({ children }) => {
         setNewComment,
         events,
         setEvents,
+        minDate,
+        setMinDate,
+        minEndDate,
+        setMinEndDate,
         indexHasMore,
         indexFilteredHasMore,
         exploreHasMore,
@@ -1136,6 +1181,11 @@ export const PostProvider = ({ children }) => {
         postModalToggle,
         setPostModalToggle,
         isFilterActive,
+        searchTerm,
+        searchResults,
+        hasSearched,
+        getSearchUsers,
+        resetAndCloseSearchModal,
         fileInputRef,
         createModalRef,
         createModalMobileRef,

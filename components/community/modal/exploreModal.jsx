@@ -71,7 +71,7 @@ export default function ExploreModal({ post, modalId, isOpen }) {
           <div className="container flex flex-col md:flex-row">
             <figure
               className="flex flex-col w-full md:w-1/2 card-photo m-0 "
-              onDoubleClick={handleLikedClick}
+              onDoubleClick={() => handleLikedClick(post)}
             >
               <img
                 src={post.img || '/unavailable-image.jpg'}

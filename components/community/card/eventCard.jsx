@@ -34,7 +34,7 @@ export default function EventCard({ event }) {
           }`}
         >
           <div
-            className={`${styles['flip-card-front']} eventCard card md:w-[330px] md:h-[480px] flex items-center justify-center border border-grayBorder`}
+            className={`${styles['flip-card-front']} eventCard card md:w-[330px] md:h-[480px] flex items-center justify-center border-grayBorder`}
           >
             <figure className="card-photo">
               <img

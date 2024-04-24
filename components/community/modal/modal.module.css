@@ -1,12 +1,22 @@
 .searchModalListItemText,
 .searchModalListItemIcon,
 .createModalListItemText,
-.createModalListItemIcon {
+.createModalListItemIcon,
+.searchModalListText,
+.searchModalListEmail {
   color: white;
 }
+
+.searchModalListUsername {
+  color: gray;
+}
+
 .searchModalListItemText:hover,
 .searchModalListItemIcon:hover,
 .createModalListItemText:hover,
-.createModalListItemIcon:hover {
+.createModalListItemIcon:hover,
+.searchModalListText:hover,
+.searchModalListEmail:hover,
+.searchModalListUsername:hover {
   color: #a0ff1f;
 }
