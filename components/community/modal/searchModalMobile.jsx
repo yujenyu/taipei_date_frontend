@@ -1,8 +1,20 @@
-import React from 'react';
-import { FaRegCircleXmark } from 'react-icons/fa6';
+import { usePostContext } from '@/context/post-context';
+import Link from 'next/link';
 import styles from './modal.module.css';
 
-export default function SearchModal() {
+export default function SearchModalMobile() {
+  const {
+    searchTerm,
+    searchResults,
+    hasSearched,
+    getSearchUsers,
+    resetAndCloseSearchModal,
+  } = usePostContext();
+
+  const handleSearchChange = async (e) => {
+    getSearchUsers(e.target.value);
+  };
+
   return (
     <>
       <dialog
@@ -31,76 +43,63 @@ export default function SearchModal() {
                 clipRule="evenodd"
               />
             </svg>
-            <input type="text" className="grow" placeholder="搜尋......" />
+            <input
+              type="text"
+              className="grow"
+              placeholder="搜尋......"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
           </label>
-          <p className={`${styles['searchModalListItemText']} text-h6 mb-3`}>
+          {/* <p className={`${styles['searchModalListItemText']} text-h6 mb-3`}>
             歷史紀錄
-          </p>
+          </p> */}
           <ul>
-            <li className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2">
-              <div className="card-iconListLeft flex flex-row">
-                <div className="avatar mr-3">
-                  <div className="w-10 rounded-full">
-                    <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-                  </div>
-                </div>
-                <span
-                  className={`${styles['searchModalListItemText']} text-h6`}
-                >
-                  UserID
-                </span>
-              </div>
+            {hasSearched && searchResults.length === 0 ? (
+              <p className={`${styles['searchModalListText']}`}>未找到结果</p>
+            ) : (
+              searchResults.map((user) => (
+                <li className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2">
+                  <div className="card-iconListLeft flex flex-row items-center">
+                    <div className="avatar mr-3">
+                      <div className="w-10 rounded-full">
+                        <Link href={`/community/profile/${user.user_id}`}>
+                          <img
+                            src={user.avatar || '/unknown-user-image.jpg'}
+                            alt={user.username || 'No Image Available'}
+                          />
+                        </Link>
+                      </div>
+                    </div>
+                    <Link href={`/community/profile/${user.user_id}`}>
+                      <span
+                        className={`${styles['searchModalListEmail']} text-h6`}
+                      >
+                        {user.email.split('@')[0]}
+                      </span>
+                    </Link>
 
-              <div className="card-iconListRight flex justify-end">
-                <FaRegCircleXmark
-                  className={`${styles['searchModalListItemIcon']} text-h5`}
-                />
-              </div>
-            </li>
-            <li className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2">
-              <div className="card-iconListLeft flex flex-row">
-                <div className="avatar mr-3">
-                  <div className="w-10 rounded-full">
-                    <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                    <Link href={`/community/profile/${user.user_id}`}>
+                      <span
+                        className={`${styles['searchModalListUsername']} text-[14px] mx-3`}
+                      >
+                        {user.username}
+                      </span>
+                    </Link>
                   </div>
-                </div>
-                <span
-                  className={`${styles['searchModalListItemText']} text-h6`}
-                >
-                  UserID
-                </span>
-              </div>
 
-              <div className="card-iconListRight flex justify-end">
-                <FaRegCircleXmark
-                  className={`${styles['searchModalListItemIcon']} text-h5`}
-                />
-              </div>
-            </li>
-            <li className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2">
-              <div className="card-iconListLeft flex flex-row">
-                <div className="avatar mr-3">
-                  <div className="w-10 rounded-full">
-                    <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-                  </div>
-                </div>
-                <span
-                  className={`${styles['searchModalListItemText']} text-h6`}
-                >
-                  UserID
-                </span>
-              </div>
-
-              <div className="card-iconListRight flex justify-end">
-                <FaRegCircleXmark
-                  className={`${styles['searchModalListItemIcon']} text-h5`}
-                />
-              </div>
-            </li>
+                  {/* <div className="card-iconListRight flex justify-end">
+                    <FaRegCircleXmark
+                      className={`${styles['searchModalListItemIcon']} text-h5`}
+                    />
+                  </div> */}
+                </li>
+              ))
+            )}
           </ul>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button>close</button>
+          <button onClick={resetAndCloseSearchModal}>close</button>
         </form>
       </dialog>
     </>

@@ -95,7 +95,8 @@ export default function ProfileInfo({ posts }) {
                 {userInfo.email ? userInfo.email.split('@')[0] : 'unknownuser'}
               </div>
               <div className="flex mx-10">
-                {userId !== 0 && userId !== null && (
+                {/* 確保個人頁面不顯示追蹤功能, 轉換 uid 從字符串到數字，以保持類型一致 */}
+                {uid && userId !== parseInt(uid, 10) && (
                   <button
                     className="btn bg-dark border-white rounded-full text-white hover:shadow-xl3 hover:text-primary"
                     onClick={() => handleFollowClick(uid)}

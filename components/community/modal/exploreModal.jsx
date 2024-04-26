@@ -3,9 +3,10 @@ import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import Link from 'next/link';
 import Router from 'next/router';
+import ShareModal from '../modal/shareModal';
+import EditModal from '../modal/editModal';
 import { FiSend, FiMessageCircle, FiMoreHorizontal } from 'react-icons/fi';
 import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
-import ShareModal from '../modal/shareModal';
 
 export default function ExploreModal({ post, modalId, isOpen }) {
   const { auth } = useAuth();
@@ -28,6 +29,9 @@ export default function ExploreModal({ post, modalId, isOpen }) {
 
   const isLiked = likedPosts[post.post_id] || false;
   const isSaved = savedPosts[post.post_id] || false;
+
+  // 基於 post_id 的唯一 edit modal id
+  const editModalId = `edit_modal_${post.post_id}`;
 
   const handleCommentContentChange = (e) => {
     setNewComment(e.target.value);
@@ -109,11 +113,21 @@ export default function ExploreModal({ post, modalId, isOpen }) {
                       </div>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32"
+                        className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-32"
                         style={{
                           backgroundColor: 'rgba(0, 0, 0, 0.85)',
                         }}
                       >
+                        <li>
+                          <a
+                            className="hover:text-neongreen"
+                            onClick={() =>
+                              document.getElementById(editModalId).showModal()
+                            }
+                          >
+                            編輯貼文
+                          </a>
+                        </li>
                         <li>
                           <a
                             className="hover:text-neongreen"
@@ -124,6 +138,11 @@ export default function ExploreModal({ post, modalId, isOpen }) {
                         </li>
                       </ul>
                     </div>
+                    <EditModal
+                      post={post}
+                      modalId={editModalId}
+                      key={post.post_id}
+                    />
                   </div>
                 )}
               </div>
@@ -168,7 +187,7 @@ export default function ExploreModal({ post, modalId, isOpen }) {
                               </div>
                               <ul
                                 tabIndex={0}
-                                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32"
+                                className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-32"
                                 style={{
                                   backgroundColor: 'rgba(0, 0, 0, 0.85)',
                                 }}

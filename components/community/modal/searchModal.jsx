@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { usePostContext } from '@/context/post-context';
 import Link from 'next/link';
 import styles from './modal.module.css';

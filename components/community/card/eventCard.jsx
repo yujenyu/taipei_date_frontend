@@ -3,6 +3,7 @@ import { usePostContext } from '@/context/post-context';
 import { useState } from 'react';
 import { FiSend, FiMoreHorizontal } from 'react-icons/fi';
 import ShareModal from '../modal/shareModal';
+import EditEventModal from '../modal/editEventModal';
 import styles from './card.module.css';
 
 export default function EventCard({ event }) {
@@ -13,7 +14,10 @@ export default function EventCard({ event }) {
 
   const userId = auth.id;
 
-  const isAttended = attendedEvents[event.comm_event_id] || false;
+  // 基於 comm_event_id 的唯一 edit modal id
+  const editEventModalId = `edit_event_modal_${event?.comm_event_id}`;
+
+  const isAttended = attendedEvents[event?.comm_event_id] || false;
 
   const handleDoubleClick = () => {
     setIsFlipped(!isFlipped);
@@ -81,6 +85,18 @@ export default function EventCard({ event }) {
                           <li>
                             <a
                               className="hover:text-neongreen"
+                              onClick={() =>
+                                document
+                                  .getElementById(editEventModalId)
+                                  .showModal()
+                              }
+                            >
+                              編輯活動
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              className="hover:text-neongreen"
                               onClick={() => handleDeleteEventClick(event)}
                             >
                               刪除活動
@@ -88,6 +104,11 @@ export default function EventCard({ event }) {
                           </li>
                         </ul>
                       </div>
+                      <EditEventModal
+                        event={event}
+                        modalId={editEventModalId}
+                        key={event.comm_event_id}
+                      />
                     </div>
                   )}
                 </div>

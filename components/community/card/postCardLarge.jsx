@@ -5,6 +5,7 @@ import { FiSend, FiMessageCircle, FiMoreHorizontal } from 'react-icons/fi';
 import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
 import ShareModal from '../modal/shareModal';
 import PostModal from '../modal/postModal';
+import EditModal from '../modal/editModal';
 import styles from './card.module.css';
 
 export default function PostCardLarge({ post }) {
@@ -26,6 +27,9 @@ export default function PostCardLarge({ post }) {
 
   // 基於 post_id 的唯一 id
   const modalId = `photo_modal_${post.post_id}`;
+
+  // 基於 post_id 的唯一 edit modal id
+  const editModalId = `edit_modal_${post.post_id}`;
 
   // const handleShowModal = () => {
   //   document.getElementById(modalId).showModal();
@@ -61,11 +65,21 @@ export default function PostCardLarge({ post }) {
                 </div>
                 <ul
                   tabIndex={0}
-                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32"
+                  className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32 z-50"
                   style={{
                     backgroundColor: 'rgba(0, 0, 0, 0.85)',
                   }}
                 >
+                  <li>
+                    <a
+                      className="hover:text-neongreen"
+                      onClick={() =>
+                        document.getElementById(editModalId).showModal()
+                      }
+                    >
+                      編輯貼文
+                    </a>
+                  </li>
                   <li>
                     <a
                       className="hover:text-neongreen"
@@ -76,6 +90,7 @@ export default function PostCardLarge({ post }) {
                   </li>
                 </ul>
               </div>
+              <EditModal post={post} modalId={editModalId} key={post.post_id} />
             </div>
           )}
         </div>

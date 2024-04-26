@@ -95,7 +95,7 @@ export default function CreateModalMobile() {
                   className="w-full max-h-full object-cover mb-4"
                 />
                 <textarea
-                  className="textarea textarea-ghost w-full h-32 resize-none my-3s"
+                  className="textarea textarea-ghost w-full h-32 resize-none my-3"
                   placeholder="貼文內容"
                   onChange={handlePostContentChange}
                   onKeyDown={(e) =>

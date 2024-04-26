@@ -51,6 +51,7 @@ export const PostProvider = ({ children }) => {
   const [profilePage, setProfilePage] = useState(1);
   const [filteredPage, setFilteredPage] = useState(1);
   const [eventPage, setEventPage] = useState(1);
+  const [randomPage, setRandomPage] = useState(1);
   const [likedPosts, setLikedPosts] = useState({});
   const [savedPosts, setSavedPosts] = useState({});
 
@@ -133,7 +134,7 @@ export const PostProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:3001/community/get-random-posts?page=${page}&limit=12`
+        `http://localhost:3001/community/get-random-posts?page=${randomPage}&limit=12`
       );
       const data = await res.json();
       if (data.length === 0) {
@@ -145,7 +146,7 @@ export const PostProvider = ({ children }) => {
         await getPostComments(postIds);
 
         setRandomPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
-        setPage((prevPage) => prevPage + 1); // 更新頁碼
+        setRandomPage((prevPage) => prevPage + 1); // 更新頁碼
         // setIsLoading(false); // 結束加載
       }
     } catch (error) {
@@ -171,7 +172,7 @@ export const PostProvider = ({ children }) => {
         await checkPostsStatus(postIds); // 檢查貼文狀態
         await getPostComments(postIds);
 
-        setPosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+        setProfilePosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
         setPage((prevPage) => prevPage + 1); // 更新頁碼
         // setIsLoading(false); // 結束加載
       }
@@ -187,8 +188,8 @@ export const PostProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts/${uid}?page=${profilePage}&limit=12`,
-        { headers: { ...getAuthHeader() } }
+        `http://localhost:3001/community/posts/${uid}?page=${profilePage}&limit=12`
+        // { headers: { ...getAuthHeader() } }
       );
       const data = await res.json();
 
@@ -394,10 +395,22 @@ export const PostProvider = ({ children }) => {
   const resetAndCloseModal = () => {
     setSelectedFile(null);
     setPreviewUrl('');
-    createModalRef.current.close();
-    createModalMobileRef.current.close();
-    createEventModalRef.current.close();
-    createEventModalMobileRef.current.close();
+
+    if (createModalRef.current) {
+      createModalRef.current.close();
+    }
+    if (createModalMobileRef.current) {
+      createModalMobileRef.current.close();
+    }
+    if (createEventModalRef.current) {
+      createEventModalRef.current.close();
+    }
+    if (createEventModalMobileRef.current) {
+      createEventModalMobileRef.current.close();
+    }
+    // if (editModalRef.current) {
+    //   editModalRef.current.close();
+    // }
   };
 
   // 重置篩選
@@ -529,6 +542,263 @@ export const PostProvider = ({ children }) => {
 
       Swal.fire({
         title: '分享失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
+  const handlePostUpdate = async (post, localPostContext, editModalRef) => {
+    const postId = post.post_id;
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
+
+    if (!localPostContext) {
+      Swal.fire('請輸入貼文內容', '', 'warning');
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:3001/community/edit-post', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ context: localPostContext, postId }), // 將對象轉換為JSON字符串
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPosts((prevPosts) => [data.post, ...prevPosts]);
+        setProfilePosts((prevPosts) => [data.post, ...prevPosts]);
+        setRandomPosts((prevPosts) => [data.post, ...prevPosts]);
+      } else {
+        throw new Error(data.message || '編輯貼文失敗');
+      }
+
+      // 貼文更新成功，檢查是否有檔案要上傳
+      if (selectedFile) {
+        try {
+          const fd = new FormData();
+
+          fd.append('photo', selectedFile);
+          fd.append('postId', postId);
+
+          const res = await fetch(
+            'http://localhost:3001/community/edit-post-photo',
+            {
+              method: 'PUT',
+              body: fd,
+            }
+          );
+
+          const data = await res.json();
+
+          if (res.ok) {
+            // 更新貼文以觸發刷新頁面 !!!Important!!!
+            setPosts((prevPosts) => [data.post, ...prevPosts]);
+            setProfilePosts((prevPosts) => [data.post, ...prevPosts]);
+            setRandomPosts((prevPosts) => [data.post, ...prevPosts]);
+          } else {
+            throw new Error('Network response was not ok.');
+          }
+
+          // 關閉 edit modal
+          editModalRef.current.close();
+
+          Swal.fire({
+            title: '分享成功!',
+            icon: 'success',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              resetAndCloseModal();
+              resetPostState();
+            }
+          });
+        } catch (error) {
+          console.error('upload failed:', error);
+          createModalRef.current.close();
+          createModalMobileRef.current.close();
+
+          Swal.fire({
+            title: '更新照片失敗!',
+            icon: 'error',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              resetAndCloseModal();
+            }
+          });
+        }
+      }
+
+      // 關閉 edit modal
+      editModalRef.current.close();
+
+      Swal.fire({
+        title: '編輯成功!',
+        icon: 'success',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    } catch (error) {
+      console.error('Failed to update the post:', error);
+
+      // 關閉 edit modal
+      editModalRef.current.close();
+
+      Swal.fire({
+        title: '編輯失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
+  const handleEventUpdate = async (
+    event,
+    localEventDetails,
+    editEventModalRef
+  ) => {
+    const eventId = event.comm_event_id;
+    const userId = auth.id;
+
+    if (userId === 0) {
+      return;
+    }
+
+    if (!localEventDetails) {
+      Swal.fire('請輸入活動內容', '', 'warning');
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:3001/community/edit-event', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...localEventDetails,
+          status: 'upcoming',
+          eventId,
+        }), // 將對象轉換為JSON字符串
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setEvents((prevEvents) => [data.event, ...prevEvents]);
+      } else {
+        throw new Error(data.message || '編輯活動失敗');
+      }
+
+      // 活動更新成功，檢查是否有檔案要上傳
+      if (selectedFile) {
+        try {
+          const fd = new FormData();
+
+          fd.append('photo', selectedFile);
+          fd.append('eventId', eventId);
+
+          const res = await fetch(
+            'http://localhost:3001/community/edit-event-photo',
+            {
+              method: 'PUT',
+              body: fd,
+            }
+          );
+
+          const data = await res.json();
+
+          if (res.ok) {
+            // 更新活動以觸發刷新頁面 !!!Important!!!
+            setEvents((prevEvents) => [data.event, ...prevEvents]);
+          } else {
+            throw new Error('Network response was not ok.');
+          }
+
+          // 關閉 edit event modal
+          editEventModalRef.current.close();
+
+          Swal.fire({
+            title: '分享成功!',
+            icon: 'success',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              resetAndCloseModal();
+              resetPostState();
+            }
+          });
+        } catch (error) {
+          console.error('upload failed:', error);
+          createModalRef.current.close();
+          createModalMobileRef.current.close();
+
+          Swal.fire({
+            title: '更新照片失敗!',
+            icon: 'error',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              resetAndCloseModal();
+            }
+          });
+        }
+      }
+
+      // 關閉 edit event modal
+      editEventModalRef.current.close();
+
+      Swal.fire({
+        title: '編輯成功!',
+        icon: 'success',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    } catch (error) {
+      console.error('Failed to update the post:', error);
+
+      editEventModalRef.current.close();
+
+      Swal.fire({
+        title: '編輯失敗!',
         icon: 'error',
         confirmButtonText: '關閉',
         confirmButtonColor: '#A0FF1F',
@@ -1150,6 +1420,8 @@ export const PostProvider = ({ children }) => {
         handleCommentUpload,
         handlePostUpload,
         handleFileUpload,
+        handlePostUpdate,
+        handleEventUpdate,
         handleFileChange,
         selectedFile,
         setSelectedFile,
@@ -1165,6 +1437,7 @@ export const PostProvider = ({ children }) => {
         handleDeleteEventClick,
         handleDeleteCommentClick,
         handleFilterClick,
+        handleFileChange,
         likedPosts,
         savedPosts,
         attendedEvents,
