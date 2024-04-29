@@ -1,5 +1,6 @@
 import { usePostContext } from '@/context/post-context';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import styles from './modal.module.css';
 
 export default function SearchModalMobile() {
@@ -9,16 +10,26 @@ export default function SearchModalMobile() {
     hasSearched,
     getSearchUsers,
     resetAndCloseSearchModal,
+    searchModalMobileRef,
   } = usePostContext();
+
+  const router = useRouter();
 
   const handleSearchChange = async (e) => {
     getSearchUsers(e.target.value);
+  };
+
+  const handleCloseAndNavigate = async (url) => {
+    await resetAndCloseSearchModal();
+    await searchModalMobileRef.current.close(); // 確保模態窗口關閉
+    router.push(url); // 然後導航
   };
 
   return (
     <>
       <dialog
         id="search_modal_mobile"
+        ref={searchModalMobileRef}
         className="modal modal-bottom sm:modal-middle"
       >
         <div
@@ -58,20 +69,37 @@ export default function SearchModalMobile() {
             {hasSearched && searchResults.length === 0 ? (
               <p className={`${styles['searchModalListText']}`}>未找到结果</p>
             ) : (
-              searchResults.map((user) => (
-                <li className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2">
+              searchResults.map((user, index) => (
+                <li
+                  key={index}
+                  className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2"
+                >
                   <div className="card-iconListLeft flex flex-row items-center">
-                    <div className="avatar mr-3">
-                      <div className="w-10 rounded-full">
-                        <Link href={`/community/profile/${user.user_id}`}>
-                          <img
-                            src={user.avatar || '/unknown-user-image.jpg'}
-                            alt={user.username || 'No Image Available'}
-                          />
-                        </Link>
-                      </div>
+                    <div className="avatar mr-3 w-10 rounded-full">
+                      <Link
+                        href={`/community/profile/${user.user_id}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleCloseAndNavigate(
+                            `/community/profile/${user.user_id}`
+                          );
+                        }}
+                      >
+                        <img
+                          src={user.avatar || '/unknown-user-image.jpg'}
+                          alt={user.username || 'No Image Available'}
+                        />
+                      </Link>
                     </div>
-                    <Link href={`/community/profile/${user.user_id}`}>
+                    <Link
+                      href={`/community/profile/${user.user_id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCloseAndNavigate(
+                          `/community/profile/${user.user_id}`
+                        );
+                      }}
+                    >
                       <span
                         className={`${styles['searchModalListEmail']} text-h6`}
                       >
@@ -79,7 +107,15 @@ export default function SearchModalMobile() {
                       </span>
                     </Link>
 
-                    <Link href={`/community/profile/${user.user_id}`}>
+                    <Link
+                      href={`/community/profile/${user.user_id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCloseAndNavigate(
+                          `/community/profile/${user.user_id}`
+                        );
+                      }}
+                    >
                       <span
                         className={`${styles['searchModalListUsername']} text-[14px] mx-3`}
                       >

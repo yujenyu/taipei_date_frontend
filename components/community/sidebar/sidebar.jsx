@@ -1,6 +1,7 @@
 import { useAuth } from '@/context/auth-context';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { usePostContext } from '@/context/post-context';
 import { FiHome, FiSearch, FiCalendar, FiUser } from 'react-icons/fi';
 import { MdOutlineExplore } from 'react-icons/md';
 import { FaRegSquarePlus } from 'react-icons/fa6';
@@ -14,6 +15,16 @@ export default function Sidebar() {
 
   const router = useRouter();
 
+  const {
+    isHoverActive,
+    setIsHoverActive,
+    setProfilePosts,
+    setProfilePage,
+    setUserProfileHasMore,
+    searchModalRef,
+    setReload,
+  } = usePostContext();
+
   const userId = auth.id;
 
   const isActive = (pathname) => {
@@ -22,6 +33,30 @@ export default function Sidebar() {
       return router.pathname.startsWith('/community/profile/');
     }
     return router.pathname === pathname;
+  };
+
+  const handleSearchClick = () => {
+    setIsHoverActive(false);
+    searchModalRef.current.showModal();
+  };
+
+  const showCreateModal = (modalId) => {
+    setIsHoverActive(false);
+    document.getElementById(modalId).showModal();
+  };
+
+  const handleProfileClick = async () => {
+    // 清空當前貼文列表和重置頁碼以確保載入新用戶的貼文
+    setProfilePosts([]);
+    setProfilePage(1);
+    setUserProfileHasMore(true);
+
+    if (router.query.uid === userId.toString()) {
+      // 如果用戶點擊的是已經在的個人檔案頁面，則強制觸發更新
+      setReload((prev) => !prev); // 切換 forceUpdate 狀態
+    } else {
+      router.push(`/community/profile/${userId}`); // 導向新的用戶檔案
+    }
   };
 
   return (
@@ -43,16 +78,18 @@ export default function Sidebar() {
             </Link>
 
             <li
-              className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen"
-              onClick={() =>
-                document.getElementById('search_modal').showModal()
-              }
+              className={`sidebarListItem flex items-center mb-8 p-2 cursor-pointer ${
+                isHoverActive
+                  ? 'hover:bg-gray-800 rounded-[20px] hover:text-neongreen'
+                  : ''
+              }`}
+              onClick={handleSearchClick}
             >
-              <FiSearch className="sidebarIcon text-h3 mr-5" />
+              <FiSearch className="sidebarIcon text-h3 mr-5 " />
               <span className="sidebarListItemText text-h6 lg:inline md:hidden">
                 搜尋
               </span>
-              <SearchModal className={styles['']} />
+              <SearchModal />
             </li>
 
             <Link href="/community/explore">
@@ -69,7 +106,13 @@ export default function Sidebar() {
             </Link>
 
             {userId !== 0 && userId !== null && (
-              <li className="sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen">
+              <li
+                className={`sidebarListItem flex items-center mb-8 p-2 cursor-pointer ${
+                  isHoverActive
+                    ? 'hover:bg-gray-800 rounded-[20px] hover:text-neongreen'
+                    : ''
+                }`}
+              >
                 <div className="dropdown">
                   <div
                     tabIndex={0}
@@ -90,9 +133,7 @@ export default function Sidebar() {
                     <li>
                       <a
                         className={`${styles['createModalListItemText']}`}
-                        onClick={() =>
-                          document.getElementById('create_modal').showModal()
-                        }
+                        onClick={() => showCreateModal('create_modal')}
                       >
                         建立貼文
                       </a>
@@ -100,11 +141,7 @@ export default function Sidebar() {
                     <li>
                       <a
                         className={`${styles['createModalListItemText']}`}
-                        onClick={() =>
-                          document
-                            .getElementById('create_event_modal')
-                            .showModal()
-                        }
+                        onClick={() => showCreateModal('create_event_modal')}
                       >
                         建立活動
                       </a>
@@ -130,18 +167,17 @@ export default function Sidebar() {
             </Link>
 
             {userId !== 0 && userId !== null && (
-              <Link href={`/community/profile/${userId}`}>
-                <li
-                  className={`${
-                    isActive('/community/profile') ? 'text-neongreen' : ''
-                  } sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen`}
-                >
-                  <FiUser className="sidebarIcon text-h3 mr-5" />
-                  <span className="sidebarListItemTe text-h6 lg:inline md:hidden">
-                    個人檔案
-                  </span>
-                </li>
-              </Link>
+              <li
+                className={`${
+                  isActive('/community/profile') ? 'text-neongreen' : ''
+                } sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen cursor-pointer`}
+                onClick={() => handleProfileClick()}
+              >
+                <FiUser className="sidebarIcon text-h3 mr-5" />
+                <span className="sidebarListItemTe text-h6 lg:inline md:hidden">
+                  個人檔案
+                </span>
+              </li>
             )}
           </ul>
         </div>

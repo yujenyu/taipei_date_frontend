@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useAuth } from '@/context/auth-context';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { usePostContext } from '@/context/post-context';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
@@ -9,18 +9,58 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from '../page.module.css';
 
 export default function Profile() {
-  const { auth } = useAuth();
+  const {
+    profilePosts,
+    setProfilePosts,
+    userProfileHasMore,
+    setUserProfileHasMore,
+    profilePage,
+    setProfilePage,
+    checkFollowingStatus,
+    checkPostsStatus,
+    getPostComments,
+    reload,
+  } = usePostContext();
 
-  const { uid, profilePosts, userProfileHasMore, getCommunityUserProfilePost } =
-    usePostContext();
+  const router = useRouter();
+  const { uid } = router.query;
+
+  const getCommunityUserProfilePost = async () => {
+    if (!userProfileHasMore) return; // 防止重複請求
+    try {
+      const res = await fetch(
+        `http://localhost:3001/community/posts/${uid}?page=${profilePage}&limit=12`
+      );
+      const data = await res.json();
+
+      if (data.length === 0) {
+        setUserProfileHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
+        return; // 提前停止加載
+      }
+
+      const postIds = data.map((post) => post.post_id).join(',');
+
+      await checkFollowingStatus(uid);
+
+      await checkPostsStatus(postIds); // 檢查貼文狀態
+      await getPostComments(postIds);
+
+      setProfilePosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
+      setProfilePage((prevPage) => prevPage + 1); // 更新頁碼
+      // setIsLoading(false); // 結束加載
+    } catch (error) {
+      console.error('Failed to fetch index posts:', error);
+      // setIsLoading(false); // 確保即使出錯也要結束加載
+    }
+  };
 
   useEffect(() => {
-    if (auth.id === 0 || !uid) {
-      return;
+    // Next.js 的路由器是異步, 確保拿到 uid 再 fetch !!! Important
+    if (uid) {
+      setProfilePage(1);
+      getCommunityUserProfilePost();
     }
-
-    getCommunityUserProfilePost();
-  }, [auth.id, uid]); // 添加 auth.id, uid 為依賴，這樣只有 uid 變化時才重新調用
+  }, [uid, reload]); // uid 變化時重新調用, 或是重複點擊則 reload
 
   return (
     <>

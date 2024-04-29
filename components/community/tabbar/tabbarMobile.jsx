@@ -27,7 +27,7 @@ export default function TabbarMobile() {
     <>
       <div
         role="tablist"
-        className="tabs tabs-bordered md:hidden z-40 bg-dark fixed top-16 w-full h-8"
+        className="tabs tabs-bordered md:hidden bg-dark fixed top-16 w-full h-8 z-50"
       >
         <Link
           role="tab"
@@ -37,7 +37,7 @@ export default function TabbarMobile() {
         >
           <span>首頁</span>
         </Link>
-        <a
+        <li
           role="tab"
           className="tab"
           onClick={() => {
@@ -47,7 +47,7 @@ export default function TabbarMobile() {
         >
           <span>搜尋</span>
           <SearchModalMobile />
-        </a>
+        </li>
         <Link
           role="tab"
           className={`tab ${activeTab === 'explore' ? 'tab-active' : ''}`}

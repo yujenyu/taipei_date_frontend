@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import SuggestionBar from '@/components/community/suggestionbar/SuggestionBar';
 import Sidebar from '@/components/community/sidebar/sidebar';
@@ -9,15 +8,12 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './page.module.css';
 
 export default function Index() {
-  const { auth } = useAuth();
-
   const {
     posts,
     currentKeyword,
     filteredPosts,
     indexHasMore,
     indexFilteredHasMore,
-
     filteredPage,
     isFilterActive,
     handleFilterClick,
@@ -26,10 +22,6 @@ export default function Index() {
   } = usePostContext();
 
   useEffect(() => {
-    if (auth.id === 0) {
-      return;
-    }
-
     if (filteredPage === 1 && isFilterActive) {
       getCommunityIndexFilteredPost(currentKeyword);
     }
@@ -37,7 +29,7 @@ export default function Index() {
     if (!isFilterActive) {
       getCommunityIndexPost();
     }
-  }, [auth.id, filteredPage, isFilterActive, currentKeyword]);
+  }, [filteredPage, isFilterActive, currentKeyword]);
 
   return (
     <>
@@ -54,10 +46,10 @@ export default function Index() {
             <Sidebar />
           </div>
           <div className="flex w-full md:basis-6/12 justify-center">
-            <div className="grid grid-cols-1 gap-8 min-h-screen">
-              {/* <div className="filterBtn join grid grid-cols-3 w-[480px] mx-auto">
+            <div className="flex flex-col gap-8 min-h-screen justify-center items-center">
+              <div className="filterBtn flex gap-5 justify-between sm:w-[330px] md:w-[480px] md:mx-auto sm:mx-5">
                 <button
-                  className="join-item btn-sm btn-outline hover:bg-primary border"
+                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-28 h-8"
                   onClick={() => {
                     handleFilterClick('約會');
                   }}
@@ -65,7 +57,7 @@ export default function Index() {
                   約會
                 </button>
                 <button
-                  className="join-item btn-sm btn-outline hover:bg-primary border"
+                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-28 h-8"
                   onClick={() => {
                     handleFilterClick('酒吧');
                   }}
@@ -73,33 +65,7 @@ export default function Index() {
                   酒吧
                 </button>
                 <button
-                  className="join-item btn-sm btn-outline hover:bg-primary border"
-                  onClick={() => {
-                    handleFilterClick('電影');
-                  }}
-                >
-                  電影
-                </button>
-              </div> */}
-              <div className="filterBtn flex w-[480px] mx-auto justify-center gap-10">
-                <button
-                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-32 h-8"
-                  onClick={() => {
-                    handleFilterClick('約會');
-                  }}
-                >
-                  約會
-                </button>
-                <button
-                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-32 h-8"
-                  onClick={() => {
-                    handleFilterClick('酒吧');
-                  }}
-                >
-                  酒吧
-                </button>
-                <button
-                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-32 h-8"
+                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-28 h-8"
                   onClick={() => {
                     handleFilterClick('電影');
                   }}
@@ -122,6 +88,7 @@ export default function Index() {
                   <div
                     style={{
                       display: 'flex',
+                      flexDirection: 'column',
                       width: '100%',
                       textAlign: 'center',
                       minHeight: '100vh',

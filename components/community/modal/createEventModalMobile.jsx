@@ -17,6 +17,10 @@ export default function CreateEventModalMobile() {
     handleDateFocus,
     handleBlur,
     handleTimeFocus,
+    minDate,
+    setMinDate,
+    minEndDate,
+    setMinEndDate,
     createEventModalMobileRef,
   } = usePostContext();
 
@@ -26,7 +30,18 @@ export default function CreateEventModalMobile() {
       ...prevDetails,
       [name]: value,
     }));
+
+    // 更新最早结束日期
+    if (name === 'startDate') {
+      setMinEndDate(value);
+    }
   };
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    setMinDate(today);
+    setMinEndDate(minDate);
+  }, []);
 
   // 當選擇檔案時，建立預覽圖的網址。使用的是狀態連鎖更動的樣式 A狀態 -> B狀態
   useEffect(() => {
@@ -133,6 +148,7 @@ export default function CreateEventModalMobile() {
                       <input
                         type="text"
                         name="startDate"
+                        min={minDate}
                         placeholder="開始日期"
                         onFocus={handleDateFocus}
                         onBlur={handleBlur}
@@ -158,6 +174,7 @@ export default function CreateEventModalMobile() {
                       <input
                         type="text"
                         name="endDate"
+                        min={minEndDate}
                         placeholder="結束日期"
                         onFocus={handleDateFocus}
                         onBlur={handleBlur}

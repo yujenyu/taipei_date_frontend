@@ -15,6 +15,7 @@ export default function CreateModal() {
     handleFileUpload,
     onDrop,
     handleKeyPress,
+    setIsHoverActive,
     createModalRef,
   } = usePostContext();
 
@@ -124,7 +125,14 @@ export default function CreateModal() {
         </div>
 
         <form method="dialog" className="modal-backdrop">
-          <button onClick={resetAndCloseModal}>close</button>
+          <button
+            onClick={() => {
+              resetAndCloseModal();
+              setIsHoverActive(true);
+            }}
+          >
+            close
+          </button>
         </form>
       </dialog>
     </>

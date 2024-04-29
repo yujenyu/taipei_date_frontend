@@ -12,6 +12,8 @@ export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [profilePosts, setProfilePosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
+  const [postPage, setPostPage] = useState([]);
+  const [eventPageCard, setEventPageCard] = useState([]);
   const [currentKeyword, setCurrentKeyword] = useState('');
   const [randomPosts, setRandomPosts] = useState([]);
   const [postContent, setPostContent] = useState('');
@@ -59,6 +61,8 @@ export const PostProvider = ({ children }) => {
   const [following, setFollowing] = useState({});
   const [postModalToggle, setPostModalToggle] = useState(false);
   const [isFilterActive, setIsFilterActive] = useState(false);
+  const [isHoverActive, setIsHoverActive] = useState(true);
+  const [reload, setReload] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -69,6 +73,8 @@ export const PostProvider = ({ children }) => {
   const createModalMobileRef = useRef(null);
   const createEventModalRef = useRef(null);
   const createEventModalMobileRef = useRef(null);
+  const searchModalRef = useRef(null);
+  const searchModalMobileRef = useRef(null);
 
   const router = useRouter();
   const { uid } = router.query;
@@ -160,8 +166,7 @@ export const PostProvider = ({ children }) => {
     // setIsLoading(true); // 開始加載
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts?page=${page}&limit=12`,
-        { headers: { ...getAuthHeader() } }
+        `http://localhost:3001/community/posts?page=${page}&limit=12`
       );
       const data = await res.json();
       if (data.length === 0) {
@@ -182,40 +187,35 @@ export const PostProvider = ({ children }) => {
     }
   };
 
-  const getCommunityUserProfilePost = async () => {
-    if (!userProfileHasMore) return; // 防止重複請求
-    // setIsLoading(true); // 開始加載
-
+  const getPostPage = async (pid) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts/${uid}?page=${profilePage}&limit=12`
-        // { headers: { ...getAuthHeader() } }
+        `http://localhost:3001/community/get-post-page/${pid}`
       );
       const data = await res.json();
+      if (data.length !== 0) {
+        await checkPostsStatus(pid); // 檢查貼文狀態
+        await getPostComments(pid);
 
-      if (data.length === 0) {
-        setUserProfileHasMore(false); // 如果返回的數據少於預期，設置hasMore為false
-        return; // 提前停止加載
+        setPostPage(data[0]);
       }
+    } catch (error) {
+      console.error('Failed to fetch index posts:', error);
+      // setIsLoading(false); // 確保即使出錯也要結束加載
+    }
+  };
 
-      if (!data[0].success) {
-        toast.error(data[0].error, {
-          duration: 1500,
-        });
-        router.push('/');
-        return;
+  const getEventPage = async (eid) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3001/community/get-event-page/${eid}`
+      );
+      const data = await res.json();
+      if (data.length !== 0) {
+        await checkEventsStatus(eid); // 檢查活動狀態
+
+        setEventPageCard(data[0]);
       }
-
-      const postIds = data.map((post) => post.post_id).join(',');
-
-      await checkFollowingStatus(uid);
-
-      await checkPostsStatus(postIds); // 檢查貼文狀態
-      await getPostComments(postIds);
-
-      setProfilePosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
-      setProfilePage((prevPage) => prevPage + 1); // 更新頁碼
-      // setIsLoading(false); // 結束加載
     } catch (error) {
       console.error('Failed to fetch index posts:', error);
       // setIsLoading(false); // 確保即使出錯也要結束加載
@@ -305,7 +305,7 @@ export const PostProvider = ({ children }) => {
       // 用fetch送出檔案
       const res = await fetch('http://localhost:3001/community/add-comment', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({
           context: newComment,
           status: 'posted',
@@ -374,6 +374,8 @@ export const PostProvider = ({ children }) => {
     setSearchTerm('');
     setSearchResults([]);
     setHasSearched(false);
+    setProfilePage(1);
+    setProfilePosts([]);
   };
 
   // 選擇檔案有變動時的處理函式
@@ -452,7 +454,7 @@ export const PostProvider = ({ children }) => {
       // 用fetch送出檔案
       const res = await fetch('http://localhost:3001/community/create-post', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({ context: postContent, userId }),
       });
       const data = await res.json();
@@ -507,6 +509,7 @@ export const PostProvider = ({ children }) => {
       const res = await fetch('http://localhost:3001/community/upload-photo', {
         method: 'POST',
         body: fd,
+        headers: { ...getAuthHeader() },
       });
 
       const data = await res.json();
@@ -572,6 +575,7 @@ export const PostProvider = ({ children }) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeader(),
         },
         body: JSON.stringify({ context: localPostContext, postId }), // 將對象轉換為JSON字符串
       });
@@ -579,72 +583,51 @@ export const PostProvider = ({ children }) => {
       const data = await res.json();
 
       if (res.ok) {
-        setPosts((prevPosts) => [data.post, ...prevPosts]);
-        setProfilePosts((prevPosts) => [data.post, ...prevPosts]);
-        setRandomPosts((prevPosts) => [data.post, ...prevPosts]);
+        // 更新狀態中的貼文 !!!Important
+        setPosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+        setFilteredPosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+        setProfilePosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+        setRandomPosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+
+        // 更新 post page 單筆資料
+        if (postPage.post_id === postId) {
+          setPostPage({ ...postPage, ...data.post });
+        }
       } else {
         throw new Error(data.message || '編輯貼文失敗');
       }
 
       // 貼文更新成功，檢查是否有檔案要上傳
       if (selectedFile) {
-        try {
-          const fd = new FormData();
-
-          fd.append('photo', selectedFile);
-          fd.append('postId', postId);
-
-          const res = await fetch(
-            'http://localhost:3001/community/edit-post-photo',
-            {
-              method: 'PUT',
-              body: fd,
-            }
-          );
-
-          const data = await res.json();
-
-          if (res.ok) {
-            // 更新貼文以觸發刷新頁面 !!!Important!!!
-            setPosts((prevPosts) => [data.post, ...prevPosts]);
-            setProfilePosts((prevPosts) => [data.post, ...prevPosts]);
-            setRandomPosts((prevPosts) => [data.post, ...prevPosts]);
-          } else {
-            throw new Error('Network response was not ok.');
-          }
-
-          // 關閉 edit modal
-          editModalRef.current.close();
-
-          Swal.fire({
-            title: '分享成功!',
-            icon: 'success',
-            confirmButtonText: '關閉',
-            confirmButtonColor: '#A0FF1F',
-            background: 'rgba(0, 0, 0, 0.85)',
-          }).then((result) => {
-            if (result.isConfirmed) {
-              resetAndCloseModal();
-              resetPostState();
-            }
-          });
-        } catch (error) {
-          console.error('upload failed:', error);
-          createModalRef.current.close();
-          createModalMobileRef.current.close();
-
-          Swal.fire({
-            title: '更新照片失敗!',
-            icon: 'error',
-            confirmButtonText: '關閉',
-            confirmButtonColor: '#A0FF1F',
-            background: 'rgba(0, 0, 0, 0.85)',
-          }).then((result) => {
-            if (result.isConfirmed) {
-              resetAndCloseModal();
-            }
-          });
-        }
+        await updatePostPhotoUpdate(postId, editModalRef);
       }
 
       // 關閉 edit modal
@@ -681,6 +664,104 @@ export const PostProvider = ({ children }) => {
     }
   };
 
+  // 處理照片更新
+  const updatePostPhotoUpdate = async (postId, editModalRef) => {
+    try {
+      const fd = new FormData();
+
+      fd.append('photo', selectedFile);
+      fd.append('postId', postId);
+
+      const res = await fetch(
+        'http://localhost:3001/community/edit-post-photo',
+        {
+          method: 'PUT',
+          body: fd,
+          headers: {
+            ...getAuthHeader(),
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // 更新狀態中的貼文 !!!Important
+        setPosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+        setFilteredPosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+        setProfilePosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+        setRandomPosts((prevPosts) =>
+          prevPosts.map((p) => {
+            if (p.post_id === postId) {
+              return { ...p, ...data.post }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return p;
+          })
+        );
+
+        // 更新 post page 單筆資料
+        if (postPage.post_id === postId) {
+          setPostPage({ ...postPage, ...data.post });
+        }
+      } else {
+        throw new Error('Network response was not ok.');
+      }
+
+      // 關閉 edit modal
+      editModalRef.current.close();
+
+      Swal.fire({
+        title: '分享成功!',
+        icon: 'success',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+          resetPostState();
+        }
+      });
+    } catch (error) {
+      console.error('upload failed:', error);
+      // 關閉 edit modal
+      editModalRef.current.close();
+
+      Swal.fire({
+        title: '更新照片失敗!',
+        icon: 'error',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resetAndCloseModal();
+        }
+      });
+    }
+  };
+
   const handleEventUpdate = async (
     event,
     localEventDetails,
@@ -703,6 +784,7 @@ export const PostProvider = ({ children }) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeader(),
         },
         body: JSON.stringify({
           ...localEventDetails,
@@ -714,7 +796,19 @@ export const PostProvider = ({ children }) => {
       const data = await res.json();
 
       if (res.ok) {
-        setEvents((prevEvents) => [data.event, ...prevEvents]);
+        setEvents((prevEvents) =>
+          prevEvents.map((e) => {
+            if (e.comm_event_id === eventId) {
+              return { ...e, ...data.event }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+            }
+            return e;
+          })
+        );
+
+        // 更新 event page card 單筆資料
+        if (eventPageCard.comm_event_id === eventId) {
+          setEventPageCard({ ...eventPageCard, ...data.event });
+        }
       } else {
         throw new Error(data.message || '編輯活動失敗');
       }
@@ -732,6 +826,9 @@ export const PostProvider = ({ children }) => {
             {
               method: 'PUT',
               body: fd,
+              headers: {
+                ...getAuthHeader(),
+              },
             }
           );
 
@@ -739,7 +836,20 @@ export const PostProvider = ({ children }) => {
 
           if (res.ok) {
             // 更新活動以觸發刷新頁面 !!!Important!!!
-            setEvents((prevEvents) => [data.event, ...prevEvents]);
+            // setEvents((prevEvents) => [data.event, ...prevEvents]);
+            setEvents((prevEvents) =>
+              prevEvents.map((e) => {
+                if (e.comm_event_id === eventId) {
+                  return { ...e, ...data.event }; // 使用來自 API 回應的 data.post 作為更新後資料的來源
+                }
+                return e;
+              })
+            );
+
+            // 更新 event page card 單筆資料
+            if (eventPageCard.comm_event_id === eventId) {
+              setEventPageCard({ ...eventPageCard, ...data.event });
+            }
           } else {
             throw new Error('Network response was not ok.');
           }
@@ -827,6 +937,7 @@ export const PostProvider = ({ children }) => {
         method: wasLiked ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeader(),
         },
         body: JSON.stringify({ postId, userId }),
       });
@@ -857,6 +968,7 @@ export const PostProvider = ({ children }) => {
         method: wasAttended ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeader(),
         },
         body: JSON.stringify({ eventId, userId }),
       });
@@ -890,6 +1002,7 @@ export const PostProvider = ({ children }) => {
         method: wasSaved ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeader(),
         },
         body: JSON.stringify({ postId, userId }),
       });
@@ -917,6 +1030,7 @@ export const PostProvider = ({ children }) => {
         method: isFollowing ? 'DELETE' : 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getAuthHeader(),
         },
         body: JSON.stringify({ userId, FollowingId }),
       });
@@ -956,6 +1070,7 @@ export const PostProvider = ({ children }) => {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
+                ...getAuthHeader(),
               },
               body: JSON.stringify({ postId }),
             }
@@ -1024,6 +1139,7 @@ export const PostProvider = ({ children }) => {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
+                ...getAuthHeader(),
               },
               body: JSON.stringify({ eventId }),
             }
@@ -1089,6 +1205,7 @@ export const PostProvider = ({ children }) => {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
+                ...getAuthHeader(),
               },
               body: JSON.stringify({ commentId }),
             }
@@ -1149,7 +1266,12 @@ export const PostProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/community/check-post-status?userId=${userId}&postIds=${postIds}`
+        `http://localhost:3001/community/check-post-status?userId=${userId}&postIds=${postIds}`,
+        {
+          headers: {
+            ...getAuthHeader(),
+          },
+        }
       );
       const data = await response.json();
 
@@ -1182,7 +1304,12 @@ export const PostProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/community/check-event-status?userId=${userId}&eventIds=${eventIds}`
+        `http://localhost:3001/community/check-event-status?userId=${userId}&eventIds=${eventIds}`,
+        {
+          headers: {
+            ...getAuthHeader(),
+          },
+        }
       );
       const data = await response.json();
 
@@ -1209,7 +1336,12 @@ export const PostProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/community/check-follow-status?userId=${userId}&followingId=${followingId}`
+        `http://localhost:3001/community/check-follow-status?userId=${userId}&followingId=${followingId}`,
+        {
+          headers: {
+            ...getAuthHeader(),
+          },
+        }
       );
       const data = await response.json();
 
@@ -1246,7 +1378,7 @@ export const PostProvider = ({ children }) => {
       // 用fetch送出檔案
       const res = await fetch('http://localhost:3001/community/create-event', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
         body: JSON.stringify({
           ...eventDetails,
           status: 'upcoming',
@@ -1308,6 +1440,7 @@ export const PostProvider = ({ children }) => {
         {
           method: 'POST',
           body: fd,
+          headers: { ...getAuthHeader() },
         }
       );
 
@@ -1389,16 +1522,26 @@ export const PostProvider = ({ children }) => {
         getCommunityIndexFilteredPost,
         getCommunityExplorePost,
         getCommunityProfilePost,
-        getCommunityUserProfilePost,
         getCommunityEvents,
+        getPostPage,
+        getEventPage,
         uid,
         posts,
         profilePosts,
+        postPage,
+        eventPageCard,
         filteredPosts,
         filteredPage,
         currentKeyword,
         randomPosts,
         setPostContent,
+        setProfilePosts,
+        profilePage,
+        setProfilePage,
+        setEventPageCard,
+        checkPostsStatus,
+        checkFollowingStatus,
+        getPostComments,
         comments,
         setComments,
         newComment,
@@ -1414,6 +1557,7 @@ export const PostProvider = ({ children }) => {
         exploreHasMore,
         profileHasMore,
         userProfileHasMore,
+        setUserProfileHasMore,
         eventHasMore,
         commentHasMore,
         getPostComments,
@@ -1454,6 +1598,10 @@ export const PostProvider = ({ children }) => {
         postModalToggle,
         setPostModalToggle,
         isFilterActive,
+        isHoverActive,
+        setIsHoverActive,
+        reload,
+        setReload,
         searchTerm,
         searchResults,
         hasSearched,
@@ -1464,6 +1612,8 @@ export const PostProvider = ({ children }) => {
         createModalMobileRef,
         createEventModalRef,
         createEventModalMobileRef,
+        searchModalRef,
+        searchModalMobileRef,
       }}
     >
       {children}

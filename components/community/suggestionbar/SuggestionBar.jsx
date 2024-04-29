@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { usePostContext } from '@/context/post-context';
+import { useRouter } from 'next/router';
 
 export default function SuggestionBar() {
+  const { setProfilePosts, setProfilePage, setUserProfileHasMore } =
+    usePostContext();
+
+  const router = useRouter();
+
   const [users, setUsers] = useState([]);
 
   const getSuggestUsers = async () => {
@@ -14,6 +20,15 @@ export default function SuggestionBar() {
     } catch (error) {
       console.error('Failed to fetch index posts:', error);
     }
+  };
+
+  const handleUserClick = (userId) => {
+    // 清空當前貼文列表和重置頁碼以確保載入新用戶的貼文
+    setProfilePosts([]);
+    setProfilePage(1);
+    setUserProfileHasMore(true);
+
+    router.push(`/community/profile/${userId}`);
   };
 
   useEffect(() => {
@@ -30,22 +45,24 @@ export default function SuggestionBar() {
               key={i}
               className="recbarListItem flex mb-3 p-2 gap-3 items-center"
             >
-              <Link href={`/community/profile/${user.user_id}`}>
-                <div className="avatar">
-                  <div className="w-10 rounded-full">
-                    <img
-                      src={user.avatar || '/unknown-user-image.jpg'}
-                      alt={user.username || 'No Image Available'}
-                    />
-                  </div>
+              <div
+                className="avatar cursor-pointer"
+                onClick={() => handleUserClick(user.user_id)}
+              >
+                <div className="w-10 rounded-full">
+                  <img
+                    src={user.avatar || '/unknown-user-image.jpg'}
+                    alt={user.username || 'No Image Available'}
+                  />
                 </div>
-              </Link>
-              <Link href={`/community/profile/${user.user_id}`}>
-                <span className="recbarListItemText text-h6">
-                  {/* 處理從 member_user 拿到的 email, 僅保留 @ 之前的 id */}
-                  {user.email ? user.email.split('@')[0] : 'Unknown User'}
-                </span>
-              </Link>
+              </div>
+              <span
+                className="recbarListItemText text-h6 cursor-pointer hover:text-primary"
+                onClick={() => handleUserClick(user.user_id)}
+              >
+                {/* 處理從 member_user 拿到的 email, 僅保留 @ 之前的 id */}
+                {user.email ? user.email.split('@')[0] : 'Unknown User'}
+              </span>
             </li>
           ))}
         </ul>

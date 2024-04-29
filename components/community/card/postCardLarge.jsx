@@ -1,6 +1,6 @@
 import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { FiSend, FiMessageCircle, FiMoreHorizontal } from 'react-icons/fi';
 import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
 import ShareModal from '../modal/shareModal';
@@ -10,6 +10,9 @@ import styles from './card.module.css';
 
 export default function PostCardLarge({ post }) {
   const { auth } = useAuth();
+
+  const router = useRouter();
+
   const {
     handleLikedClick,
     handleSavedClick,
@@ -17,6 +20,9 @@ export default function PostCardLarge({ post }) {
     savedPosts,
     handleDeletePostClick,
     postModalToggle,
+    setProfilePosts,
+    setProfilePage,
+    setUserProfileHasMore,
     setPostModalToggle,
   } = usePostContext();
 
@@ -31,16 +37,28 @@ export default function PostCardLarge({ post }) {
   // 基於 post_id 的唯一 edit modal id
   const editModalId = `edit_modal_${post.post_id}`;
 
-  // const handleShowModal = () => {
-  //   document.getElementById(modalId).showModal();
-  // };
+  // 基於 post_id 的唯一 share modal id
+  const shareModalId = `share_modal_${post.post_id}`;
+
+  const handleUserClick = (userId) => {
+    // 清空當前貼文列表和重置頁碼以確保載入新用戶的貼文
+    setProfilePosts([]);
+    setProfilePage(1);
+    setUserProfileHasMore(true);
+    setPostModalToggle(false);
+
+    router.push(`/community/profile/${userId}`);
+  };
 
   return (
     <>
-      <div className="card w-[480px] h-[700px] overflow-hidden flex border-grayBorder">
+      <div className="card sm:w-[330px] md:w-[480px] sm:h-auto max-h-[700px] overflow-hidden flex border-grayBorder mx-5">
         <div className="card-user flex h-10 items-center gap-2 m-2 justify-between">
           <div className="flex justify-start items-center gap-2 ">
-            <Link href={`/community/profile/${post.post_userId}`}>
+            <div
+              className="cursor-pointer"
+              onClick={() => handleUserClick(post.post_userId)}
+            >
               <div className="avatar">
                 <div className="w-10 rounded-full">
                   <img
@@ -49,15 +67,18 @@ export default function PostCardLarge({ post }) {
                   />
                 </div>
               </div>
-            </Link>
-            <Link href={`/community/profile/${post.post_userId}`}>
+            </div>
+            <div
+              className="cursor-pointer"
+              onClick={() => handleUserClick(post.post_userId)}
+            >
               <span>
                 {post.email ? post.email.split('@')[0] : 'unknownuser'}
               </span>
-            </Link>
+            </div>
           </div>
           {/* 只有當用戶登入時顯示這些元件 */}
-          {userId !== 0 && userId !== null && (
+          {userId && userId === post.post_userId && (
             <div className="flex justify-end">
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} className="m-2">
@@ -141,11 +162,16 @@ export default function PostCardLarge({ post }) {
                 />
                 <FiSend
                   className="card-icon hover:text-neongreen"
-                  onClick={() =>
-                    document.getElementById('share_modal').showModal()
-                  }
+                  onClick={() => {
+                    document.getElementById(shareModalId).showModal();
+                  }}
                 />
-                <ShareModal />
+                <ShareModal
+                  post={post}
+                  key={post.post_id}
+                  postId={post.post_id}
+                  modalId={shareModalId}
+                />
               </div>
               <div className="card-iconListRight flex justify-end">
                 {isSaved ? (
@@ -172,6 +198,7 @@ export default function PostCardLarge({ post }) {
             查看回覆
           </p>
           <PostModal
+            key={post.post_id}
             post={post}
             modalId={modalId}
             isOpen={postModalToggle === modalId}

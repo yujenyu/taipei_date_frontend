@@ -28,13 +28,13 @@ export default function EditEventModal({ event, modalId }) {
   const editEventModalRef = useRef(null);
 
   const [localEventDetails, setLocalEventDetails] = useState({
-    title: event.title,
-    description: event.description,
-    location: event.location,
-    startDate: event.start_date,
-    startTime: event.start_time,
-    endDate: event.end_date,
-    endTime: event.end_time,
+    title: event?.title || '',
+    description: event?.description || '',
+    location: event?.location || '',
+    startDate: event?.start_date || '',
+    startTime: event?.start_time || '',
+    endDate: event?.end_date || '',
+    endTime: event?.end_time || '',
   });
 
   const handleEventContentChange = (e) => {
@@ -58,26 +58,34 @@ export default function EditEventModal({ event, modalId }) {
 
   // 監聽 event 的變化來更新狀態
   useEffect(() => {
-    // 將後端送來呈現在卡片的資料再轉換成前端可讀取的資料
-    const formattedStartDate = dayjs(
-      event.start_date,
-      'YYYY年 MM月DD日'
-    ).isValid()
-      ? dayjs(event.start_date, 'YYYY年 MM月DD日').format('YYYY-MM-DD')
-      : '';
-    const formattedEndDate = dayjs(event.end_date, 'YYYY年 MM月DD日').isValid()
-      ? dayjs(event.end_date, 'YYYY年 MM月DD日').format('YYYY-MM-DD')
-      : '';
+    if (event) {
+      // 將後端送來呈現在卡片的資料再轉換成前端可讀取的資料
+      const formattedStartDate = dayjs(
+        event.start_date,
+        'YYYY年 MM月DD日'
+      ).isValid()
+        ? dayjs(event.start_date, 'YYYY年 MM月DD日').format('YYYY-MM-DD')
+        : '';
+      const formattedEndDate = dayjs(
+        event.end_date,
+        'YYYY年 MM月DD日'
+      ).isValid()
+        ? dayjs(event.end_date, 'YYYY年 MM月DD日').format('YYYY-MM-DD')
+        : '';
 
-    setLocalEventDetails({
-      title: event.title,
-      description: event.description,
-      location: event.location,
-      startDate: formattedStartDate,
-      startTime: event.start_time,
-      endDate: formattedEndDate,
-      endTime: event.end_time,
-    });
+      // console.log(localEventDetails);
+
+      setLocalEventDetails((prev) => ({
+        ...prev,
+        title: event.title || '',
+        description: event.description || '',
+        location: event.location || '',
+        startDate: formattedStartDate,
+        startTime: event.start_time || '',
+        endDate: formattedEndDate,
+        endTime: event.end_time || '',
+      }));
+    }
   }, [event]);
 
   // 當選擇檔案時，建立預覽圖的網址。使用的是狀態連鎖更動的樣式 A狀態 -> B狀態

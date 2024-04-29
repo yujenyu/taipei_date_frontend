@@ -2,7 +2,7 @@ import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import { useState } from 'react';
 import { FiSend, FiMoreHorizontal } from 'react-icons/fi';
-import ShareModal from '../modal/shareModal';
+import ShareEventModal from '../modal/shareEventModal';
 import EditEventModal from '../modal/editEventModal';
 import styles from './card.module.css';
 
@@ -16,6 +16,9 @@ export default function EventCard({ event }) {
 
   // 基於 comm_event_id 的唯一 edit modal id
   const editEventModalId = `edit_event_modal_${event?.comm_event_id}`;
+
+  // 基於 post_id 的唯一 share modal id
+  const shareEventModalId = `share_event_modal_${event?.comm_event_id}`;
 
   const isAttended = attendedEvents[event?.comm_event_id] || false;
 
@@ -44,7 +47,7 @@ export default function EventCard({ event }) {
               <img
                 src={event.img || '/unavailable-image.jpg'}
                 alt={event.photo_name || 'No Image Available'}
-                className="card-photo w-[330px] h-[330px] object-cover"
+                className="card-photo w-[330px] h-[330px] object-cover rounded-2xl"
                 loading="lazy"
               />
             </figure>
@@ -53,7 +56,7 @@ export default function EventCard({ event }) {
                 <div className="flex flex-row justify-between items-start">
                   <div className="card-infoLeft flex flex-row gap-2 px-1 py-1">
                     <div className="flex flex-col gap-3">
-                      <p className="text-h6">{event.title}</p>
+                      <p className="text-h5 font-bold">{event.title}</p>
                       <p className="text-h6">
                         {formatLocation(event.location)}
                       </p>
@@ -62,15 +65,20 @@ export default function EventCard({ event }) {
                       </p>
                     </div>
                   </div>
-                  {userId !== 0 && userId !== null && (
+                  {userId && userId === event.user_id && (
                     <div className="card-iconListRight flex justify-end items-center px-1 py-1 ">
                       <FiSend
                         className="card-icon hover:text-neongreen"
                         onClick={() =>
-                          document.getElementById('share_modal').showModal()
+                          document.getElementById(shareEventModalId).showModal()
                         }
                       />
-                      <ShareModal />
+                      <ShareEventModal
+                        event={event}
+                        key={event.post_id}
+                        eventId={event.comm_event_id}
+                        modalId={shareEventModalId}
+                      />
                       <div className="dropdown dropdown-end">
                         <div tabIndex={0} className="m-2">
                           <FiMoreHorizontal className="card-icon hover:text-neongreen" />
@@ -126,7 +134,7 @@ export default function EventCard({ event }) {
             </div>
           </div>
           <div className={`${styles['flip-card-back']} flex flex-col gap-5`}>
-            <p className="text-h6">{event.title}</p>
+            <p className="text-h5 font-bold">{event.title}</p>
             <p className="text-h6">{event.description}</p>
             <p className="text-h6">{event.location}</p>
             <p className="text-h6">

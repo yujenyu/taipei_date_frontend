@@ -1,5 +1,6 @@
 import { usePostContext } from '@/context/post-context';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import styles from './modal.module.css';
 
 export default function SearchModal() {
@@ -9,15 +10,30 @@ export default function SearchModal() {
     hasSearched,
     getSearchUsers,
     resetAndCloseSearchModal,
+    setIsHoverActive,
+    searchModalRef,
   } = usePostContext();
+
+  const router = useRouter();
 
   const handleSearchChange = async (e) => {
     getSearchUsers(e.target.value);
   };
 
+  const handleCloseAndNavigate = async (url) => {
+    await resetAndCloseSearchModal();
+    setIsHoverActive(true);
+    await searchModalRef.current.close(); // 確保模態窗口關閉
+    router.push(url); // 然後導航
+  };
+
   return (
     <>
-      <dialog id="search_modal" className="modal modal-bottom sm:modal-middle">
+      <dialog
+        id="search_modal"
+        ref={searchModalRef}
+        className="modal modal-bottom sm:modal-middle"
+      >
         <div
           className="modal-box w-[500px] h-[500px] "
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
@@ -55,12 +71,23 @@ export default function SearchModal() {
             {hasSearched && searchResults.length === 0 ? (
               <p className={`${styles['searchModalListText']}`}>未找到结果</p>
             ) : (
-              searchResults.map((user) => (
-                <li className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2">
+              searchResults.map((user, index) => (
+                <li
+                  key={index}
+                  className="searchModalListItem flex flex-row justify-between items-center mb-3 p-2"
+                >
                   <div className="card-iconListLeft flex flex-row items-center">
                     <div className="avatar mr-3">
                       <div className="w-10 rounded-full">
-                        <Link href={`/community/profile/${user.user_id}`}>
+                        <Link
+                          href={`/community/profile/${user.user_id}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleCloseAndNavigate(
+                              `/community/profile/${user.user_id}`
+                            );
+                          }}
+                        >
                           <img
                             src={user.avatar || '/unknown-user-image.jpg'}
                             alt={user.username || 'No Image Available'}
@@ -68,7 +95,15 @@ export default function SearchModal() {
                         </Link>
                       </div>
                     </div>
-                    <Link href={`/community/profile/${user.user_id}`}>
+                    <Link
+                      href={`/community/profile/${user.user_id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCloseAndNavigate(
+                          `/community/profile/${user.user_id}`
+                        );
+                      }}
+                    >
                       <span
                         className={`${styles['searchModalListEmail']} text-h6`}
                       >
@@ -76,7 +111,15 @@ export default function SearchModal() {
                       </span>
                     </Link>
 
-                    <Link href={`/community/profile/${user.user_id}`}>
+                    <Link
+                      href={`/community/profile/${user.user_id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCloseAndNavigate(
+                          `/community/profile/${user.user_id}`
+                        );
+                      }}
+                    >
                       <span
                         className={`${styles['searchModalListUsername']} text-[14px] mx-3`}
                       >
@@ -96,7 +139,17 @@ export default function SearchModal() {
           </ul>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button onClick={resetAndCloseSearchModal}>close</button>
+          <button
+            onClick={() => {
+              // some weird bug here (daisy UI), use setTimeout to force execute this function
+              setTimeout(() => {
+                setIsHoverActive(true);
+              }, 0);
+              resetAndCloseSearchModal();
+            }}
+          >
+            close
+          </button>
         </form>
       </dialog>
     </>

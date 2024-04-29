@@ -17,6 +17,7 @@ export default function CreateEventModal() {
     handleBlur,
     handleTimeFocus,
     onDrop,
+    setIsHoverActive,
     minDate,
     setMinDate,
     minEndDate,
@@ -218,7 +219,14 @@ export default function CreateEventModal() {
         </div>
 
         <form method="dialog" className="modal-backdrop">
-          <button onClick={resetAndCloseModal}>close</button>
+          <button
+            onClick={() => {
+              resetAndCloseModal();
+              setIsHoverActive(true);
+            }}
+          >
+            close
+          </button>
         </form>
       </dialog>
     </>

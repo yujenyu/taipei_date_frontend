@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Router from 'next/router';
 import ShareModal from '../modal/shareModal';
 import EditModal from '../modal/editModal';
@@ -10,6 +10,9 @@ import { FaRegHeart, FaHeart, FaRegBookmark, FaBookmark } from 'react-icons/fa';
 
 export default function ExploreModal({ post, modalId, isOpen }) {
   const { auth } = useAuth();
+
+  const router = useRouter();
+
   const {
     handleLikedClick,
     handleSavedClick,
@@ -22,8 +25,13 @@ export default function ExploreModal({ post, modalId, isOpen }) {
     handleDeletePostClick,
     handleDeleteCommentClick,
     setPostModalToggle,
+    setProfilePosts,
+    setProfilePage,
+    setUserProfileHasMore,
     handleKeyPress,
   } = usePostContext();
+
+  const exploreModalRef = useRef(null);
 
   const userId = auth.id;
 
@@ -33,8 +41,21 @@ export default function ExploreModal({ post, modalId, isOpen }) {
   // 基於 post_id 的唯一 edit modal id
   const editModalId = `edit_modal_${post.post_id}`;
 
+  // 基於 post_id 的唯一 share modal id
+  const shareModalId = `share_modal_${post.post_id}`;
+
   const handleCommentContentChange = (e) => {
     setNewComment(e.target.value);
+  };
+
+  const handleUserClick = (userId) => {
+    // 清空當前貼文列表和重置頁碼以確保載入新用戶的貼文
+    setProfilePosts([]);
+    setProfilePage(1);
+    setUserProfileHasMore(true);
+    setPostModalToggle(false);
+
+    router.push(`/community/profile/${userId}`);
   };
 
   useEffect(() => {
@@ -52,10 +73,22 @@ export default function ExploreModal({ post, modalId, isOpen }) {
     };
   }, []);
 
+  // // 監聽點擊 modal 以外區域關閉 modal
+  // useEffect(() => {
+  //   // 監聽點擊事件
+  //   document.addEventListener('mousedown', handleClickOutside);
+
+  //   return () => {
+  //     // 移除事件監聽
+  //     document.removeEventListener('mousedown', handleClickOutside);
+  //   };
+  // }, []);
+
   return (
     <>
       <div
         id={modalId}
+        ref={exploreModalRef}
         className={`modal z-50 ${isOpen ? 'opacity-100' : 'opacity-0 hidden'}`}
         style={{ pointerEvents: 'auto' }}
       >
@@ -74,7 +107,7 @@ export default function ExploreModal({ post, modalId, isOpen }) {
 
           <div className="container flex flex-col md:flex-row">
             <figure
-              className="flex flex-col w-full md:w-1/2 card-photo m-0 "
+              className="flex flex-col w-full md:w-1/2 card-photo mx-3"
               onDoubleClick={() => handleLikedClick(post)}
             >
               <img
@@ -84,28 +117,34 @@ export default function ExploreModal({ post, modalId, isOpen }) {
               />
             </figure>
 
-            <div className="flex flex-col card-body h-full w-full md:w-1/2 p-0 overflow-auto px-5">
+            <div className="flex flex-col card-body h-full w-full md:w-1/2 overflow-auto mx-3">
               <div className="flex flex-row first-letter:card-user h-10  items-center gap-2 m-2 justify-between">
                 <div className="flex justify-start items-center gap-2">
                   <div className="avatar">
                     <div className="w-10 rounded-full">
-                      <Link href={`/community/profile/${post.post_userId}`}>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => handleUserClick(post.post_userId)}
+                      >
                         <img
                           src={post.avatar || '/unknown-user-image.jpg'}
                           alt={post.photo_name || 'No Image Available'}
                         />
-                      </Link>
+                      </div>
                     </div>
                   </div>
-                  <Link href={`/community/profile/${post.post_userId}`}>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => handleUserClick(post.post_userId)}
+                  >
                     <span>
                       {/* 處理從 member_user 拿到的 email, 僅保留 @ 之前的 id */}
                       {post.email ? post.email.split('@')[0] : 'unknownuser'}
                     </span>
-                  </Link>
+                  </div>
                 </div>
                 {/* 只有當用戶登入時顯示這些元件 */}
-                {userId !== 0 && userId !== null && (
+                {userId && userId === post.post_userId && (
                   <div className="flex justify-end">
                     <div className="dropdown dropdown-end">
                       <div tabIndex={0} className="m-2">
@@ -160,30 +199,39 @@ export default function ExploreModal({ post, modalId, isOpen }) {
                     <div className="card-user flex items-center gap-2">
                       <div className="avatar">
                         <div className="w-8 rounded-full">
-                          <Link href={`/community/profile/${comment.user_id}`}>
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => handleUserClick(comment.user_id)}
+                          >
                             <img
                               src={comment.avatar || '/unknown-user-image.jpg'}
                               alt={post.photo_name || 'No Image Available'}
                             />
-                          </Link>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between w-full">
-                        <Link href={`/community/profile/${comment.user_id}`}>
-                          <span>
+                      <div className="flex items-center justify-between w-full flex-wrap">
+                        <span className="mx-3">
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => handleUserClick(comment.user_id)}
+                          >
                             {comment.email
                               ? comment.email.split('@')[0]
                               : 'unknownuser'}
-                          </span>
-                        </Link>
-                        <p className="text-right">{comment.context}</p>
+                          </div>
+                        </span>
+
+                        <span className="flex-auto mx-3 break-words whitespace-normal overflow-hidden">
+                          {comment.context}
+                        </span>
 
                         {/* 只有當用戶登入時顯示這些元件 */}
-                        {userId !== 0 && userId !== null && (
+                        {userId && userId === comment.user_id && (
                           <div className="flex justify-end">
                             <div className="dropdown dropdown-end">
-                              <div tabIndex={0} className="m-2">
-                                <FiMoreHorizontal className="card-icon hover:text-neongreen" />
+                              <div tabIndex={0} className="">
+                                <FiMoreHorizontal className="card-icon hover:text-neongreen mx-3" />
                               </div>
                               <ul
                                 tabIndex={0}
@@ -230,11 +278,16 @@ export default function ExploreModal({ post, modalId, isOpen }) {
                       <FiMessageCircle className="card-icon hover:text-neongreen" />
                       <FiSend
                         className="card-icon hover:text-neongreen"
-                        onClick={() =>
-                          document.getElementById('share_modal').showModal()
-                        }
+                        onClick={() => {
+                          document.getElementById(shareModalId).showModal();
+                        }}
                       />
-                      <ShareModal />
+                      <ShareModal
+                        post={post}
+                        key={post.post_id}
+                        postId={post.post_id}
+                        modalId={shareModalId}
+                      />
                     </div>
                     <div className="card-iconListRight flex justify-end">
                       {isSaved ? (
@@ -276,7 +329,13 @@ export default function ExploreModal({ post, modalId, isOpen }) {
             </div>
           </div>
         </div>
-        <form method="dialog" className="modal-backdrop">
+        <form
+          method="dialog"
+          className="modal-backdrop"
+          onClick={() => {
+            setPostModalToggle(false);
+          }}
+        >
           <button>close</button>
         </form>
       </div>
