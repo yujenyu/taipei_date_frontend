@@ -15,7 +15,11 @@ export default function TabbarMobile() {
     setIsFilterActive,
     setFilteredPosts,
     setFilteredPage,
+    setProfilePosts,
+    setProfilePage,
+    setUserProfileHasMore,
     setActiveFilterButton,
+    setReload,
   } = usePostContext();
 
   const [activeTab, setActiveTab] = useState('home');
@@ -37,6 +41,22 @@ export default function TabbarMobile() {
 
     // 導航到指定路由，如果已經在該路由，這行將觸發頁面重載
     router.push(`/community`);
+  };
+
+  const handleProfileClick = async (tabName) => {
+    setActiveTab(tabName);
+
+    // 清空當前貼文列表和重置頁碼以確保載入新用戶的貼文
+    setProfilePosts([]);
+    setProfilePage(1);
+    setUserProfileHasMore(true);
+
+    if (router.query.uid === userId.toString()) {
+      // 如果用戶點擊的是已經在的個人檔案頁面，則強制觸發更新
+      setReload((prev) => !prev); // 切換 forceUpdate 狀態
+    } else {
+      router.push(`/community/profile/${userId}`); // 導向新的用戶檔案
+    }
   };
 
   // 使用URL變化來設置活動標籤
@@ -140,7 +160,7 @@ export default function TabbarMobile() {
             role="tab"
             className={`tab ${activeTab === 'profile' ? 'tab-active' : ''}`}
             href={`/community/profile/${userId}`}
-            onClick={() => handleTabClick('profile')}
+            onClick={() => handleProfileClick('profile')}
           >
             <span>個人</span>
           </Link>
