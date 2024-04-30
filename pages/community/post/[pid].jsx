@@ -49,8 +49,10 @@ export default function Post() {
   };
 
   useEffect(() => {
-    getPostPage(pid);
-  }, [pid]);
+    if (auth.id) {
+      getPostPage(pid);
+    }
+  }, [auth.id, pid]);
 
   return (
     <>
@@ -134,9 +136,7 @@ export default function Post() {
                             <li>
                               <a
                                 className="hover:text-neongreen"
-                                onClick={() =>
-                                  handleDeletePostClick(postPage, modalId)
-                                }
+                                onClick={() => handleDeletePostClick(postPage)}
                               >
                                 刪除貼文
                               </a>

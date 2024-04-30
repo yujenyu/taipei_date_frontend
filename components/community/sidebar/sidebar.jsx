@@ -21,8 +21,12 @@ export default function Sidebar() {
     setProfilePosts,
     setProfilePage,
     setUserProfileHasMore,
-    searchModalRef,
     setReload,
+    setIsFilterActive,
+    setFilteredPosts,
+    setFilteredPage,
+    setActiveFilterButton,
+    searchModalRef,
   } = usePostContext();
 
   const userId = auth.id;
@@ -59,23 +63,35 @@ export default function Sidebar() {
     }
   };
 
+  const handleHomeClick = () => {
+    // 重置過濾狀態
+    setIsFilterActive(false);
+    setFilteredPosts([]);
+    setFilteredPage(1);
+    setActiveFilterButton(false);
+
+    // 導航到指定路由，如果已經在該路由，這行將觸發頁面重載
+    router.push(`/community`);
+  };
+
   return (
     <>
       <div className="sidebar ml-8 right-6 hidden md:flex md:w-2/12 top-[112px] left-0 fixed">
         <div className="sidebarWrapper">
           <ul className="sidebarList grid">
-            <Link href="/community">
-              <li
-                className={`${
-                  isActive('/community') ? 'text-neongreen' : ''
-                } sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen`}
-              >
-                <FiHome className="sidebarIcon text-h3 mr-5 md:flex sm:hidden" />
-                <span className="sidebarListItemText text-h6 lg:flex md:hidden">
-                  首頁
-                </span>
-              </li>
-            </Link>
+            <li
+              className={`${
+                isActive('/community') ? 'text-neongreen' : ''
+              } sidebarListItem flex items-center mb-8 p-2 hover:bg-gray-800 rounded-[20px] hover:text-neongreen`}
+              onClick={() => {
+                handleHomeClick();
+              }}
+            >
+              <FiHome className="sidebarIcon text-h3 mr-5 md:flex sm:hidden" />
+              <span className="sidebarListItemText text-h6 lg:flex md:hidden">
+                首頁
+              </span>
+            </li>
 
             <li
               className={`sidebarListItem flex items-center mb-8 p-2 cursor-pointer ${

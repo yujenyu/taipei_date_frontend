@@ -11,6 +11,10 @@ export default function SearchModal() {
     getSearchUsers,
     resetAndCloseSearchModal,
     setIsHoverActive,
+    setProfilePosts,
+    setProfilePage,
+    setUserProfileHasMore,
+    setReload,
     searchModalRef,
   } = usePostContext();
 
@@ -20,11 +24,22 @@ export default function SearchModal() {
     getSearchUsers(e.target.value);
   };
 
-  const handleCloseAndNavigate = async (url) => {
+  const handleProfileClick = async (userId) => {
+    // 清空當前貼文列表和重置頁碼以確保載入新用戶的貼文
+    setProfilePosts([]);
+    setProfilePage(1);
+    setUserProfileHasMore(true);
+
     await resetAndCloseSearchModal();
     setIsHoverActive(true);
     await searchModalRef.current.close(); // 確保模態窗口關閉
-    router.push(url); // 然後導航
+
+    if (router.query.uid === userId.toString()) {
+      // 如果用戶點擊的是已經在的個人檔案頁面，則強制觸發更新
+      setReload((prev) => !prev); // 切換 forceUpdate 狀態
+    } else {
+      router.push(`/community/profile/${userId}`); // 導向新的用戶檔案
+    }
   };
 
   return (
@@ -79,29 +94,23 @@ export default function SearchModal() {
                   <div className="card-iconListLeft flex flex-row items-center">
                     <div className="avatar mr-3">
                       <div className="w-10 rounded-full">
-                        <Link
-                          href={`/community/profile/${user.user_id}`}
+                        <div
                           onClick={(e) => {
                             e.preventDefault();
-                            handleCloseAndNavigate(
-                              `/community/profile/${user.user_id}`
-                            );
+                            handleProfileClick(user.user_id);
                           }}
                         >
                           <img
                             src={user.avatar || '/unknown-user-image.jpg'}
                             alt={user.username || 'No Image Available'}
                           />
-                        </Link>
+                        </div>
                       </div>
                     </div>
-                    <Link
-                      href={`/community/profile/${user.user_id}`}
+                    <div
                       onClick={(e) => {
                         e.preventDefault();
-                        handleCloseAndNavigate(
-                          `/community/profile/${user.user_id}`
-                        );
+                        handleProfileClick(user.user_id);
                       }}
                     >
                       <span
@@ -109,15 +118,12 @@ export default function SearchModal() {
                       >
                         {user.email.split('@')[0]}
                       </span>
-                    </Link>
+                    </div>
 
-                    <Link
-                      href={`/community/profile/${user.user_id}`}
+                    <div
                       onClick={(e) => {
                         e.preventDefault();
-                        handleCloseAndNavigate(
-                          `/community/profile/${user.user_id}`
-                        );
+                        handleProfileClick(user.user_id);
                       }}
                     >
                       <span
@@ -125,7 +131,7 @@ export default function SearchModal() {
                       >
                         {user.username}
                       </span>
-                    </Link>
+                    </div>
                   </div>
 
                   {/* <div className="card-iconListRight flex justify-end">

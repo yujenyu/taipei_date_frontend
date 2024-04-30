@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { usePostContext } from '@/context/post-context';
+import { useAuth } from '@/context/auth-context';
 import EventCard from '@/components/community/card/eventCard';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
@@ -7,11 +8,15 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './page.module.css';
 
 export default function Events() {
+  const { auth } = useAuth();
+
   const { events, eventHasMore, getCommunityEvents } = usePostContext();
 
   useEffect(() => {
-    getCommunityEvents();
-  }, []);
+    if (auth.id) {
+      getCommunityEvents();
+    }
+  }, [auth.id]);
 
   return (
     <>

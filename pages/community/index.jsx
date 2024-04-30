@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { usePostContext } from '@/context/post-context';
+import { useAuth } from '@/context/auth-context';
 import SuggestionBar from '@/components/community/suggestionbar/SuggestionBar';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
@@ -8,6 +9,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from './page.module.css';
 
 export default function Index() {
+  const { auth } = useAuth();
+
   const {
     posts,
     currentKeyword,
@@ -16,20 +19,22 @@ export default function Index() {
     indexFilteredHasMore,
     filteredPage,
     isFilterActive,
+    activeFilterButton,
     handleFilterClick,
     getCommunityIndexPost,
     getCommunityIndexFilteredPost,
   } = usePostContext();
 
   useEffect(() => {
-    if (filteredPage === 1 && isFilterActive) {
-      getCommunityIndexFilteredPost(currentKeyword);
+    if (auth.id) {
+      if (!isFilterActive) {
+        getCommunityIndexPost();
+      }
+      if (filteredPage === 1 && isFilterActive) {
+        getCommunityIndexFilteredPost(currentKeyword);
+      }
     }
-
-    if (!isFilterActive) {
-      getCommunityIndexPost();
-    }
-  }, [filteredPage, isFilterActive, currentKeyword]);
+  }, [auth.id, filteredPage, isFilterActive, currentKeyword]);
 
   return (
     <>
@@ -49,7 +54,11 @@ export default function Index() {
             <div className="flex flex-col gap-8 min-h-screen justify-center items-center">
               <div className="filterBtn flex gap-5 justify-between sm:w-[330px] md:w-[480px] md:mx-auto sm:mx-5">
                 <button
-                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-28 h-8"
+                  className={`${
+                    activeFilterButton === '約會'
+                      ? 'bg-primary text-black'
+                      : 'bg-dark border'
+                  } rounded-full hover:bg-primary hover:text-black w-28 h-8`}
                   onClick={() => {
                     handleFilterClick('約會');
                   }}
@@ -57,7 +66,11 @@ export default function Index() {
                   約會
                 </button>
                 <button
-                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-28 h-8"
+                  className={`${
+                    activeFilterButton === '酒吧'
+                      ? 'bg-primary text-black'
+                      : 'bg-dark border'
+                  } rounded-full hover:bg-primary hover:text-black w-28 h-8`}
                   onClick={() => {
                     handleFilterClick('酒吧');
                   }}
@@ -65,7 +78,11 @@ export default function Index() {
                   酒吧
                 </button>
                 <button
-                  className="bg-dark border rounded-full hover:bg-primary hover:text-black w-28 h-8"
+                  className={`${
+                    activeFilterButton === '電影'
+                      ? 'bg-primary text-black'
+                      : 'bg-dark border'
+                  } rounded-full hover:bg-primary hover:text-black w-28 h-8`}
                   onClick={() => {
                     handleFilterClick('電影');
                   }}

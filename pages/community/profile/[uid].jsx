@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { usePostContext } from '@/context/post-context';
+import { useAuth } from '@/context/auth-context';
 import Sidebar from '@/components/community/sidebar/sidebar';
 import ProfileCard from '@/components/community/card/profileCard';
 import TabbarMobile from '@/components/community/tabbar/tabbarMobile';
@@ -9,6 +10,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import styles from '../page.module.css';
 
 export default function Profile() {
+  const { auth } = useAuth();
+
   const {
     profilePosts,
     setProfilePosts,
@@ -56,11 +59,11 @@ export default function Profile() {
 
   useEffect(() => {
     // Next.js 的路由器是異步, 確保拿到 uid 再 fetch !!! Important
-    if (uid) {
+    if (auth.id && uid) {
       setProfilePage(1);
       getCommunityUserProfilePost();
     }
-  }, [uid, reload]); // uid 變化時重新調用, 或是重複點擊則 reload
+  }, [auth.id, uid, reload]); // uid 變化時重新調用, 或是重複點擊則 reload
 
   return (
     <>

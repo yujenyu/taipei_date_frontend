@@ -1,4 +1,5 @@
 import { useAuth } from '@/context/auth-context';
+import { usePostContext } from '@/context/post-context';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -9,9 +10,34 @@ import CreateEventModalMobile from '../modal/createEventModalMobile';
 export default function TabbarMobile() {
   const { auth } = useAuth();
   const router = useRouter();
+
+  const {
+    setIsFilterActive,
+    setFilteredPosts,
+    setFilteredPage,
+    setActiveFilterButton,
+  } = usePostContext();
+
   const [activeTab, setActiveTab] = useState('home');
 
   const userId = auth.id;
+
+  const handleTabClick = (tabName) => {
+    setActiveTab(tabName);
+  };
+
+  const handleHomeClick = (tabName) => {
+    setActiveTab(tabName);
+
+    // 重置過濾狀態
+    setIsFilterActive(false);
+    setFilteredPosts([]);
+    setFilteredPage(1);
+    setActiveFilterButton(false);
+
+    // 導航到指定路由，如果已經在該路由，這行將觸發頁面重載
+    router.push(`/community`);
+  };
 
   // 使用URL變化來設置活動標籤
   useEffect(() => {
@@ -19,24 +45,20 @@ export default function TabbarMobile() {
     setActiveTab(path || 'home'); // 沒有路徑即為 home page
   }, [router.pathname]);
 
-  const handleTabClick = (tabName) => {
-    setActiveTab(tabName);
-  };
-
   return (
     <>
       <div
         role="tablist"
         className="tabs tabs-bordered md:hidden bg-dark fixed top-16 w-full h-8 z-50"
       >
-        <Link
+        <li
           role="tab"
           className={`tab ${activeTab === 'home' ? 'tab-active' : ''}`}
           href="/community"
-          onClick={() => handleTabClick('home')}
+          onClick={() => handleHomeClick('home')}
         >
           <span>首頁</span>
-        </Link>
+        </li>
         <li
           role="tab"
           className="tab"

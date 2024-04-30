@@ -62,6 +62,7 @@ export const PostProvider = ({ children }) => {
   const [postModalToggle, setPostModalToggle] = useState(false);
   const [isFilterActive, setIsFilterActive] = useState(false);
   const [isHoverActive, setIsHoverActive] = useState(true);
+  const [activeFilterButton, setActiveFilterButton] = useState('');
   const [reload, setReload] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -422,6 +423,7 @@ export const PostProvider = ({ children }) => {
     setFilteredPage(1);
 
     setCurrentKeyword(keyword);
+    setActiveFilterButton(keyword);
     setIsFilterActive(true);
   };
 
@@ -445,10 +447,18 @@ export const PostProvider = ({ children }) => {
       return;
     }
 
-    if (!postContent) {
-      Swal.fire('請輸入貼文內容', '', 'warning');
-      return;
-    }
+    // if (!postContent) {
+    //   createModalRef.current.close();
+    //   createModalMobileRef.current.close();
+    //   Swal.fire({
+    //     title: '請輸入貼文內容!',
+    //     icon: 'warning',
+    //     confirmButtonText: '關閉',
+    //     confirmButtonColor: '#A0FF1F',
+    //     background: 'rgba(0, 0, 0, 0.85)',
+    //   });
+    //   return;
+    // }
 
     try {
       // 用fetch送出檔案
@@ -518,6 +528,9 @@ export const PostProvider = ({ children }) => {
         // 更新貼文以觸發刷新頁面 !!!Important!!!
         setPosts((prevPosts) => [data.post, ...prevPosts]);
         setProfilePosts((prevPosts) => [data.post, ...prevPosts]);
+        setFilteredPosts((prevPosts) => [data.post, ...prevPosts]);
+        setRandomPosts((prevPosts) => [data.post, ...prevPosts]);
+        setPostPage((prevPosts) => [data.post, ...prevPosts]);
       } else {
         throw new Error('Network response was not ok.');
       }
@@ -565,10 +578,16 @@ export const PostProvider = ({ children }) => {
       return;
     }
 
-    if (!localPostContext) {
-      Swal.fire('請輸入貼文內容', '', 'warning');
-      return;
-    }
+    // if (!localPostContext) {
+    //   Swal.fire({
+    //     title: '請輸入貼文內容!',
+    //     icon: 'warning',
+    //     confirmButtonText: '關閉',
+    //     confirmButtonColor: '#A0FF1F',
+    //     background: 'rgba(0, 0, 0, 0.85)',
+    //   });
+    //   return;
+    // }
 
     try {
       const res = await fetch('http://localhost:3001/community/edit-post', {
@@ -775,7 +794,13 @@ export const PostProvider = ({ children }) => {
     }
 
     if (!localEventDetails) {
-      Swal.fire('請輸入活動內容', '', 'warning');
+      Swal.fire({
+        title: '請輸入活動內容!',
+        icon: 'warning',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      });
       return;
     }
 
@@ -1048,7 +1073,7 @@ export const PostProvider = ({ children }) => {
     }
   };
 
-  const handleDeletePostClick = async (post, modalId) => {
+  const handleDeletePostClick = async (post) => {
     const postId = post.post_id;
 
     if (!postId) return;
@@ -1082,7 +1107,19 @@ export const PostProvider = ({ children }) => {
               console.log(prevPosts);
               return prevPosts.filter((post) => post.post_id !== postId);
             });
+            setProfilePosts((prevPosts) => {
+              console.log(prevPosts);
+              return prevPosts.filter((post) => post.post_id !== postId);
+            });
+            setFilteredPosts((prevPosts) => {
+              console.log(prevPosts);
+              return prevPosts.filter((post) => post.post_id !== postId);
+            });
             setRandomPosts((prevPosts) => {
+              console.log(prevPosts);
+              return prevPosts.filter((post) => post.post_id !== postId);
+            });
+            setPostPage((prevPosts) => {
               console.log(prevPosts);
               return prevPosts.filter((post) => post.post_id !== postId);
             });
@@ -1370,7 +1407,13 @@ export const PostProvider = ({ children }) => {
     }
 
     if (!eventDetails) {
-      Swal.fire('請輸入活動內容', '', 'warning');
+      Swal.fire({
+        title: '請輸入活動內容!',
+        icon: 'warning',
+        confirmButtonText: '關閉',
+        confirmButtonColor: '#A0FF1F',
+        background: 'rgba(0, 0, 0, 0.85)',
+      });
       return;
     }
 
@@ -1531,7 +1574,9 @@ export const PostProvider = ({ children }) => {
         postPage,
         eventPageCard,
         filteredPosts,
+        setFilteredPosts,
         filteredPage,
+        setFilteredPage,
         currentKeyword,
         randomPosts,
         setPostContent,
@@ -1598,6 +1643,9 @@ export const PostProvider = ({ children }) => {
         postModalToggle,
         setPostModalToggle,
         isFilterActive,
+        setIsFilterActive,
+        activeFilterButton,
+        setActiveFilterButton,
         isHoverActive,
         setIsHoverActive,
         reload,
