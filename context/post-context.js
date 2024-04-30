@@ -76,6 +76,8 @@ export const PostProvider = ({ children }) => {
   const createEventModalMobileRef = useRef(null);
   const searchModalRef = useRef(null);
   const searchModalMobileRef = useRef(null);
+  const followerModalRef = useRef(null);
+  const followingModalRef = useRef(null);
 
   const router = useRouter();
   const { uid } = router.query;
@@ -375,6 +377,18 @@ export const PostProvider = ({ children }) => {
     setSearchTerm('');
     setSearchResults([]);
     setHasSearched(false);
+    setProfilePage(1);
+    setProfilePosts([]);
+  };
+
+  // 重置內容並關閉視窗
+  const resetAndCloseFollowerModal = () => {
+    setProfilePage(1);
+    setProfilePosts([]);
+  };
+
+  // 重置內容並關閉視窗
+  const resetAndCloseFollowingModal = () => {
     setProfilePage(1);
     setProfilePosts([]);
   };
@@ -1655,6 +1669,8 @@ export const PostProvider = ({ children }) => {
         hasSearched,
         getSearchUsers,
         resetAndCloseSearchModal,
+        resetAndCloseFollowerModal,
+        resetAndCloseFollowingModal,
         fileInputRef,
         createModalRef,
         createModalMobileRef,
@@ -1662,6 +1678,8 @@ export const PostProvider = ({ children }) => {
         createEventModalMobileRef,
         searchModalRef,
         searchModalMobileRef,
+        followerModalRef,
+        followingModalRef,
       }}
     >
       {children}

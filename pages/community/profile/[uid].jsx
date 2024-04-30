@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { usePostContext } from '@/context/post-context';
 import { useAuth } from '@/context/auth-context';
@@ -43,10 +43,11 @@ export default function Profile() {
 
       const postIds = data.map((post) => post.post_id).join(',');
 
-      await checkFollowingStatus(uid);
-
-      await checkPostsStatus(postIds); // 檢查貼文狀態
-      await getPostComments(postIds);
+      await Promise.all([
+        checkFollowingStatus(uid),
+        checkPostsStatus(postIds),
+        getPostComments(postIds),
+      ]);
 
       setProfilePosts((prevPosts) => [...prevPosts, ...data]); // 更新posts狀態
       setProfilePage((prevPage) => prevPage + 1); // 更新頁碼
@@ -60,8 +61,10 @@ export default function Profile() {
   useEffect(() => {
     // Next.js 的路由器是異步, 確保拿到 uid 再 fetch !!! Important
     if (auth.id && uid) {
+      setProfilePosts([]); // 清空現有貼文
+      setUserProfileHasMore(true);
       setProfilePage(1);
-      getCommunityUserProfilePost();
+      getCommunityUserProfilePost(); // 加載初始貼文
     }
   }, [auth.id, uid, reload]); // uid 變化時重新調用, 或是重複點擊則 reload
 

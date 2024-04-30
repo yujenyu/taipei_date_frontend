@@ -3,11 +3,14 @@
 .createModalListItemText,
 .createModalListItemIcon,
 .searchModalListText,
-.searchModalListEmail {
+.searchModalListEmail,
+.followModalListText,
+.followModalListEmail {
   color: white;
 }
 
-.searchModalListUsername {
+.searchModalListUsername,
+.followModalListUsername {
   color: gray;
 }
 
@@ -17,6 +20,9 @@
 .createModalListItemIcon:hover,
 .searchModalListText:hover,
 .searchModalListEmail:hover,
-.searchModalListUsername:hover {
+.searchModalListUsername:hover,
+.followModalListText:hover,
+.followModalListEmail:hover,
+.followModalListUsername:hover {
   color: #a0ff1f;
 }

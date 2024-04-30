@@ -54,7 +54,7 @@ export default function SearchModal() {
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
         >
           <p
-            className={`${styles['searchModalListItemText']} font-bold text-lg mb-5 text-h5`}
+            className={`${styles['searchModalListItemText']} font-bold text-lg mb-5 text-h5 flex justify-center`}
           >
             搜尋
           </p>

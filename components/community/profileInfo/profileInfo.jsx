@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
+import FollowerModal from '../modal/followerModal';
+import FollowingModal from '../modal/followingModal';
 
-export default function ProfileInfo({ posts }) {
+export default function ProfileInfo() {
   const { auth } = useAuth();
   const { following, handleFollowClick } = usePostContext();
 
@@ -11,11 +13,19 @@ export default function ProfileInfo({ posts }) {
   const [followingCount, setFollowingCount] = useState(0);
   const [postsCount, setPostsCount] = useState(0);
   const [userInfo, setUserInfo] = useState({});
+  const [userFollowers, setUserFollowers] = useState([]);
+  const [userFollowings, setUserFollowings] = useState([]);
 
   const userId = auth.id;
 
   const router = useRouter();
   const { uid } = router.query;
+
+  // 基於 post_id 的唯一 edit modal id
+  const followerModalId = `follower_modal_${userId}`;
+
+  // 基於 post_id 的唯一 edit modal id
+  const followingModalId = `following_modal_${userId}`;
 
   // 是否追蹤當前瀏覽的用戶的資訊
   const isFollowing = following[uid] || false;
@@ -67,10 +77,42 @@ export default function ProfileInfo({ posts }) {
     }
   };
 
+  const getFollowers = async () => {
+    if (!uid) return;
+    try {
+      const res = await fetch(
+        `http://localhost:3001/community/get-followers/${uid}`
+      );
+      const data = await res.json();
+      setUserFollowers(data); // 更新 userFollowers 狀態
+    } catch (error) {
+      console.error('Failed to fetch user followers', error);
+      setUserFollowers([]); // 當請求失敗時，也設置一個空對象
+    }
+  };
+
+  const getFollowings = async () => {
+    if (!uid) return;
+    try {
+      const res = await fetch(
+        `http://localhost:3001/community/get-followings/${uid}`
+      );
+      const data = await res.json();
+      setUserFollowings(data); // 更新 userFollowings 狀態
+    } catch (error) {
+      console.error('Failed to fetch user followings', error);
+      setUserFollowings([]); // 當請求失敗時，也設置一個空對象
+    }
+  };
+
   useEffect(() => {
-    getFollowUsers();
-    getPostsCount();
-    getUserInfo();
+    if (auth.id) {
+      getFollowUsers();
+      getPostsCount();
+      getUserInfo();
+      getFollowers();
+      getFollowings();
+    }
   }, [uid]);
 
   return (
@@ -108,8 +150,32 @@ export default function ProfileInfo({ posts }) {
             </div>
             <div className="flex flex-row justify-center items-center gap-2 whitespace-nowrap">
               <div className="basis-1/3">{postsCount} 貼文</div>
-              <div className="basis-1/3">{followersCount} 追蹤者</div>
-              <div className="basis-1/3">{followingCount} 追蹤中</div>
+              <div
+                className="basis-1/3 cursor-pointer"
+                onClick={() =>
+                  document.getElementById(followerModalId).showModal()
+                }
+              >
+                {followersCount} 追蹤者
+              </div>
+              <div
+                className="basis-1/3 cursor-pointer"
+                onClick={() =>
+                  document.getElementById(followingModalId).showModal()
+                }
+              >
+                {followingCount} 追蹤中
+              </div>
+              <FollowerModal
+                followers={userFollowers}
+                modalId={followerModalId}
+                key={`follower-${uid}`}
+              />
+              <FollowingModal
+                followings={userFollowings}
+                modalId={followingModalId}
+                key={`following-${uid}`}
+              />
             </div>
 
             <div className="flex items-center">{userInfo.profile_content}</div>
