@@ -397,19 +397,19 @@ export const PostProvider = ({ children }) => {
     setSearchResults([]);
     setHasSearched(false);
     setProfilePage(1);
-    setProfilePosts([]);
+    // setProfilePosts([]);
   };
 
   // 重置內容並關閉視窗
   const resetAndCloseFollowerModal = () => {
     setProfilePage(1);
-    setProfilePosts([]);
+    // setProfilePosts([]);
   };
 
   // 重置內容並關閉視窗
   const resetAndCloseFollowingModal = () => {
     setProfilePage(1);
-    setProfilePosts([]);
+    // setProfilePosts([]);
   };
 
   // 選擇檔案有變動時的處理函式
