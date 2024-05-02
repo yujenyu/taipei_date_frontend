@@ -28,11 +28,11 @@ export default function Profile() {
   const router = useRouter();
   const { uid } = router.query;
 
-  const getCommunityUserProfilePost = async () => {
+  const getCommunityUserProfilePost = async (page = profilePage) => {
     if (!userProfileHasMore) return; // 防止重複請求
     try {
       const res = await fetch(
-        `http://localhost:3001/community/posts/${uid}?page=${profilePage}&limit=12`
+        `http://localhost:3001/community/posts/${uid}?page=${page}&limit=12`
       );
       const data = await res.json();
 
@@ -64,7 +64,13 @@ export default function Profile() {
       setProfilePosts([]); // 清空現有貼文
       setUserProfileHasMore(true);
       setProfilePage(1);
-      getCommunityUserProfilePost(); // 加載初始貼文
+
+      // 直接在這裡設置 profilePage 為 1 並立即執行資料加載
+      setProfilePage((prevPage) => {
+        const newPage = 1;
+        getCommunityUserProfilePost(newPage); // 使用更新後的頁碼執行加載
+        return newPage;
+      });
     }
   }, [auth.id, uid, reload]); // uid 變化時重新調用, 或是重複點擊則 reload
 

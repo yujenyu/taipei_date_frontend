@@ -7,12 +7,12 @@ import FollowingModal from '../modal/followingModal';
 
 export default function ProfileInfo() {
   const { auth } = useAuth();
-  const { following, handleFollowClick } = usePostContext();
+  const { socket, userInfo, following, handleFollowClick } = usePostContext();
 
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [postsCount, setPostsCount] = useState(0);
-  const [userInfo, setUserInfo] = useState({});
+  const [localUserInfo, setLocalUserInfo] = useState({});
   const [userFollowers, setUserFollowers] = useState([]);
   const [userFollowings, setUserFollowings] = useState([]);
 
@@ -62,7 +62,7 @@ export default function ProfileInfo() {
     }
   };
 
-  const getUserInfo = async () => {
+  const getLocalUserInfo = async () => {
     if (!uid) return;
     try {
       const res = await fetch(
@@ -70,10 +70,10 @@ export default function ProfileInfo() {
       );
       const data = await res.json();
       // 確保即使 data[0] 為 undefined，也能安全地設置一個空對象
-      setUserInfo(data[0] || {});
+      setLocalUserInfo(data[0] || {});
     } catch (error) {
       console.error('Failed to fetch user info', error);
-      setUserInfo({}); // 當請求失敗時，也設置一個空對象
+      setLocalUserInfo({}); // 當請求失敗時，也設置一個空對象
     }
   };
 
@@ -105,11 +105,46 @@ export default function ProfileInfo() {
     }
   };
 
+  const handleNotification = (type) => {
+    // 確保 socket已獲取
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        senderName: userInfo.username,
+        avatar: userInfo.avatar,
+        receiverId: localUserInfo.user_id,
+        receiverName: localUserInfo.username,
+        type: type,
+        postId: localUserInfo.user_id,
+        message: `${userInfo.username} ${
+          type === 'like'
+            ? '喜愛你的貼文'
+            : type === 'comment'
+            ? '回覆你的貼文'
+            : '開始追蹤你'
+        }`,
+      };
+      socket.emit('sendNotification', notificationData);
+    }
+  };
+
+  const handleRemoveNotification = (type) => {
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        receiverId: localUserInfo.user_id,
+        postId: localUserInfo.user_id,
+        type: type,
+      };
+      socket.emit('removeNotification', notificationData);
+    }
+  };
+
   useEffect(() => {
     if (auth.id) {
       getFollowUsers();
       getPostsCount();
-      getUserInfo();
+      getLocalUserInfo();
       getFollowers();
       getFollowings();
     }
@@ -124,8 +159,8 @@ export default function ProfileInfo() {
             <div className="avatar">
               <div className="w-32 rounded-full">
                 <img
-                  src={userInfo.avatar || '/unknown-user-image.jpg'}
-                  alt={userInfo.username || 'No Image Available'}
+                  src={localUserInfo.avatar || '/unknown-user-image.jpg'}
+                  alt={localUserInfo.username || 'No Image Available'}
                 />
               </div>
             </div>
@@ -134,14 +169,22 @@ export default function ProfileInfo() {
           <div className="basis-8/12 flex flex-col justify-between item-center gap-2 w-full flex-grow">
             <div className="flex items-center">
               <div className="userId">
-                {userInfo.email ? userInfo.email.split('@')[0] : 'unknownuser'}
+                {localUserInfo.email
+                  ? localUserInfo.email.split('@')[0]
+                  : 'unknownuser'}
               </div>
               <div className="flex mx-10">
                 {/* 確保個人頁面不顯示追蹤功能, 轉換 uid 從字符串到數字，以保持類型一致 */}
                 {uid && userId !== parseInt(uid, 10) && (
                   <button
                     className="btn bg-dark border-white rounded-full text-white hover:shadow-xl3 hover:text-primary"
-                    onClick={() => handleFollowClick(uid)}
+                    onClick={() => {
+                      handleFollowClick(uid);
+                      handleRemoveNotification('follow');
+                      if (!isFollowing) {
+                        handleNotification('follow');
+                      }
+                    }}
                   >
                     {isFollowing ? '追蹤中' : '追蹤'}
                   </button>
@@ -178,7 +221,9 @@ export default function ProfileInfo() {
               />
             </div>
 
-            <div className="flex items-center">{userInfo.profile_content}</div>
+            <div className="flex items-center">
+              {localUserInfo.profile_content}
+            </div>
           </div>
         </div>
       </div>

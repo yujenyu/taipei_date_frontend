@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { usePostContext } from '@/context/post-context';
 import { useRouter } from 'next/router';
@@ -13,7 +13,13 @@ export default function PostModal({ post, modalId, isOpen }) {
 
   const router = useRouter();
 
+  const postModalRef = useRef(null);
+
+  const textareaRef = useRef(null);
+
   const {
+    socket,
+    userInfo,
     handleLikedClick,
     handleSavedClick,
     likedPosts,
@@ -56,6 +62,42 @@ export default function PostModal({ post, modalId, isOpen }) {
     router.push(`/community/profile/${userId}`);
   };
 
+  const handleNotification = (type) => {
+    // 確保 socket已獲取
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        senderName: userInfo.username,
+        avatar: userInfo.avatar,
+        receiverId: post.post_userId,
+        receiverName: post.username,
+        type: type,
+        postId: post.post_id,
+        message: `${userInfo.username} ${
+          type === 'like'
+            ? '喜愛你的貼文'
+            : type === 'comment'
+            ? '回覆你的貼文'
+            : '開始追蹤你'
+        }`,
+      };
+      socket.emit('sendNotification', notificationData);
+    }
+  };
+
+  // TODO: 刪除 comment 並刪除其通知有 bug, 會將同個 post 的 comment 通知一併刪除
+  const handleRemoveNotification = (type) => {
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        receiverId: post.post_userId,
+        postId: post.post_id,
+        type: type,
+      };
+      socket.emit('removeNotification', notificationData);
+    }
+  };
+
   useEffect(() => {
     // 定義路由變化完成後要執行的函數，這個函數將會關閉 modal
     const handleRouteChange = () => {
@@ -75,6 +117,7 @@ export default function PostModal({ post, modalId, isOpen }) {
     <>
       <div
         id={modalId}
+        ref={postModalRef}
         className={`modal z-50 ${isOpen ? 'opacity-100' : 'opacity-0 hidden'}`}
         style={{ pointerEvents: 'auto' }}
       >
@@ -94,7 +137,13 @@ export default function PostModal({ post, modalId, isOpen }) {
           <div className="container flex flex-col md:flex-row">
             <figure
               className="flex flex-col w-full md:w-1/2 card-photo mx-3"
-              onDoubleClick={() => handleLikedClick(post)}
+              onDoubleClick={() => {
+                handleLikedClick(post);
+                handleRemoveNotification('like');
+                if (!isLiked) {
+                  handleNotification('like');
+                }
+              }}
             >
               <img
                 src={post.img || '/unavailable-image.jpg'}
@@ -229,9 +278,14 @@ export default function PostModal({ post, modalId, isOpen }) {
                                 <li>
                                   <a
                                     className="hover:text-neongreen"
-                                    onClick={() =>
-                                      handleDeleteCommentClick(comment)
-                                    }
+                                    onClick={async () => {
+                                      // 使用 async 等待確認刪除再刪除 noti
+                                      const result =
+                                        await handleDeleteCommentClick(comment);
+                                      if (result) {
+                                        handleRemoveNotification('comment');
+                                      }
+                                    }}
                                   >
                                     刪除回覆
                                   </a>
@@ -252,16 +306,27 @@ export default function PostModal({ post, modalId, isOpen }) {
                     <div className="card-iconListLeft flex flex-row gap-2">
                       {isLiked ? (
                         <FaHeart
-                          className="card-ico hover:text-neongreen"
-                          onClick={() => handleLikedClick(post)}
+                          className="card-icon hover:text-neongreen"
+                          onClick={() => {
+                            handleLikedClick(post);
+                            handleRemoveNotification('like');
+                          }}
                         />
                       ) : (
                         <FaRegHeart
                           className="card-icon hover:text-neongreen"
-                          onClick={() => handleLikedClick(post)}
+                          onClick={() => {
+                            handleLikedClick(post);
+                            handleNotification('like');
+                          }}
                         />
                       )}
-                      <FiMessageCircle className="card-icon hover:text-neongreen" />
+                      <FiMessageCircle
+                        className="card-icon hover:text-neongreen"
+                        onClick={() =>
+                          textareaRef.current && textareaRef.current.focus()
+                        }
+                      />
                       <FiSend
                         className="card-icon hover:text-neongreen"
                         onClick={() =>
@@ -292,22 +357,27 @@ export default function PostModal({ post, modalId, isOpen }) {
 
                   <div className="flex flex-row card-actions justify-center">
                     <textarea
+                      ref={textareaRef}
                       className="textarea textarea-ghost w-full h-16 resize-none rounded-full mb-3"
                       placeholder="新增回覆"
                       value={newComment} // 綁定 textarea 的值到 state
                       onChange={handleCommentContentChange}
                       onKeyDown={(e) =>
                         // 使用 onKeyDown 並檢查是否按下 Enter 鍵
-                        handleKeyPress(e, () =>
-                          handleCommentUpload(post, newComment)
-                        )
+                        handleKeyPress(e, () => {
+                          handleCommentUpload(post, newComment);
+                          handleNotification('comment');
+                        })
                       }
                     />
                     <button
                       className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3 flex justify-center"
-                      onClick={() => handleCommentUpload(post, newComment)}
+                      onClick={() => {
+                        handleCommentUpload(post, newComment);
+                        handleNotification('comment');
+                      }}
                     >
-                      分享
+                      回覆
                     </button>
                   </div>
                 </div>

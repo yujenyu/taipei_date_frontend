@@ -14,6 +14,7 @@ import { useAuth } from '@/context/auth-context';
 import { API_SERVER, ACCOUNT_GET } from '@/components/config/api-path';
 import { useRouter } from 'next/router';
 import { useNotify } from '@/context/use-notify';
+import { usePostContext } from '@/context/post-context';
 import toast from 'react-hot-toast';
 
 export default function Header({ currentPageTitle }) {
@@ -26,8 +27,13 @@ export default function Header({ currentPageTitle }) {
     setUserAvatar,
     getAuthHeader,
   } = useAuth();
+
   const router = useRouter();
   const [dropDownOpen, setDropDownOpen] = useState(false);
+
+  const { socket, userInfo } = usePostContext();
+
+  const [notifications, setNotifications] = useState([]);
 
   //返回與 page 變量相對應的中文名稱
   function getPageChineseName(page) {
@@ -46,6 +52,81 @@ export default function Header({ currentPageTitle }) {
         return page; // 如果找不到匹配，返回原始值
     }
   }
+
+  const getNotifications = async () => {
+    const response = await fetch(
+      `http://localhost:3001/community/get-noti/${userInfo.user_id}`
+    );
+    const data = await response.json();
+    setNotifications(data.noti);
+  };
+
+  const displayNotification = ({
+    senderName,
+    type,
+    postId,
+    senderId,
+    avatar,
+    key,
+  }) => {
+    let message;
+    let url;
+
+    switch (type) {
+      case 'like':
+        message = `${senderName}  喜愛你的貼文`;
+        url = `http://localhost:3000/community/post/${postId}`;
+        break;
+      case 'comment':
+        message = `${senderName}  回覆你的貼文`;
+        url = `http://localhost:3000/community/post/${postId}`;
+        break;
+      case 'follow':
+        message = `${senderName}  開始追蹤你`;
+        url = `http://localhost:3000/community/profile/${senderId}`;
+        break;
+      default:
+        message = '你有一則新通知';
+        url = '#'; // 設置為默認或錯誤處理的 URL
+    }
+
+    return (
+      <li key={key} className="flex flex-row notification hover:text-primary">
+        <div>
+          <img
+            className="rounded-full"
+            width={24}
+            height={24}
+            src={avatar || '/unknown-user-image.jpg'}
+          />
+        </div>
+        <Link href={url}>{message}</Link>
+      </li>
+    );
+  };
+
+  useEffect(() => {
+    if (userInfo.user_id) {
+      getNotifications();
+    }
+  }, [userInfo.user_id]);
+
+  // 監聽從 PostCard 發送的通知
+  useEffect(() => {
+    if (socket) {
+      socket.on('getNotification', (data) => {
+        setNotifications((prev) => [data, ...prev]); // 更新通知列表
+        toast('收到新通知', {
+          style: {
+            background: '#A0FF1F',
+            color: '#000',
+          },
+        });
+      });
+
+      return () => socket.off('getNotification'); // 清理監聽器
+    }
+  }, [socket]);
 
   // const handleAvatarUpdate = () => {
   //   getUserAvatar();
@@ -83,7 +164,7 @@ export default function Header({ currentPageTitle }) {
   return (
     <>
       {/* <Toaster /> */}
-      <div className="fixed top-0 z-50 w-full h-16 navbar bg-dark ;">
+      <div className="fixed top-0 z-[60] w-full h-16 navbar bg-dark ;">
         <div className="ml-3 navbar-start">
           <Link href="/">
             <Logo />
@@ -119,7 +200,7 @@ export default function Header({ currentPageTitle }) {
             </button>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 h-3/4 text-h6"
+              className="dropdown-content z-[60] menu p-2 shadow bg-base-100 rounded-box w-64 h-3/4 text-h6"
               // fixed dropdown menu to top right
               style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.85)',
@@ -128,7 +209,13 @@ export default function Header({ currentPageTitle }) {
                 top: '70px',
               }}
             >
-              <li>
+              {/* 最多呈現 10 筆資料 */}
+              {notifications
+                ?.slice(0, 10)
+                .map((noti, index) =>
+                  displayNotification({ ...noti, key: index })
+                )}
+              {/* <li>
                 <a>Noti 1</a>
               </li>
               <li>
@@ -142,7 +229,7 @@ export default function Header({ currentPageTitle }) {
               </li>
               <li>
                 <a>Noti 5</a>
-              </li>
+              </li> */}
             </ul>
           </div>
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -15,9 +15,13 @@ export default function Post() {
 
   const router = useRouter();
 
+  const textareaRef = useRef(null);
+
   const { pid } = router.query;
 
   const {
+    socket,
+    userInfo,
     getPostPage,
     postPage,
     handleLikedClick,
@@ -48,6 +52,41 @@ export default function Post() {
     setNewComment(e.target.value);
   };
 
+  const handleNotification = (type) => {
+    // 確保 socket已獲取
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        senderName: userInfo.username,
+        avatar: userInfo.avatar,
+        receiverId: postPage.post_userId,
+        receiverName: postPage.username,
+        type: type,
+        postId: postPage.post_id,
+        message: `${userInfo.username} ${
+          type === 'like'
+            ? '喜愛你的貼文'
+            : type === 'comment'
+            ? '回覆你的貼文'
+            : '開始追蹤你'
+        }`,
+      };
+      socket.emit('sendNotification', notificationData);
+    }
+  };
+
+  const handleRemoveNotification = (type) => {
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        receiverId: postPage.post_userId,
+        postId: postPage.post_id,
+        type: type,
+      };
+      socket.emit('removeNotification', notificationData);
+    }
+  };
+
   useEffect(() => {
     if (auth.id) {
       getPostPage(pid);
@@ -74,7 +113,13 @@ export default function Post() {
               <div className="container flex flex-col md:flex-row ">
                 <figure
                   className="flex flex-col w-full md:w-1/2 card-photo mx-3"
-                  onDoubleClick={() => handleLikedClick(postPage)}
+                  onDoubleClick={() => {
+                    handleLikedClick(postPage);
+                    handleRemoveNotification('like');
+                    if (!isLiked) {
+                      handleNotification('like');
+                    }
+                  }}
                 >
                   <img
                     src={postPage.img || '/unavailable-image.jpg'}
@@ -211,9 +256,16 @@ export default function Post() {
                                     <li>
                                       <a
                                         className="hover:text-neongreen"
-                                        onClick={() =>
-                                          handleDeleteCommentClick(comment)
-                                        }
+                                        onClick={async () => {
+                                          // 使用 async 等待確認刪除再刪除 noti
+                                          const result =
+                                            await handleDeleteCommentClick(
+                                              comment
+                                            );
+                                          if (result) {
+                                            handleRemoveNotification('comment');
+                                          }
+                                        }}
                                       >
                                         刪除回覆
                                       </a>
@@ -235,15 +287,26 @@ export default function Post() {
                           {isLiked ? (
                             <FaHeart
                               className="card-ico hover:text-neongreen"
-                              onClick={() => handleLikedClick(postPage)}
+                              onClick={() => {
+                                handleLikedClick(postPage);
+                                handleRemoveNotification('like');
+                              }}
                             />
                           ) : (
                             <FaRegHeart
                               className="card-icon hover:text-neongreen"
-                              onClick={() => handleLikedClick(postPage)}
+                              onClick={() => {
+                                handleLikedClick(postPage);
+                                handleNotification('like');
+                              }}
                             />
                           )}
-                          <FiMessageCircle className="card-icon hover:text-neongreen" />
+                          <FiMessageCircle
+                            className="card-icon hover:text-neongreen"
+                            onClick={() =>
+                              textareaRef.current && textareaRef.current.focus()
+                            }
+                          />
                           <FiSend
                             className="card-icon hover:text-neongreen"
                             onClick={() =>
@@ -274,24 +337,27 @@ export default function Post() {
 
                       <div className="flex flex-row card-actions justify-center">
                         <textarea
+                          ref={textareaRef}
                           className="textarea textarea-ghost w-full h-16 resize-none rounded-full mb-3"
                           placeholder="新增回覆"
                           value={newComment} // 綁定 textarea 的值到 state
                           onChange={handleCommentContentChange}
                           onKeyDown={(e) =>
                             // 使用 onKeyDown 並檢查是否按下 Enter 鍵
-                            handleKeyPress(e, () =>
-                              handleCommentUpload(postPage, newComment)
-                            )
+                            handleKeyPress(e, () => {
+                              handleCommentUpload(postPage, newComment);
+                              handleNotification('comment');
+                            })
                           }
                         />
                         <button
                           className="btn bg-dark border-primary rounded-full text-primary hover:shadow-xl3 flex justify-center"
-                          onClick={() =>
-                            handleCommentUpload(postPage, newComment)
-                          }
+                          onClick={() => {
+                            handleCommentUpload(postPage, newComment);
+                            handleNotification('comment');
+                          }}
                         >
-                          分享
+                          回覆
                         </button>
                       </div>
                     </div>

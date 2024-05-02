@@ -14,6 +14,8 @@ export default function PostCardLarge({ post }) {
   const router = useRouter();
 
   const {
+    socket,
+    userInfo,
     handleLikedClick,
     handleSavedClick,
     likedPosts,
@@ -48,6 +50,41 @@ export default function PostCardLarge({ post }) {
     setPostModalToggle(false);
 
     router.push(`/community/profile/${userId}`);
+  };
+
+  const handleNotification = (type) => {
+    // 確保 socket已獲取
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        senderName: userInfo.username,
+        avatar: userInfo.avatar,
+        receiverId: post.post_userId,
+        receiverName: post.username,
+        type: type,
+        postId: post.post_id,
+        message: `${userInfo.username} ${
+          type === 'like'
+            ? '喜愛你的貼文'
+            : type === 'comment'
+            ? '回覆你的貼文'
+            : '開始追蹤你'
+        }`,
+      };
+      socket.emit('sendNotification', notificationData);
+    }
+  };
+
+  const handleRemoveNotification = (type) => {
+    if (socket) {
+      const notificationData = {
+        senderId: userInfo.user_id,
+        receiverId: post.post_userId,
+        postId: post.post_id,
+        type: type,
+      };
+      socket.emit('removeNotification', notificationData);
+    }
   };
 
   return (
@@ -117,7 +154,13 @@ export default function PostCardLarge({ post }) {
         </div>
         <figure
           className="card-photo m-0 z-40"
-          onDoubleClick={() => handleLikedClick(post)}
+          onDoubleClick={() => {
+            handleLikedClick(post);
+            handleRemoveNotification('like');
+            if (!isLiked) {
+              handleNotification('like');
+            }
+          }}
         >
           <div className={styles.parallaxContainer}>
             <div className={styles.parallax}>
@@ -145,12 +188,18 @@ export default function PostCardLarge({ post }) {
                 {isLiked ? (
                   <FaHeart
                     className="card-icon hover:text-neongreen"
-                    onClick={() => handleLikedClick(post)}
+                    onClick={() => {
+                      handleLikedClick(post);
+                      handleRemoveNotification('like');
+                    }}
                   />
                 ) : (
                   <FaRegHeart
                     className="card-icon  hover:text-neongreen"
-                    onClick={() => handleLikedClick(post)}
+                    onClick={() => {
+                      handleLikedClick(post);
+                      handleNotification('like');
+                    }}
                   />
                 )}
 

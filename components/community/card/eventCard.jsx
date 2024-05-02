@@ -65,20 +65,21 @@ export default function EventCard({ event }) {
                       </p>
                     </div>
                   </div>
-                  {userId && userId === event.user_id && (
-                    <div className="card-iconListRight flex justify-end items-center px-1 py-1 ">
-                      <FiSend
-                        className="card-icon hover:text-neongreen"
-                        onClick={() =>
-                          document.getElementById(shareEventModalId).showModal()
-                        }
-                      />
-                      <ShareEventModal
-                        event={event}
-                        key={event.post_id}
-                        eventId={event.comm_event_id}
-                        modalId={shareEventModalId}
-                      />
+
+                  <div className="card-iconListRight flex justify-end items-center px-1 py-1 ">
+                    <FiSend
+                      className="card-icon hover:text-neongreen"
+                      onClick={() =>
+                        document.getElementById(shareEventModalId).showModal()
+                      }
+                    />
+                    <ShareEventModal
+                      event={event}
+                      key={event.post_id}
+                      eventId={event.comm_event_id}
+                      modalId={shareEventModalId}
+                    />{' '}
+                    {userId && userId === event.user_id && (
                       <div className="dropdown dropdown-end">
                         <div tabIndex={0} className="m-2">
                           <FiMoreHorizontal className="card-icon hover:text-neongreen" />
@@ -112,13 +113,13 @@ export default function EventCard({ event }) {
                           </li>
                         </ul>
                       </div>
-                      <EditEventModal
-                        event={event}
-                        modalId={editEventModalId}
-                        key={event.comm_event_id}
-                      />
-                    </div>
-                  )}
+                    )}
+                    <EditEventModal
+                      event={event}
+                      modalId={editEventModalId}
+                      key={event.comm_event_id}
+                    />
+                  </div>
                 </div>
               </div>
               {userId !== 0 && userId !== null && (

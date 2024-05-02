@@ -1,8 +1,8 @@
-import { useState, createContext, useContext, useRef } from 'react';
+import { useState, createContext, useContext, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
-import toast from 'react-hot-toast';
+import { io } from 'socket.io-client';
 
 const PostContext = createContext();
 
@@ -81,6 +81,25 @@ export const PostProvider = ({ children }) => {
 
   const router = useRouter();
   const { uid } = router.query;
+
+  const [socket, setSocket] = useState(null);
+  const [userInfo, setUserInfo] = useState({});
+
+  const getUserDetail = async () => {
+    if (!auth.id) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:3001/community/get-userInfo/${auth.id}`
+      );
+      const data = await res.json();
+      // 確保即使 data[0] 為 undefined，也能安全地設置一個空對象
+      setUserInfo(data[0] || {});
+    } catch (error) {
+      console.error('Failed to fetch user info', error);
+      setUserInfo({}); // 當請求失敗時，也設置一個空對象
+    }
+  };
 
   const getCommunityIndexPost = async () => {
     if (!indexHasMore) return; // 防止重複請求
@@ -1118,23 +1137,18 @@ export const PostProvider = ({ children }) => {
           if (res.ok) {
             // 更新 posts, randomPosts 狀態以移除已刪除的貼文
             setPosts((prevPosts) => {
-              console.log(prevPosts);
               return prevPosts.filter((post) => post.post_id !== postId);
             });
             setProfilePosts((prevPosts) => {
-              console.log(prevPosts);
               return prevPosts.filter((post) => post.post_id !== postId);
             });
             setFilteredPosts((prevPosts) => {
-              console.log(prevPosts);
               return prevPosts.filter((post) => post.post_id !== postId);
             });
             setRandomPosts((prevPosts) => {
-              console.log(prevPosts);
               return prevPosts.filter((post) => post.post_id !== postId);
             });
             setPostPage((prevPosts) => {
-              console.log(prevPosts);
               return prevPosts.filter((post) => post.post_id !== postId);
             });
 
@@ -1239,63 +1253,55 @@ export const PostProvider = ({ children }) => {
 
     if (!commentId) return;
 
-    Swal.fire({
+    const result = await Swal.fire({
       title: '確定刪除?',
       showCancelButton: true,
       confirmButtonText: '確認',
-      cancelButtonText: `取消`,
+      cancelButtonText: '取消',
       confirmButtonColor: '#A0FF1F',
       background: 'rgba(0, 0, 0, 0.85)',
-    }).then(async (result) => {
-      // 如果點擊確認刪除才執行
-      if (result.isConfirmed) {
-        try {
-          const res = await fetch(
-            `http://localhost:3001/community/delete-comment`,
-            {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-                ...getAuthHeader(),
-              },
-              body: JSON.stringify({ commentId }),
-            }
-          );
+    });
 
-          if (res.ok) {
-            // 更新 comments 狀態以移除已刪除的回覆
-            setComments((prevComments) => {
-              // 遍歷所有貼文的評論
-              const updatedComments = { ...prevComments };
-
-              for (const postId in updatedComments) {
-                // 過濾出除了要刪除的那個評論外的所有評論
-                updatedComments[postId] = updatedComments[postId].filter(
-                  (comment) => comment.comm_comment_id !== commentId
-                );
-              }
-
-              return updatedComments; // 返回更新後的評論對象
-            });
-
-            Swal.fire({
-              title: '刪除成功!',
-              icon: 'success',
-              confirmButtonText: '關閉',
-              confirmButtonColor: '#A0FF1F',
-              background: 'rgba(0, 0, 0, 0.85)',
-            });
-          } else {
-            Swal.fire({
-              title: '刪除失敗!',
-              icon: 'error',
-              confirmButtonText: '關閉',
-              confirmButtonColor: '#A0FF1F',
-              background: 'rgba(0, 0, 0, 0.85)',
-            });
+    // 如果點擊確認刪除才執行
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(
+          `http://localhost:3001/community/delete-comment`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              ...getAuthHeader(),
+            },
+            body: JSON.stringify({ commentId }),
           }
-        } catch (error) {
-          console.error('Error delete post status:', error);
+        );
+
+        if (res.ok) {
+          // 更新 comments 狀態以移除已刪除的回覆
+          setComments((prevComments) => {
+            // 遍歷所有貼文的評論
+            const updatedComments = { ...prevComments };
+
+            for (const postId in updatedComments) {
+              // 過濾出除了要刪除的那個評論外的所有評論
+              updatedComments[postId] = updatedComments[postId].filter(
+                (comment) => comment.comm_comment_id !== commentId
+              );
+            }
+
+            return updatedComments; // 返回更新後的評論對象
+          });
+
+          Swal.fire({
+            title: '刪除成功!',
+            icon: 'success',
+            confirmButtonText: '關閉',
+            confirmButtonColor: '#A0FF1F',
+            background: 'rgba(0, 0, 0, 0.85)',
+          });
+          return true; // 確保成功時返回 true 給 handleRemoveNotification
+        } else {
           Swal.fire({
             title: '刪除失敗!',
             icon: 'error',
@@ -1304,8 +1310,17 @@ export const PostProvider = ({ children }) => {
             background: 'rgba(0, 0, 0, 0.85)',
           });
         }
+      } catch (error) {
+        console.error('Error delete post status:', error);
+        Swal.fire({
+          title: '刪除失敗!',
+          icon: 'error',
+          confirmButtonText: '關閉',
+          confirmButtonColor: '#A0FF1F',
+          background: 'rgba(0, 0, 0, 0.85)',
+        });
       }
-    });
+    }
   };
 
   const checkPostsStatus = async (postIds) => {
@@ -1475,7 +1490,6 @@ export const PostProvider = ({ children }) => {
 
     if (!eventCreated) {
       currentEventId = await handleEventUpload();
-      // console.log('eventId:', currentEventId);
       if (!currentEventId) {
         console.error('No event ID returned');
         return; // 如果新增貼文失敗或沒有 eventID 則停止執行
@@ -1572,6 +1586,21 @@ export const PostProvider = ({ children }) => {
     }
   };
 
+  useEffect(() => {
+    const newSocket = io('http://localhost:3008');
+    setSocket(newSocket);
+  }, []);
+
+  useEffect(() => {
+    socket?.emit('newUser', userInfo.username);
+  }, [socket, userInfo]);
+
+  useEffect(() => {
+    if (auth.id) {
+      getUserDetail();
+    }
+  }, [auth.id]);
+
   return (
     <PostContext.Provider
       value={{
@@ -1583,7 +1612,10 @@ export const PostProvider = ({ children }) => {
         getPostPage,
         getEventPage,
         uid,
+        socket,
+        userInfo,
         posts,
+        setPosts,
         profilePosts,
         postPage,
         eventPageCard,
