@@ -7,11 +7,18 @@ import FollowingModal from '../modal/followingModal';
 
 export default function ProfileInfo() {
   const { auth } = useAuth();
-  const { socket, userInfo, following, handleFollowClick } = usePostContext();
+  const {
+    socket,
+    userInfo,
+    following,
+    postsCount,
+    setPostsCount,
+    handleFollowClick,
+  } = usePostContext();
 
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
-  const [postsCount, setPostsCount] = useState(0);
+  // const [postsCount, setPostsCount] = useState(0);
   const [localUserInfo, setLocalUserInfo] = useState({});
   const [userFollowers, setUserFollowers] = useState([]);
   const [userFollowings, setUserFollowings] = useState([]);

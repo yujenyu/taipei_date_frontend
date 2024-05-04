@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FaBell, FaBookmark } from 'react-icons/fa';
+import { FaBell, FaBookmark, FaCircle } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
 import {
   BsGlobe2,
@@ -34,6 +34,7 @@ export default function Header({ currentPageTitle }) {
   const { socket, userInfo } = usePostContext();
 
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   //返回與 page 變量相對應的中文名稱
   function getPageChineseName(page) {
@@ -59,14 +60,46 @@ export default function Header({ currentPageTitle }) {
     );
     const data = await response.json();
     setNotifications(data.noti);
+    setUnreadCount(data.noti.filter((noti) => !noti.isRead).length);
+  };
+
+  const markNotiAsRead = async (notiId) => {
+    const userId = userInfo.user_id;
+    try {
+      const response = await fetch(
+        `http://localhost:3001/community/mark-noti-as-read/${notiId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
+      if (response.ok) {
+        setNotifications((prev) =>
+          prev.map((noti) =>
+            noti.comm_noti_id === notiId ? { ...noti, isRead: true } : noti
+          )
+        );
+        // 更新未讀計數
+        setUnreadCount((prevCount) => prevCount - 1);
+      } else {
+        throw new Error('Failed to mark notification as read');
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
   const displayNotification = ({
+    notiId,
     senderName,
     type,
     postId,
     senderId,
     avatar,
+    isRead,
     key,
   }) => {
     let message;
@@ -91,7 +124,14 @@ export default function Header({ currentPageTitle }) {
     }
 
     return (
-      <li key={key} className="flex flex-row notification hover:text-primary">
+      <li
+        key={key}
+        className="flex flex-row notification hover:text-primary items-center relative"
+        onClick={() => {
+          markNotiAsRead(notiId);
+          document.getElementById(`ReadIcon-${notiId}`).classList.add('hidden');
+        }}
+      >
         <div>
           <img
             className="rounded-full"
@@ -101,6 +141,12 @@ export default function Header({ currentPageTitle }) {
           />
         </div>
         <Link href={url}>{message}</Link>
+        {!isRead && (
+          <FaCircle
+            id={`ReadIcon-${notiId}`}
+            className="bg-primary absolute right-0 hover:bg-primary"
+          />
+        )}
       </li>
     );
   };
@@ -116,6 +162,7 @@ export default function Header({ currentPageTitle }) {
     if (socket) {
       socket.on('getNotification', (data) => {
         setNotifications((prev) => [data, ...prev]); // 更新通知列表
+        setUnreadCount((prevCount) => prevCount + 1); // 增加未讀計數
         toast('收到新通知', {
           style: {
             background: '#A0FF1F',
@@ -196,11 +243,16 @@ export default function Header({ currentPageTitle }) {
                 href="#"
               >
                 <FaBell />
+                {unreadCount > 0 && (
+                  <span className="badge badge-sm bg-primary text-black rounded-full absolute top-0 left-7">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             </button>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[60] menu p-2 shadow bg-base-100 rounded-box w-64 h-3/4 text-h6"
+              className="dropdown-content z-[60] menu p-2 shadow bg-base-100 rounded-box w-72 h-3/4 text-h6"
               // fixed dropdown menu to top right
               style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.85)',

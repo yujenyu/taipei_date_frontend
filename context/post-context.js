@@ -13,6 +13,7 @@ export const PostProvider = ({ children }) => {
   const [profilePosts, setProfilePosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [postPage, setPostPage] = useState([]);
+  const [postsCount, setPostsCount] = useState(0);
   const [eventPageCard, setEventPageCard] = useState([]);
   const [currentKeyword, setCurrentKeyword] = useState('');
   const [randomPosts, setRandomPosts] = useState([]);
@@ -564,6 +565,7 @@ export const PostProvider = ({ children }) => {
         setFilteredPosts((prevPosts) => [data.post, ...prevPosts]);
         setRandomPosts((prevPosts) => [data.post, ...prevPosts]);
         setPostPage((prevPosts) => [data.post, ...prevPosts]);
+        setPostsCount((prevCount) => prevCount + 1); // 增加貼文數量
       } else {
         throw new Error('Network response was not ok.');
       }
@@ -1152,6 +1154,8 @@ export const PostProvider = ({ children }) => {
               return prevPosts.filter((post) => post.post_id !== postId);
             });
 
+            setPostsCount((prevCount) => prevCount - 1); // 減少貼文數量
+
             Swal.fire({
               title: '刪除成功!',
               icon: 'success',
@@ -1620,6 +1624,8 @@ export const PostProvider = ({ children }) => {
         postPage,
         eventPageCard,
         filteredPosts,
+        postsCount,
+        setPostsCount,
         setFilteredPosts,
         filteredPage,
         setFilteredPage,

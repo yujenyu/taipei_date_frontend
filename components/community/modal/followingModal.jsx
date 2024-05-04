@@ -46,7 +46,7 @@ export default function FollowingModal({ followings, modalId }) {
           <p
             className={`${styles['followModalListText']} font-bold text-lg mb-5 text-h5`}
           >
-            追蹤者
+            追蹤中
           </p>
 
           <ul>
