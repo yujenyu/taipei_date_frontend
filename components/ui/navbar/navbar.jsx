@@ -129,7 +129,11 @@ export default function Header({ currentPageTitle }) {
         className="flex flex-row notification hover:text-primary items-center relative"
         onClick={() => {
           markNotiAsRead(notiId);
-          document.getElementById(`ReadIcon-${notiId}`).classList.add('hidden');
+          if (!isRead) {
+            document
+              .getElementById(`ReadIcon-${notiId}`)
+              .classList.add('hidden');
+          }
         }}
       >
         <div>

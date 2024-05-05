@@ -179,7 +179,7 @@ export default function PostModal({ post, modalId, isOpen }) {
                   </div>
                 </div>
                 {/* 只有當用戶登入時顯示這些元件 */}
-                {userId && userId === post.post_userId && (
+                {userId === post.post_userId ? (
                   <div className="flex justify-end">
                     <div className="dropdown dropdown-end">
                       <div tabIndex={0} className="m-2">
@@ -218,7 +218,7 @@ export default function PostModal({ post, modalId, isOpen }) {
                       key={post.post_id}
                     />
                   </div>
-                )}
+                ) : null}
               </div>
               <div className="context flex mb-10 ">
                 <p>{post.post_context}</p>
@@ -262,7 +262,7 @@ export default function PostModal({ post, modalId, isOpen }) {
                         </span>
 
                         {/* 只有當用戶登入時顯示這些元件 */}
-                        {userId && userId === comment.user_id && (
+                        {userId === comment.user_id ? (
                           <div className="flex justify-end">
                             <div className="dropdown dropdown-end">
                               <div tabIndex={0} className="">
@@ -293,7 +293,7 @@ export default function PostModal({ post, modalId, isOpen }) {
                               </ul>
                             </div>
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>

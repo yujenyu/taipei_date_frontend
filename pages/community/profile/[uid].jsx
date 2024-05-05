@@ -60,10 +60,10 @@ export default function Profile() {
 
   useEffect(() => {
     // Next.js 的路由器是異步, 確保拿到 uid 再 fetch !!! Important
-    if (auth.id && uid) {
+    if (auth.id !== undefined && auth.id !== null && uid) {
       setProfilePosts([]); // 清空現有貼文
       setUserProfileHasMore(true);
-      setProfilePage(1);
+      // setProfilePage(1);
 
       // 直接在這裡設置 profilePage 為 1 並立即執行資料加載
       setProfilePage((prevPage) => {

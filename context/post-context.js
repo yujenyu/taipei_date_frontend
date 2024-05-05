@@ -464,7 +464,7 @@ export const PostProvider = ({ children }) => {
   // 觸發隱藏的 file input 點擊事件
   const handleFilePicker = () => {
     // 利用 ref 引用來觸發 input 的點擊事件
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
   // 重置貼文狀態
@@ -564,7 +564,10 @@ export const PostProvider = ({ children }) => {
         setProfilePosts((prevPosts) => [data.post, ...prevPosts]);
         setFilteredPosts((prevPosts) => [data.post, ...prevPosts]);
         setRandomPosts((prevPosts) => [data.post, ...prevPosts]);
-        setPostPage((prevPosts) => [data.post, ...prevPosts]);
+        setPostPage((prevPosts) => [
+          data.post,
+          ...(Array.isArray(prevPosts) ? prevPosts : []),
+        ]);
         setPostsCount((prevCount) => prevCount + 1); // 增加貼文數量
       } else {
         throw new Error('Network response was not ok.');

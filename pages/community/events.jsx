@@ -13,7 +13,7 @@ export default function Events() {
   const { events, eventHasMore, getCommunityEvents } = usePostContext();
 
   useEffect(() => {
-    if (auth.id) {
+    if (auth.id !== undefined && auth.id !== null) {
       getCommunityEvents();
     }
   }, [auth.id]);

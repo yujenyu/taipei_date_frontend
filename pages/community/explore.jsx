@@ -14,7 +14,7 @@ export default function Explore() {
     usePostContext();
 
   useEffect(() => {
-    if (auth.id) {
+    if (auth.id !== undefined && auth.id !== null) {
       getCommunityExplorePost();
     }
   }, [auth.id]);

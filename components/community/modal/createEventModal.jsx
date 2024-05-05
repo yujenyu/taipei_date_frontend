@@ -22,6 +22,7 @@ export default function CreateEventModal() {
     setMinDate,
     minEndDate,
     setMinEndDate,
+    fileInputRef,
     createEventModalRef,
   } = usePostContext();
 
@@ -92,7 +93,7 @@ export default function CreateEventModal() {
                     {...getRootProps()}
                     className="flex-grow flex flex-col items-center justify-center"
                   >
-                    <input {...getInputProps()} />
+                    <input {...getInputProps()} ref={fileInputRef} />
                     {!selectedFile && (
                       <>
                         <FaPhotoVideo

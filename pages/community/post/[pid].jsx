@@ -88,7 +88,7 @@ export default function Post() {
   };
 
   useEffect(() => {
-    if (auth.id) {
+    if (auth.id !== undefined && auth.id !== null) {
       getPostPage(pid);
     }
   }, [auth.id, pid]);

@@ -115,7 +115,7 @@ export default function PostCardLarge({ post }) {
             </div>
           </div>
           {/* 只有當用戶登入時顯示這些元件 */}
-          {userId && userId === post.post_userId && (
+          {userId === post.post_userId ? (
             <div className="flex justify-end">
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} className="m-2">
@@ -150,7 +150,7 @@ export default function PostCardLarge({ post }) {
               </div>
               <EditModal post={post} modalId={editModalId} key={post.post_id} />
             </div>
-          )}
+          ) : null}
         </div>
         <figure
           className="card-photo m-0 z-40"

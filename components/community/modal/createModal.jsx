@@ -16,6 +16,7 @@ export default function CreateModal() {
     onDrop,
     handleKeyPress,
     setIsHoverActive,
+    fileInputRef,
     createModalRef,
   } = usePostContext();
 
@@ -71,7 +72,7 @@ export default function CreateModal() {
                     {...getRootProps()}
                     className="flex-grow flex flex-col items-center justify-center"
                   >
-                    <input {...getInputProps()} />
+                    <input {...getInputProps()} ref={fileInputRef} />
                     {!selectedFile && (
                       <>
                         <FaPhotoVideo

@@ -38,7 +38,7 @@ export default function ShareEventModal({ event, eventId, modalId }) {
 
   return (
     <>
-      <dialog
+      {/* <dialog
         id={modalId}
         ref={shareEventModalRef}
         className="modal modal-bottom sm:modal-middle"
@@ -72,7 +72,7 @@ export default function ShareEventModal({ event, eventId, modalId }) {
         <form method="dialog" className="modal-backdrop">
           <button>close</button>
         </form>
-      </dialog>
+      </dialog> */}
     </>
   );
 }

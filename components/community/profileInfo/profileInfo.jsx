@@ -122,7 +122,7 @@ export default function ProfileInfo() {
         receiverId: localUserInfo.user_id,
         receiverName: localUserInfo.username,
         type: type,
-        postId: localUserInfo.user_id,
+        postId: null, // 追蹤沒有postId
         message: `${userInfo.username} ${
           type === 'like'
             ? '喜愛你的貼文'
@@ -140,7 +140,7 @@ export default function ProfileInfo() {
       const notificationData = {
         senderId: userInfo.user_id,
         receiverId: localUserInfo.user_id,
-        postId: localUserInfo.user_id,
+        postId: null, // 追蹤沒有postId
         type: type,
       };
       socket.emit('removeNotification', notificationData);
@@ -148,7 +148,7 @@ export default function ProfileInfo() {
   };
 
   useEffect(() => {
-    if (auth.id) {
+    if (auth.id !== undefined && auth.id !== null) {
       getFollowUsers();
       getPostsCount();
       getLocalUserInfo();
@@ -182,20 +182,23 @@ export default function ProfileInfo() {
               </div>
               <div className="flex mx-10">
                 {/* 確保個人頁面不顯示追蹤功能, 轉換 uid 從字符串到數字，以保持類型一致 */}
-                {uid && userId !== parseInt(uid, 10) && (
-                  <button
-                    className="btn bg-dark border-white rounded-full text-white hover:shadow-xl3 hover:text-primary"
-                    onClick={() => {
-                      handleFollowClick(uid);
-                      handleRemoveNotification('follow');
-                      if (!isFollowing) {
-                        handleNotification('follow');
-                      }
-                    }}
-                  >
-                    {isFollowing ? '追蹤中' : '追蹤'}
-                  </button>
-                )}
+                {userId !== 0 &&
+                  userId !== null &&
+                  uid &&
+                  userId !== parseInt(uid, 10) && (
+                    <button
+                      className="btn bg-dark border-white rounded-full text-white hover:shadow-xl3 hover:text-primary"
+                      onClick={() => {
+                        handleFollowClick(uid);
+                        handleRemoveNotification('follow');
+                        if (!isFollowing) {
+                          handleNotification('follow');
+                        }
+                      }}
+                    >
+                      {isFollowing ? '追蹤中' : '追蹤'}
+                    </button>
+                  )}
               </div>
             </div>
             <div className="flex flex-row justify-center items-center gap-2 whitespace-nowrap">

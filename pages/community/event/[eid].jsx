@@ -34,7 +34,7 @@ export default function Event() {
   const shareEventModalId = `share_event_modal_${getEventPage?.comm_event_id}`;
 
   useEffect(() => {
-    if (auth.id) {
+    if (auth.id !== undefined && auth.id !== null) {
       getEventPage(eid);
     }
   }, [auth.id, eid]);

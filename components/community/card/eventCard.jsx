@@ -78,8 +78,8 @@ export default function EventCard({ event }) {
                       key={event.post_id}
                       eventId={event.comm_event_id}
                       modalId={shareEventModalId}
-                    />{' '}
-                    {userId && userId === event.user_id && (
+                    />
+                    {userId === event.user_id ? (
                       <div className="dropdown dropdown-end">
                         <div tabIndex={0} className="m-2">
                           <FiMoreHorizontal className="card-icon hover:text-neongreen" />
@@ -113,7 +113,7 @@ export default function EventCard({ event }) {
                           </li>
                         </ul>
                       </div>
-                    )}
+                    ) : null}
                     <EditEventModal
                       event={event}
                       modalId={editEventModalId}

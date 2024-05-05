@@ -26,7 +26,7 @@ export default function Index() {
   } = usePostContext();
 
   useEffect(() => {
-    if (auth.id) {
+    if (auth.id !== undefined && auth.id !== null) {
       if (!isFilterActive) {
         getCommunityIndexPost();
       }
